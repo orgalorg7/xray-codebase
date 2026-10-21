@@ -156,7 +156,9 @@ export class PythonProject {
   #candidateNames(path: string, hasInit: (dir: string) => boolean): string[] {
     const stem = path.replace(/\.pyi?$/, "").replace(/(^|\/)__init__$/, "");
     let root = dirname(path);
-    while (root !== "." && hasInit(root)) root = dirname(root);
+    // Walk up through regular packages, and through namespace packages (PEP 420: no __init__.py)
+    // nested inside a regular one, like flask/sansio/.
+    while (root !== "." && (hasInit(root) || hasInit(dirname(root)))) root = dirname(root);
     const fromRoot = (base: string): string | undefined => {
       if (base === "." || base === "") return stem;
       return stem.startsWith(`${base}/`) ? stem.slice(base.length + 1) : undefined;
@@ -657,6 +659,8 @@ export class PythonProject {
       qualifiedName: mod.path,
       language: "py",
       location: { file: mod.path, line: 1, column: 1 },
+      // Without __all__, every public name counts as exported, which says little about intent.
+      ...(mod.all ? {} : { meta: { implicitExports: true } }),
     });
     for (const def of mod.allDefs) {
       const node: GraphNode = {
@@ -1003,7 +1007,9 @@ class BodyWalker {
     if (callee.via === "self") edge.detail = "self-call";
     else if (callee.via === "super") edge.detail = "super-call";
     else if (callee.via === "cls") edge.detail = "cls-call";
-    if (callee.def.kind === "variable" || callee.def.kind === "property") return;
+    if (callee.def.kind === "property") return;
+    // Calling a variable (a callback, a configured client) uses it: record a reference.
+    if (callee.def.kind === "variable") edge.kind = "references";
     this.#edge(edge);
   }
 
@@ -1021,8 +1027,7 @@ class BodyWalker {
       return node.type === "identifier";
     if (node.type === "identifier" && parent?.type === "attribute") return false;
     const value = this.project.evaluate(node, ctx);
-    if (value?.t !== "def" || value.def.kind === "variable" || value.def.kind === "property")
-      return false;
+    if (value?.t !== "def" || value.def.kind === "property") return false;
     const target = defId(value.mod, value.def);
     if (target === owner || target.startsWith(`${owner}.`)) return true;
     const key = `${owner}\u0000${target}`;

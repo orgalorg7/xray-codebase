@@ -1,0 +1,31 @@
+{
+  "name": "@xray/analysis",
+  "version": "0.0.0",
+  "description": "Graph analyses for xray: cycles, impact, call tracing, feature search, metrics, districts, git overlay and layout.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/schema": "workspace:*",
+    "@xray/store": "workspace:*",
+    "d3-hierarchy": "3.1.2"
+  },
+  "devDependencies": {
+    "@types/d3-hierarchy": "3.1.7",
+    "@xray/engine": "workspace:*",
+    "@xray/testkit": "workspace:*"
+  }
+}

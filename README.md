@@ -22,8 +22,8 @@ Languages: TypeScript/JavaScript and Python first; more through tree-sitter plug
 
 ## Status
 
-Phases 0 (foundation) and 1 (the engine) are done. xray can scan a repository into a graph
-database; the map UI and CLI come next.
+Phases 0–2 are done: xray scans a repository into a graph database and analyzes it. The map
+UI and CLI come next.
 
 | Package | What it does |
 | --- | --- |
@@ -33,6 +33,7 @@ database; the map UI and CLI come next.
 | `@xray/lang-ts` | TypeScript/JavaScript via the TypeScript compiler: imports, re-exports, calls through aliases, generics and typed receivers, inheritance, overrides, CommonJS, JSX, workspace packages |
 | `@xray/lang-python` | Python via tree-sitter: packages and relative imports, `__init__` re-exports, MRO, `self`/`cls`/`super()`, type inference from constructors, annotations and return types |
 | `@xray/engine` | File discovery (`.gitignore`, `.xrayignore`), incremental scans, watch mode, repo/directory/package skeleton |
+| `@xray/analysis` | Import and call cycles with suggested cuts; blast radius (impact rings, entry points, tests, risk) from symbols or a `git diff`; call routes between symbols and call trees; feature search ("where is login handled"); fan-in/out, centrality, dead code, unused exports, hotspots; districts (Louvain); git churn and co-change; the base-map layout and zoom-level roads |
 | `@xray/testkit` | Golden fixtures, inline test projects and precision/recall scoring |
 
 Entry points it recognises: Express/Fastify-style routes, Next.js route handlers, commander and
@@ -48,7 +49,7 @@ click/typer commands and pytest tests.
 | Repo | Lines | Cold scan | Calls resolved |
 | --- | --- | --- | --- |
 | express | 21.6k JS | 1.9 s | 1523 (26% exact, rest by unique method name) |
-| zod | 103.6k TS | 15.7 s | 25496 (99.9% exact) |
+| zod | 103.6k TS | 13–16 s | 25496 (99.9% exact) |
 | flask | 18.4k Py | 0.5 s | 1128 (40% exact, 25% inferred) |
 | requests | 12.1k Py | 0.3 s | 736 (65% exact, 33% inferred) |
 | fastapi | 128.4k Py | 3.6 s | 3870 (43% exact, 56% inferred) |

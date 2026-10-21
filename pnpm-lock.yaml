@@ -35,6 +35,28 @@ importers:
         specifier: workspace:*
         version: link:../packages/store
 
+  packages/analysis:
+    dependencies:
+      "@xray/schema":
+        specifier: workspace:*
+        version: link:../schema
+      "@xray/store":
+        specifier: workspace:*
+        version: link:../store
+      d3-hierarchy:
+        specifier: 3.1.2
+        version: 3.1.2
+    devDependencies:
+      "@types/d3-hierarchy":
+        specifier: 3.1.7
+        version: 3.1.7
+      "@xray/engine":
+        specifier: workspace:*
+        version: link:../engine
+      "@xray/testkit":
+        specifier: workspace:*
+        version: link:../testkit
+
   packages/engine:
     dependencies:
       "@xray/lang-python":
@@ -602,6 +624,12 @@ packages:
         integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==,
       }
 
+  "@types/d3-hierarchy@3.1.7":
+    resolution:
+      {
+        integrity: sha512-tJFtNoYBtRtkNysX1Xq4sxtjK8YgoWUNpIiUee0/jHGRwqvzYxkq0hGVbbOGSz+JgFxxRu4K8nb3YpG3CMARtg==,
+      }
+
   "@types/deep-eql@4.0.2":
     resolution:
       {
@@ -660,6 +688,13 @@ packages:
         integrity: sha512-XWAtwJ6OHO+tj0EKCs0Y2UamnyOxseZWltU4x2U2wh8g4AigdjwvtUjvLP2tqkA/avxHEtzxNaqGq/YGNwckKg==,
       }
     engines: { node: ">=18" }
+
+  d3-hierarchy@3.1.2:
+    resolution:
+      {
+        integrity: sha512-FX/9frcub54beBdugHjDCdikxThEqjnR93Qt7PvQTOHxyiNCAlvMrHhclk3cD5VeAaq9fxmfRp+CnWw9rEMBuA==,
+      }
+    engines: { node: ">=12" }
 
   detect-libc@2.1.2:
     resolution:
@@ -1405,6 +1440,8 @@ snapshots:
       "@types/deep-eql": 4.0.2
       assertion-error: 2.0.1
 
+  "@types/d3-hierarchy@3.1.7": {}
+
   "@types/deep-eql@4.0.2": {}
 
   "@types/estree@1.0.9": {}
@@ -1429,6 +1466,8 @@ snapshots:
   cac@7.1.0: {}
 
   chai@6.3.0: {}
+
+  d3-hierarchy@3.1.2: {}
 
   detect-libc@2.1.2: {}
 

@@ -136,7 +136,7 @@ function parseImport(
 
 const isTypeCheckingGuard = (statement: SyntaxNode): boolean =>
   statement.type === "if_statement" &&
-  /^(typing\.)?TYPE_CHECKING$/.test(field(statement, "condition")?.text ?? "");
+  /^(\w+\.)?TYPE_CHECKING$/.test(field(statement, "condition")?.text ?? "");
 
 /** Parses one file's definitions and imports. Pure: depends on nothing but the file. */
 export function extractModule(path: string, tree: Tree): ModuleInfo {

@@ -194,6 +194,26 @@ describe("resolution", () => {
     expect(g.edge("py:m.py#shadow", "calls", "py:m.py#create")).toBeUndefined();
   });
 
+  it("names modules in namespace subpackages from the enclosing package", async () => {
+    const g = await analyze({
+      "src/lib/__init__.py": "",
+      "src/lib/ctx.py": "class Globals:\n    pass\n",
+      "src/lib/sansio/app.py":
+        "from ..ctx import Globals\n\nclass App:\n    globals_class = Globals\n",
+      "app/__init__.py": "def unrelated():\n    pass\n",
+      "use.py": "import app\n\ndef go():\n    app.unrelated()\n",
+    });
+    expect(g.edge("py:src/lib/sansio/app.py", "imports", "py:src/lib/ctx.py")).toBeDefined();
+    expect(
+      g.edge(
+        "py:src/lib/sansio/app.py#App.globals_class",
+        "references",
+        "py:src/lib/ctx.py#Globals",
+      ),
+    ).toBeDefined();
+    expect(g.edge("py:use.py#go", "calls", "py:app/__init__.py#unrelated")).toBeDefined();
+  });
+
   it("marks TYPE_CHECKING imports type-only and resolves `from . import x`", async () => {
     const g = await analyze({
       "pkg/__init__.py": "",
