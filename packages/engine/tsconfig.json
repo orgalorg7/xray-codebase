@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../schema" },
+    { "path": "../store" },
+    { "path": "../parser" },
+    { "path": "../lang-ts" },
+    { "path": "../lang-python" }
+  ]
+}

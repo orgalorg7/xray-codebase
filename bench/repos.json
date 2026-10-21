@@ -1,0 +1,32 @@
+[
+  {
+    "name": "express",
+    "url": "https://github.com/expressjs/express.git",
+    "commit": "0dee2c52c7c873498f8ed7d8ee4ddd0a04d3ada8",
+    "language": "js"
+  },
+  {
+    "name": "zod",
+    "url": "https://github.com/colinhacks/zod.git",
+    "commit": "afdac65e0f80c0ccf9e8909da97c411567908b57",
+    "language": "ts"
+  },
+  {
+    "name": "flask",
+    "url": "https://github.com/pallets/flask.git",
+    "commit": "d086db856be187255b8ec61ef409357393020f32",
+    "language": "py"
+  },
+  {
+    "name": "requests",
+    "url": "https://github.com/psf/requests.git",
+    "commit": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+    "language": "py"
+  },
+  {
+    "name": "fastapi",
+    "url": "https://github.com/fastapi/fastapi.git",
+    "commit": "e865cc74fb98376f7e024bda6a9c0a82fff30614",
+    "language": "py"
+  }
+]

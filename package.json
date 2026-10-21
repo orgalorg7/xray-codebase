@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "lint": "biome check .",
     "format": "biome check --write .",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "bench": "pnpm build && pnpm --filter @xray/bench bench"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.2",

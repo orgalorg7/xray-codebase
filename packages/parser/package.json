@@ -1,0 +1,25 @@
+{
+  "name": "@xray/parser",
+  "version": "0.0.0",
+  "description": "Language plugin contract and tree-sitter loader for xray.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/schema": "workspace:*",
+    "web-tree-sitter": "0.27.1"
+  }
+}

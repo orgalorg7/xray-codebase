@@ -17,6 +17,7 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@xray/parser": "workspace:*",
     "@xray/schema": "workspace:*",
     "zod": "4.6.7"
   }

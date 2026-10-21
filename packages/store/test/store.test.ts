@@ -85,6 +85,16 @@ describe("GraphStore", () => {
     expect(store.stats()).toEqual({ files: 3, nodes: 6, edges: 7 });
   });
 
+  it("stores analysis digests", () => {
+    store.replaceFile({ path: "src/c.ts", hash: "h3", size: 10, digest: "d3" }, [c, hash], []);
+    expect(store.getFile("src/c.ts")).toEqual({
+      path: "src/c.ts",
+      hash: "h3",
+      size: 10,
+      digest: "d3",
+    });
+  });
+
   it("queries edges by direction and kind", () => {
     expect(store.edges(login.id)).toEqual([
       { ...edge(login, "calls", validate), location: { file: "src/a.ts", line: 4, column: 5 } },

@@ -1,4 +1,4 @@
-import { DatabaseSync, type SQLInputValue } from "node:sqlite";
+import { DatabaseSync, type SQLInputValue, type StatementSync } from "node:sqlite";
 import {
   type EdgeKind,
   GRAPH_FORMAT_VERSION,
@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS files (
   path TEXT PRIMARY KEY,
   language TEXT,
   hash TEXT NOT NULL,
-  size INTEGER NOT NULL
+  size INTEGER NOT NULL,
+  digest TEXT
 );
 
 -- owner: the file whose analysis produced the row, or NULL for shared rows (repo,
@@ -55,8 +56,9 @@ CREATE INDEX IF NOT EXISTS edges_source ON edges(source, kind);
 CREATE INDEX IF NOT EXISTS edges_target ON edges(target, kind);
 CREATE INDEX IF NOT EXISTS edges_owner ON edges(owner);
 
+-- Full-text rows share their node's rowid, so they are found and deleted by key.
 CREATE VIRTUAL TABLE IF NOT EXISTS symbol_fts USING fts5(
-  id UNINDEXED, name, words, path, doc, tokenize = 'unicode61'
+  name, words, path, doc, tokenize = 'unicode61'
 );
 `;
 
@@ -66,6 +68,11 @@ export type FileRecord = {
   /** Content hash; a file whose hash is unchanged does not need re-parsing. */
   hash: string;
   size: number;
+  /**
+   * Digest of the file's analysis output. It can change while `hash` does not, when a
+   * dependency changes how this file's references resolve.
+   */
+  digest?: string;
 };
 
 export type Direction = "out" | "in" | "both";
@@ -139,6 +146,7 @@ function toFtsQuery(query: string): string | undefined {
  */
 export class GraphStore {
   readonly #db: DatabaseSync;
+  readonly #statements = new Map<string, StatementSync>();
   #depth = 0;
 
   private constructor(db: DatabaseSync) {
@@ -165,7 +173,18 @@ export class GraphStore {
   }
 
   close(): void {
+    this.#statements.clear();
     this.#db.close();
+  }
+
+  /** Prepared statements are compiled once per SQL string. */
+  #prepare(sql: string): StatementSync {
+    let statement = this.#statements.get(sql);
+    if (statement === undefined) {
+      statement = this.#db.prepare(sql);
+      this.#statements.set(sql, statement);
+    }
+    return statement;
   }
 
   /** Runs `fn` atomically. Nested calls become savepoints inside the outer transaction. */
@@ -190,13 +209,12 @@ export class GraphStore {
   // ---- files -------------------------------------------------------------------------
 
   getFile(path: string): FileRecord | undefined {
-    const row = this.#db.prepare("SELECT * FROM files WHERE path = ?").get(path);
+    const row = this.#prepare("SELECT * FROM files WHERE path = ?").get(path);
     return row === undefined ? undefined : this.#rowToFile(row);
   }
 
   listFiles(): FileRecord[] {
-    return this.#db
-      .prepare("SELECT * FROM files ORDER BY path")
+    return this.#prepare("SELECT * FROM files ORDER BY path")
       .all()
       .map((row) => this.#rowToFile(row));
   }
@@ -205,9 +223,9 @@ export class GraphStore {
   replaceFile(file: FileRecord, nodes: readonly GraphNode[], edges: readonly GraphEdge[]): void {
     this.transaction(() => {
       this.#deleteOwned(file.path);
-      this.#db
-        .prepare("INSERT OR REPLACE INTO files (path, language, hash, size) VALUES (?, ?, ?, ?)")
-        .run(file.path, nullable(file.language), file.hash, file.size);
+      this.#prepare(
+        "INSERT OR REPLACE INTO files (path, language, hash, size, digest) VALUES (?, ?, ?, ?, ?)",
+      ).run(file.path, nullable(file.language), file.hash, file.size, nullable(file.digest));
       this.#insert(nodes, edges, file.path);
     });
   }
@@ -215,7 +233,7 @@ export class GraphStore {
   removeFile(path: string): void {
     this.transaction(() => {
       this.#deleteOwned(path);
-      this.#db.prepare("DELETE FROM files WHERE path = ?").run(path);
+      this.#prepare("DELETE FROM files WHERE path = ?").run(path);
     });
   }
 
@@ -230,7 +248,7 @@ export class GraphStore {
   // ---- nodes and edges ---------------------------------------------------------------
 
   getNode(id: string): GraphNode | undefined {
-    const row = this.#db.prepare("SELECT * FROM nodes WHERE id = ?").get(id);
+    const row = this.#prepare("SELECT * FROM nodes WHERE id = ?").get(id);
     return row === undefined ? undefined : rowToNode(row);
   }
 
@@ -250,8 +268,7 @@ export class GraphStore {
       params.push(filter.name);
     }
     const where = clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "";
-    return this.#db
-      .prepare(`SELECT * FROM nodes ${where} ORDER BY id`)
+    return this.#prepare(`SELECT * FROM nodes ${where} ORDER BY id`)
       .all(...params)
       .map(rowToNode);
   }
@@ -275,8 +292,7 @@ export class GraphStore {
       sql += ` AND kind IN (${options.kinds.map(() => "?").join(", ")})`;
       params.push(...options.kinds);
     }
-    return this.#db
-      .prepare(`${sql} ORDER BY id`)
+    return this.#prepare(`${sql} ORDER BY id`)
       .all(...params)
       .map(rowToEdge);
   }
@@ -357,16 +373,14 @@ export class GraphStore {
   search(query: string, limit = 20): SearchHit[] {
     const fts = toFtsQuery(query);
     if (fts === undefined) return [];
-    // bm25 weights follow column order: id, name, words, path, doc. Lower is better.
-    const rows = this.#db
-      .prepare(
-        `SELECT nodes.*, bm25(symbol_fts, 0, 10, 6, 2, 1) AS rank
-         FROM symbol_fts JOIN nodes ON nodes.id = symbol_fts.id
+    // bm25 weights follow column order: name, words, path, doc. Lower is better.
+    const rows = this.#prepare(
+      `SELECT nodes.*, bm25(symbol_fts, 10, 6, 2, 1) AS rank
+         FROM symbol_fts JOIN nodes ON nodes.rowid = symbol_fts.rowid
          WHERE symbol_fts MATCH ?
          ORDER BY rank, nodes.id
          LIMIT ?`,
-      )
-      .all(fts, limit);
+    ).all(fts, limit);
     return rows.map((row) => ({ node: rowToNode(row), score: -Number(row.rank) }));
   }
 
@@ -376,8 +390,8 @@ export class GraphStore {
     const graph: Graph = {
       version: GRAPH_FORMAT_VERSION,
       generatedAt: new Date().toISOString(),
-      nodes: this.#db.prepare("SELECT * FROM nodes ORDER BY id").all().map(rowToNode),
-      edges: this.#db.prepare("SELECT * FROM edges ORDER BY id").all().map(rowToEdge),
+      nodes: this.#prepare("SELECT * FROM nodes ORDER BY id").all().map(rowToNode),
+      edges: this.#prepare("SELECT * FROM edges ORDER BY id").all().map(rowToEdge),
     };
     if (root !== undefined) graph.root = root;
     return graph;
@@ -401,7 +415,7 @@ export class GraphStore {
 
   stats(): StoreStats {
     const count = (table: string): number =>
-      Number(this.#db.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get()?.n ?? 0);
+      Number(this.#prepare(`SELECT COUNT(*) AS n FROM ${table}`).get()?.n ?? 0);
     return { files: count("files"), nodes: count("nodes"), edges: count("edges") };
   }
 
@@ -414,17 +428,18 @@ export class GraphStore {
       size: Number(row.size),
     };
     if (row.language !== null) file.language = row.language as Language;
+    if (row.digest !== null) file.digest = String(row.digest);
     return file;
   }
 
   #deleteOwned(owner: string | null): void {
     const match = owner === null ? "owner IS NULL" : "owner = ?";
     const params = owner === null ? [] : [owner];
-    this.#db
-      .prepare(`DELETE FROM symbol_fts WHERE id IN (SELECT id FROM nodes WHERE ${match})`)
-      .run(...params);
-    this.#db.prepare(`DELETE FROM nodes WHERE ${match}`).run(...params);
-    this.#db.prepare(`DELETE FROM edges WHERE ${match}`).run(...params);
+    this.#prepare(
+      `DELETE FROM symbol_fts WHERE rowid IN (SELECT rowid FROM nodes WHERE ${match})`,
+    ).run(...params);
+    this.#prepare(`DELETE FROM nodes WHERE ${match}`).run(...params);
+    this.#prepare(`DELETE FROM edges WHERE ${match}`).run(...params);
   }
 
   #insert(nodes: readonly GraphNode[], edges: readonly GraphEdge[], owner: string | null): void {
@@ -434,63 +449,65 @@ export class GraphStore {
 
   #insertNode(node: GraphNode, owner: string | null): void {
     const loc = node.location;
-    this.#db
-      .prepare(
-        `INSERT OR REPLACE INTO nodes
+    const existing = this.#prepare("SELECT rowid FROM nodes WHERE id = ?").get(node.id);
+    if (existing !== undefined) {
+      this.#prepare("DELETE FROM symbol_fts WHERE rowid = ?").run(Number(existing.rowid));
+      this.#prepare("DELETE FROM nodes WHERE id = ?").run(node.id);
+    }
+    this.#prepare(
+      `INSERT INTO nodes
          (id, kind, name, qualified_name, language, file, line, col, end_line, end_col,
           signature, doc, exported, meta, owner)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
-        node.id,
-        node.kind,
-        node.name,
-        node.qualifiedName,
-        nullable(node.language),
-        nullable(loc?.file),
-        nullable(loc?.line),
-        nullable(loc?.column),
-        nullable(loc?.endLine),
-        nullable(loc?.endColumn),
-        nullable(node.signature),
-        nullable(node.doc),
-        node.exported === undefined ? null : node.exported ? 1 : 0,
-        node.meta === undefined ? null : JSON.stringify(node.meta),
-        owner,
-      );
-    const path = loc?.file ?? "";
-    this.#db.prepare("DELETE FROM symbol_fts WHERE id = ?").run(node.id);
-    this.#db
-      .prepare("INSERT INTO symbol_fts (id, name, words, path, doc) VALUES (?, ?, ?, ?, ?)")
-      .run(
-        node.id,
-        node.name,
-        splitIdentifier(node.qualifiedName).join(" "),
-        splitIdentifier(path).join(" "),
-        node.doc ?? "",
-      );
+    ).run(
+      node.id,
+      node.kind,
+      node.name,
+      node.qualifiedName,
+      nullable(node.language),
+      nullable(loc?.file),
+      nullable(loc?.line),
+      nullable(loc?.column),
+      nullable(loc?.endLine),
+      nullable(loc?.endColumn),
+      nullable(node.signature),
+      nullable(node.doc),
+      node.exported === undefined ? null : node.exported ? 1 : 0,
+      node.meta === undefined ? null : JSON.stringify(node.meta),
+      owner,
+    );
+    const { rowid } = this.#prepare("SELECT last_insert_rowid() AS rowid").get() as {
+      rowid: number;
+    };
+    this.#prepare(
+      "INSERT INTO symbol_fts (rowid, name, words, path, doc) VALUES (?, ?, ?, ?, ?)",
+    ).run(
+      rowid,
+      node.name,
+      splitIdentifier(node.qualifiedName).join(" "),
+      splitIdentifier(loc?.file ?? "").join(" "),
+      node.doc ?? "",
+    );
   }
 
   #insertEdge(edge: GraphEdge, owner: string | null): void {
     const loc = edge.location;
-    this.#db
-      .prepare(
-        `INSERT INTO edges
+    this.#prepare(
+      `INSERT INTO edges
          (source, target, kind, confidence, file, line, col, end_line, end_col, detail, owner)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
-        edge.source,
-        edge.target,
-        edge.kind,
-        edge.confidence,
-        nullable(loc?.file),
-        nullable(loc?.line),
-        nullable(loc?.column),
-        nullable(loc?.endLine),
-        nullable(loc?.endColumn),
-        nullable(edge.detail),
-        owner,
-      );
+    ).run(
+      edge.source,
+      edge.target,
+      edge.kind,
+      edge.confidence,
+      nullable(loc?.file),
+      nullable(loc?.line),
+      nullable(loc?.column),
+      nullable(loc?.endLine),
+      nullable(loc?.endColumn),
+      nullable(edge.detail),
+      owner,
+    );
   }
 }

@@ -1,0 +1,29 @@
+{
+  "name": "@xray/lang-python",
+  "version": "0.0.0",
+  "description": "Python plugin for xray, built on tree-sitter.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/parser": "workspace:*",
+    "@xray/schema": "workspace:*",
+    "tree-sitter-python": "0.25.0"
+  },
+  "devDependencies": {
+    "@xray/testkit": "workspace:*"
+  }
+}

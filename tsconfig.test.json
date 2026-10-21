@@ -5,5 +5,5 @@
     "noEmit": true,
     "customConditions": ["development"]
   },
-  "include": ["packages/*/test", "vitest.config.ts"]
+  "include": ["packages/*/test", "bench/*.ts", "vitest.config.ts"]
 }

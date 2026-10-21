@@ -22,13 +22,36 @@ Languages: TypeScript/JavaScript and Python first; more through tree-sitter plug
 
 ## Status
 
-Phase 0 (foundation) is in place:
+Phases 0 (foundation) and 1 (the engine) are done. xray can scan a repository into a graph
+database; the map UI and CLI come next.
 
 | Package | What it does |
 | --- | --- |
 | `@xray/schema` | Graph model (node/edge kinds, confidence), stable IDs, JSON format v1 + validation |
 | `@xray/store` | SQLite graph store: per-file incremental updates, neighbors, subgraphs, shortest paths, full-text search |
-| `@xray/testkit` | Golden fixture loader and precision/recall scoring for extractors |
+| `@xray/parser` | Language plugin contract, result builder, tree-sitter loader |
+| `@xray/lang-ts` | TypeScript/JavaScript via the TypeScript compiler: imports, re-exports, calls through aliases, generics and typed receivers, inheritance, overrides, CommonJS, JSX, workspace packages |
+| `@xray/lang-python` | Python via tree-sitter: packages and relative imports, `__init__` re-exports, MRO, `self`/`cls`/`super()`, type inference from constructors, annotations and return types |
+| `@xray/engine` | File discovery (`.gitignore`, `.xrayignore`), incremental scans, watch mode, repo/directory/package skeleton |
+| `@xray/testkit` | Golden fixtures, inline test projects and precision/recall scoring |
+
+Entry points it recognises: Express/Fastify-style routes, Next.js route handlers, commander and
+yargs commands, React components, Jest/Vitest/Mocha tests; FastAPI, Flask and Django routes,
+click/typer commands and pytest tests.
+
+### Benchmarks
+
+`pnpm bench` scans pinned real repositories ([bench/repos.json](bench/repos.json)) and writes
+[bench/results/latest.json](bench/results/latest.json). A rescan with no changes takes
+10–150 ms.
+
+| Repo | Lines | Cold scan | Calls resolved |
+| --- | --- | --- | --- |
+| express | 21.6k JS | 1.9 s | 1523 (26% exact, rest by unique method name) |
+| zod | 103.6k TS | 15.7 s | 25496 (99.9% exact) |
+| flask | 18.4k Py | 0.5 s | 1128 (40% exact, 25% inferred) |
+| requests | 12.1k Py | 0.3 s | 736 (65% exact, 33% inferred) |
+| fastapi | 128.4k Py | 3.6 s | 3870 (43% exact, 56% inferred) |
 
 `fixtures/` holds small repos with hand-written expected graphs; see [fixtures/README.md](fixtures/README.md).
 
@@ -42,6 +65,7 @@ pnpm test        # vitest
 pnpm lint        # biome
 pnpm build       # tsc project references via turbo
 pnpm typecheck   # packages + tests
+pnpm bench       # real-world repos (needs network on first run)
 ```
 
 ## License

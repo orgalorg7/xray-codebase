@@ -1,5 +1,9 @@
 packages:
   - "packages/*"
+  - "bench"
+# Only the prebuilt .wasm grammar is used; the native Node binding is never built.
+allowBuilds:
+  tree-sitter-python: false
 minimumReleaseAgeExclude:
   - "@biomejs/biome@2.6.2"
   - "@biomejs/cli-android-arm64@2.6.2"

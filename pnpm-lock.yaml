@@ -26,6 +26,81 @@ importers:
         specifier: 5.0.5
         version: 5.0.5(@types/node@24.19.2)(vite@8.3.4(@types/node@24.19.2)(yaml@2.9.1))
 
+  bench:
+    dependencies:
+      "@xray/engine":
+        specifier: workspace:*
+        version: link:../packages/engine
+      "@xray/store":
+        specifier: workspace:*
+        version: link:../packages/store
+
+  packages/engine:
+    dependencies:
+      "@xray/lang-python":
+        specifier: workspace:*
+        version: link:../lang-python
+      "@xray/lang-ts":
+        specifier: workspace:*
+        version: link:../lang-ts
+      "@xray/parser":
+        specifier: workspace:*
+        version: link:../parser
+      "@xray/schema":
+        specifier: workspace:*
+        version: link:../schema
+      "@xray/store":
+        specifier: workspace:*
+        version: link:../store
+      ignore:
+        specifier: 7.0.13
+        version: 7.0.13
+    devDependencies:
+      "@xray/testkit":
+        specifier: workspace:*
+        version: link:../testkit
+
+  packages/lang-python:
+    dependencies:
+      "@xray/parser":
+        specifier: workspace:*
+        version: link:../parser
+      "@xray/schema":
+        specifier: workspace:*
+        version: link:../schema
+      tree-sitter-python:
+        specifier: 0.25.0
+        version: 0.25.0
+    devDependencies:
+      "@xray/testkit":
+        specifier: workspace:*
+        version: link:../testkit
+
+  packages/lang-ts:
+    dependencies:
+      "@xray/parser":
+        specifier: workspace:*
+        version: link:../parser
+      "@xray/schema":
+        specifier: workspace:*
+        version: link:../schema
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+    devDependencies:
+      "@xray/testkit":
+        specifier: workspace:*
+        version: link:../testkit
+
+  packages/parser:
+    dependencies:
+      "@xray/schema":
+        specifier: workspace:*
+        version: link:../schema
+      web-tree-sitter:
+        specifier: 0.27.1
+        version: 0.27.1
+
   packages/schema:
     dependencies:
       zod:
@@ -40,6 +115,9 @@ importers:
 
   packages/testkit:
     dependencies:
+      "@xray/parser":
+        specifier: workspace:*
+        version: link:../parser
       "@xray/schema":
         specifier: workspace:*
         version: link:../schema
@@ -654,6 +732,13 @@ packages:
       }
     hasBin: true
 
+  ignore@7.0.13:
+    resolution:
+      {
+        integrity: sha512-2E8Q6rh+1RRSq/YdaGsNfXsEZy9FVqv6BSSrkmZJP7BnaoPnRfKL+YaofPvP+5rzdk144qSm6i4+hvPgUcbV4Q==,
+      }
+    engines: { node: ">= 4" }
+
   import-meta-resolve@4.2.0:
     resolution:
       {
@@ -802,6 +887,20 @@ packages:
     engines: { node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1 }
     hasBin: true
 
+  node-addon-api@8.9.2:
+    resolution:
+      {
+        integrity: sha512-VijLXbi3UACN69I0JVXJsX4tjACjNoQDgv2gTF6sx2wWEi8tkSg2eX8p5gSIFi8z2+DL3oHmY6OyKce38SDolg==,
+      }
+    engines: { node: ^18 || ^20 || >= 21 }
+
+  node-gyp-build@4.8.4:
+    resolution:
+      {
+        integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==,
+      }
+    hasBin: true
+
   obug@3.0.0:
     resolution:
       {
@@ -897,6 +996,17 @@ packages:
         integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==,
       }
     engines: { node: ">=12.0.0" }
+
+  tree-sitter-python@0.25.0:
+    resolution:
+      {
+        integrity: sha512-eCmJx6zQa35GxaCtQD+wXHOhYqBxEL+bp71W/s3fcDMu06MrtzkVXR437dRrCrbrDbyLuUDJpAgycs7ncngLXw==,
+      }
+    peerDependencies:
+      tree-sitter: ^0.25.0
+    peerDependenciesMeta:
+      tree-sitter:
+        optional: true
 
   turbo@2.11.10:
     resolution:
@@ -1008,6 +1118,12 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  web-tree-sitter@0.27.1:
+    resolution:
+      {
+        integrity: sha512-qtx0VyUyNRHtL3ze7+v0hCKB/sLcAmY7ZAVp/ZK/bCj0yED8ptvNrr7Vd7DwDyKDWN9baqcUx4uaD2r2ql+6IA==,
+      }
 
   why-is-node-running@3.2.1:
     resolution:
@@ -1343,6 +1459,8 @@ snapshots:
 
   human-id@4.2.2: {}
 
+  ignore@7.0.13: {}
+
   import-meta-resolve@4.2.0: {}
 
   jju@1.4.0: {}
@@ -1409,6 +1527,10 @@ snapshots:
 
   nanoid@3.3.20: {}
 
+  node-addon-api@8.9.2: {}
+
+  node-gyp-build@4.8.4: {}
+
   obug@3.0.0: {}
 
   package-manager-detector@1.9.0: {}
@@ -1463,6 +1585,11 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.7)
       picomatch: 4.0.7
 
+  tree-sitter-python@0.25.0:
+    dependencies:
+      node-addon-api: 8.9.2
+      node-gyp-build: 4.8.4
+
   turbo@2.11.10:
     optionalDependencies:
       "@turbo/darwin-64": 2.11.10
@@ -1508,6 +1635,8 @@ snapshots:
       "@types/node": 24.19.2
     transitivePeerDependencies:
       - msw
+
+  web-tree-sitter@0.27.1: {}
 
   why-is-node-running@3.2.1: {}
 

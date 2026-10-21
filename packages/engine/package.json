@@ -1,0 +1,32 @@
+{
+  "name": "@xray/engine",
+  "version": "0.0.0",
+  "description": "Scans a repository with xray language plugins and keeps the graph store up to date.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/lang-python": "workspace:*",
+    "@xray/lang-ts": "workspace:*",
+    "@xray/parser": "workspace:*",
+    "@xray/schema": "workspace:*",
+    "@xray/store": "workspace:*",
+    "ignore": "7.0.13"
+  },
+  "devDependencies": {
+    "@xray/testkit": "workspace:*"
+  }
+}

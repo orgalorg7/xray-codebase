@@ -3,6 +3,10 @@
   "references": [
     { "path": "packages/schema" },
     { "path": "packages/store" },
-    { "path": "packages/testkit" }
+    { "path": "packages/testkit" },
+    { "path": "packages/parser" },
+    { "path": "packages/lang-ts" },
+    { "path": "packages/lang-python" },
+    { "path": "packages/engine" }
   ]
 }

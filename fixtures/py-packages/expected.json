@@ -172,7 +172,7 @@
       "confidence": "exact"
     },
     {
-      "source": "py:app/config.py",
+      "source": "py:app/config.py#settings",
       "kind": "instantiates",
       "target": "py:app/config.py#Settings",
       "confidence": "exact"

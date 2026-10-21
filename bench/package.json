@@ -1,0 +1,15 @@
+{
+  "name": "@xray/bench",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Scans pinned real-world repositories and records speed and resolution quality.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "bench": "node --no-warnings --max-old-space-size=8192 run.ts"
+  },
+  "dependencies": {
+    "@xray/engine": "workspace:*",
+    "@xray/store": "workspace:*"
+  }
+}

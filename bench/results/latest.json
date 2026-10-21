@@ -1,0 +1,169 @@
+{
+  "node": "v24.18.1",
+  "date": "2026-10-21T12:04:37.449Z",
+  "results": [
+    {
+      "name": "express",
+      "commit": "0dee2c52c7c873498f8ed7d8ee4ddd0a04d3ada8",
+      "files": 141,
+      "lines": 21634,
+      "nodes": 2277,
+      "edges": 4462,
+      "coldMs": 1858,
+      "analyzeMs": 1742,
+      "unchangedRescanMs": 23,
+      "calls": 1523,
+      "callConfidence": {
+        "heuristic": 1127,
+        "exact": 393,
+        "inferred": 3
+      },
+      "edgeKinds": {
+        "contains": 2234,
+        "handles": 17,
+        "imports": 307,
+        "references": 315,
+        "calls": 1523,
+        "instantiates": 66
+      },
+      "entryPoints": {
+        "route": 145,
+        "test": 1687
+      },
+      "diagnostics": 0
+    },
+    {
+      "name": "zod",
+      "commit": "afdac65e0f80c0ccf9e8909da97c411567908b57",
+      "files": 522,
+      "lines": 103619,
+      "nodes": 8886,
+      "edges": 53839,
+      "coldMs": 15689,
+      "analyzeMs": 15050,
+      "unchangedRescanMs": 126,
+      "calls": 25496,
+      "callConfidence": {
+        "exact": 25468,
+        "heuristic": 28
+      },
+      "edgeKinds": {
+        "contains": 8836,
+        "references": 13531,
+        "calls": 25496,
+        "imports": 1289,
+        "instantiates": 288,
+        "extends": 673,
+        "overrides": 39,
+        "handles": 5,
+        "re-exports": 3681,
+        "implements": 1
+      },
+      "entryPoints": {
+        "component": 43,
+        "route": 5,
+        "test": 2712
+      },
+      "diagnostics": 0
+    },
+    {
+      "name": "flask",
+      "commit": "d086db856be187255b8ec61ef409357393020f32",
+      "files": 83,
+      "lines": 18416,
+      "nodes": 1287,
+      "edges": 3333,
+      "coldMs": 548,
+      "analyzeMs": 484,
+      "unchangedRescanMs": 15,
+      "calls": 1128,
+      "callConfidence": {
+        "exact": 446,
+        "heuristic": 397,
+        "inferred": 285
+      },
+      "edgeKinds": {
+        "contains": 1259,
+        "imports": 277,
+        "references": 250,
+        "calls": 1128,
+        "re-exports": 53,
+        "instantiates": 256,
+        "handles": 44,
+        "extends": 26,
+        "overrides": 40
+      },
+      "entryPoints": {
+        "route": 38,
+        "test": 392,
+        "cli-command": 4
+      },
+      "diagnostics": 0
+    },
+    {
+      "name": "requests",
+      "commit": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "files": 37,
+      "lines": 12069,
+      "nodes": 994,
+      "edges": 2356,
+      "coldMs": 336,
+      "analyzeMs": 287,
+      "unchangedRescanMs": 10,
+      "calls": 736,
+      "callConfidence": {
+        "exact": 481,
+        "heuristic": 9,
+        "inferred": 246
+      },
+      "edgeKinds": {
+        "contains": 975,
+        "imports": 147,
+        "re-exports": 25,
+        "references": 132,
+        "calls": 736,
+        "extends": 39,
+        "overrides": 11,
+        "instantiates": 291
+      },
+      "entryPoints": {
+        "test": 347
+      },
+      "diagnostics": 0
+    },
+    {
+      "name": "fastapi",
+      "commit": "e865cc74fb98376f7e024bda6a9c0a82fff30614",
+      "files": 1186,
+      "lines": 128367,
+      "nodes": 10929,
+      "edges": 21591,
+      "coldMs": 3604,
+      "analyzeMs": 3043,
+      "unchangedRescanMs": 141,
+      "calls": 3870,
+      "callConfidence": {
+        "exact": 1659,
+        "inferred": 2175,
+        "heuristic": 36
+      },
+      "edgeKinds": {
+        "contains": 10888,
+        "instantiates": 1749,
+        "calls": 3870,
+        "references": 799,
+        "handles": 1244,
+        "imports": 2853,
+        "extends": 98,
+        "overrides": 30,
+        "re-exports": 60
+      },
+      "entryPoints": {
+        "route": 1158,
+        "test": 2646,
+        "cli-command": 39
+      },
+      "diagnostics": 0
+    }
+  ]
+}
