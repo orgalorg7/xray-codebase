@@ -8,5 +8,7 @@ export default defineConfig({
   },
   test: {
     include: ["packages/*/test/**/*.test.ts"],
+    // Tests that build TypeScript programs take seconds each, more when files run in parallel.
+    testTimeout: 30_000,
   },
 });

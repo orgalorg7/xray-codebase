@@ -92,7 +92,11 @@ describe("server", () => {
 
   it("serves UI files created after startup (a rebuilt UI needs no restart)", async () => {
     writeFileSync(join(dir, "ui-dist", "late.js"), "export {};\n");
-    const res = await app.inject({ method: "GET", url: "/late.js", headers: { host: "localhost" } });
+    const res = await app.inject({
+      method: "GET",
+      url: "/late.js",
+      headers: { host: "localhost" },
+    });
     expect(res.statusCode).toBe(200);
     expect(res.headers["content-type"]).toContain("javascript");
   });
