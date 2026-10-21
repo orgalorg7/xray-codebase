@@ -1,0 +1,24 @@
+{
+  "name": "@xray/schema",
+  "version": "0.0.0",
+  "description": "Graph model for xray: node and edge kinds, stable IDs and the JSON export format.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  }
+}

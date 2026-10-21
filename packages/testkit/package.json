@@ -1,0 +1,23 @@
+{
+  "name": "@xray/testkit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Golden fixtures loader and graph scoring for xray tests.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/schema": "workspace:*",
+    "zod": "4.6.7"
+  }
+}

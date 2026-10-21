@@ -1,0 +1,90 @@
+{
+  "description": "Two modules importing each other, one through a deferred function-level import.",
+  "language": "py",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls"
+  ],
+  "nodes": [
+    {
+      "id": "py:pkg/__init__.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:pkg/orders.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:pkg/customers.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:pkg/orders.py#order_total",
+      "kind": "function"
+    },
+    {
+      "id": "py:pkg/orders.py#orders_for",
+      "kind": "function"
+    },
+    {
+      "id": "py:pkg/orders.py#ORDERS",
+      "kind": "variable"
+    },
+    {
+      "id": "py:pkg/customers.py#discount",
+      "kind": "function"
+    }
+  ],
+  "edges": [
+    {
+      "source": "py:pkg/orders.py",
+      "kind": "contains",
+      "target": "py:pkg/orders.py#order_total"
+    },
+    {
+      "source": "py:pkg/orders.py",
+      "kind": "contains",
+      "target": "py:pkg/orders.py#orders_for"
+    },
+    {
+      "source": "py:pkg/orders.py",
+      "kind": "contains",
+      "target": "py:pkg/orders.py#ORDERS"
+    },
+    {
+      "source": "py:pkg/customers.py",
+      "kind": "contains",
+      "target": "py:pkg/customers.py#discount"
+    },
+    {
+      "source": "py:pkg/orders.py",
+      "kind": "imports",
+      "target": "py:pkg/customers.py"
+    },
+    {
+      "source": "py:pkg/customers.py",
+      "kind": "imports",
+      "target": "py:pkg/orders.py",
+      "detail": "deferred"
+    },
+    {
+      "source": "py:pkg/orders.py#order_total",
+      "kind": "calls",
+      "target": "py:pkg/customers.py#discount",
+      "confidence": "exact"
+    },
+    {
+      "source": "py:pkg/customers.py#discount",
+      "kind": "calls",
+      "target": "py:pkg/orders.py#orders_for",
+      "confidence": "exact"
+    }
+  ],
+  "cycles": [
+    [
+      "py:pkg/customers.py",
+      "py:pkg/orders.py"
+    ]
+  ]
+}

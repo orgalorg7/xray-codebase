@@ -1,0 +1,24 @@
+{
+  "name": "@xray/store",
+  "version": "0.0.0",
+  "description": "SQLite-backed graph store for xray with incremental per-file updates and graph queries.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/schema": "workspace:*"
+  }
+}

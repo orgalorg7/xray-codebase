@@ -1,0 +1,181 @@
+{
+  "description": "Absolute and relative imports, a package __init__ re-export and constructor type inference.",
+  "language": "py",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "re-exports",
+    "calls",
+    "instantiates"
+  ],
+  "nodes": [
+    {
+      "id": "py:app/__init__.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:app/main.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:app/config.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:app/services/__init__.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:app/services/users.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:app/models.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:app/main.py#main",
+      "kind": "function"
+    },
+    {
+      "id": "py:app/config.py#Settings",
+      "kind": "class"
+    },
+    {
+      "id": "py:app/config.py#Settings.greeting",
+      "kind": "property"
+    },
+    {
+      "id": "py:app/config.py#settings",
+      "kind": "variable"
+    },
+    {
+      "id": "py:app/services/users.py#create_user",
+      "kind": "function"
+    },
+    {
+      "id": "py:app/models.py#User",
+      "kind": "class"
+    },
+    {
+      "id": "py:app/models.py#User.__init__",
+      "kind": "method"
+    },
+    {
+      "id": "py:app/models.py#User.save",
+      "kind": "method"
+    },
+    {
+      "id": "py:app/models.py#_write",
+      "kind": "function"
+    }
+  ],
+  "edges": [
+    {
+      "source": "py:app/main.py",
+      "kind": "contains",
+      "target": "py:app/main.py#main"
+    },
+    {
+      "source": "py:app/config.py",
+      "kind": "contains",
+      "target": "py:app/config.py#Settings"
+    },
+    {
+      "source": "py:app/config.py#Settings",
+      "kind": "contains",
+      "target": "py:app/config.py#Settings.greeting"
+    },
+    {
+      "source": "py:app/config.py",
+      "kind": "contains",
+      "target": "py:app/config.py#settings"
+    },
+    {
+      "source": "py:app/services/users.py",
+      "kind": "contains",
+      "target": "py:app/services/users.py#create_user"
+    },
+    {
+      "source": "py:app/models.py",
+      "kind": "contains",
+      "target": "py:app/models.py#User"
+    },
+    {
+      "source": "py:app/models.py#User",
+      "kind": "contains",
+      "target": "py:app/models.py#User.__init__"
+    },
+    {
+      "source": "py:app/models.py#User",
+      "kind": "contains",
+      "target": "py:app/models.py#User.save"
+    },
+    {
+      "source": "py:app/models.py",
+      "kind": "contains",
+      "target": "py:app/models.py#_write"
+    },
+    {
+      "source": "py:app/main.py",
+      "kind": "imports",
+      "target": "py:app/services/__init__.py"
+    },
+    {
+      "source": "py:app/main.py",
+      "kind": "imports",
+      "target": "py:app/config.py"
+    },
+    {
+      "source": "py:app/services/__init__.py",
+      "kind": "imports",
+      "target": "py:app/services/users.py"
+    },
+    {
+      "source": "py:app/services/users.py",
+      "kind": "imports",
+      "target": "py:app/models.py"
+    },
+    {
+      "source": "py:app/services/__init__.py",
+      "kind": "re-exports",
+      "target": "py:app/services/users.py#create_user"
+    },
+    {
+      "source": "py:app/main.py#main",
+      "kind": "calls",
+      "target": "py:app/services/users.py#create_user",
+      "confidence": "exact"
+    },
+    {
+      "source": "py:app/main.py",
+      "kind": "calls",
+      "target": "py:app/main.py#main",
+      "confidence": "exact"
+    },
+    {
+      "source": "py:app/services/users.py#create_user",
+      "kind": "calls",
+      "target": "py:app/models.py#User.save",
+      "confidence": "inferred"
+    },
+    {
+      "source": "py:app/models.py#User.save",
+      "kind": "calls",
+      "target": "py:app/models.py#_write",
+      "confidence": "exact"
+    },
+    {
+      "source": "py:app/services/users.py#create_user",
+      "kind": "instantiates",
+      "target": "py:app/models.py#User",
+      "confidence": "exact"
+    },
+    {
+      "source": "py:app/config.py",
+      "kind": "instantiates",
+      "target": "py:app/config.py#Settings",
+      "confidence": "exact"
+    }
+  ]
+}

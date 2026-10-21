@@ -1,0 +1,113 @@
+{
+  "description": "Named re-exports, an aliased re-export and `export *` chained through barrel files.",
+  "language": "ts",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "re-exports",
+    "calls"
+  ],
+  "nodes": [
+    {
+      "id": "ts:src/utils/math.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/utils/index.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/index.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/app.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/utils/math.ts#add",
+      "kind": "function"
+    },
+    {
+      "id": "ts:src/utils/math.ts#multiply",
+      "kind": "function"
+    },
+    {
+      "id": "ts:src/app.ts#main",
+      "kind": "function"
+    }
+  ],
+  "edges": [
+    {
+      "source": "ts:src/utils/math.ts",
+      "kind": "contains",
+      "target": "ts:src/utils/math.ts#add"
+    },
+    {
+      "source": "ts:src/utils/math.ts",
+      "kind": "contains",
+      "target": "ts:src/utils/math.ts#multiply"
+    },
+    {
+      "source": "ts:src/app.ts",
+      "kind": "contains",
+      "target": "ts:src/app.ts#main"
+    },
+    {
+      "source": "ts:src/utils/index.ts",
+      "kind": "imports",
+      "target": "ts:src/utils/math.ts"
+    },
+    {
+      "source": "ts:src/index.ts",
+      "kind": "imports",
+      "target": "ts:src/utils/index.ts"
+    },
+    {
+      "source": "ts:src/app.ts",
+      "kind": "imports",
+      "target": "ts:src/index.ts"
+    },
+    {
+      "source": "ts:src/utils/index.ts",
+      "kind": "re-exports",
+      "target": "ts:src/utils/math.ts#add"
+    },
+    {
+      "source": "ts:src/utils/index.ts",
+      "kind": "re-exports",
+      "target": "ts:src/utils/math.ts#multiply",
+      "detail": "alias:times"
+    },
+    {
+      "source": "ts:src/index.ts",
+      "kind": "re-exports",
+      "target": "ts:src/utils/math.ts#add",
+      "detail": "star"
+    },
+    {
+      "source": "ts:src/index.ts",
+      "kind": "re-exports",
+      "target": "ts:src/utils/math.ts#multiply",
+      "detail": "star"
+    },
+    {
+      "source": "ts:src/utils/math.ts#multiply",
+      "kind": "calls",
+      "target": "ts:src/utils/math.ts#add",
+      "confidence": "exact"
+    },
+    {
+      "source": "ts:src/app.ts#main",
+      "kind": "calls",
+      "target": "ts:src/utils/math.ts#add",
+      "confidence": "exact"
+    },
+    {
+      "source": "ts:src/app.ts#main",
+      "kind": "calls",
+      "target": "ts:src/utils/math.ts#multiply",
+      "confidence": "exact"
+    }
+  ]
+}

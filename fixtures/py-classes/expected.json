@@ -1,0 +1,195 @@
+{
+  "description": "Class hierarchy with overrides, self calls, a classmethod constructor and cls() instantiation.",
+  "language": "py",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates",
+    "extends",
+    "overrides"
+  ],
+  "nodes": [
+    {
+      "id": "py:shapes.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:report.py",
+      "kind": "module"
+    },
+    {
+      "id": "py:shapes.py#Shape",
+      "kind": "class"
+    },
+    {
+      "id": "py:shapes.py#Shape.area",
+      "kind": "method"
+    },
+    {
+      "id": "py:shapes.py#Shape.describe",
+      "kind": "method"
+    },
+    {
+      "id": "py:shapes.py#Circle",
+      "kind": "class"
+    },
+    {
+      "id": "py:shapes.py#Circle.__init__",
+      "kind": "method"
+    },
+    {
+      "id": "py:shapes.py#Circle.area",
+      "kind": "method"
+    },
+    {
+      "id": "py:shapes.py#Square",
+      "kind": "class"
+    },
+    {
+      "id": "py:shapes.py#Square.__init__",
+      "kind": "method"
+    },
+    {
+      "id": "py:shapes.py#Square.area",
+      "kind": "method"
+    },
+    {
+      "id": "py:shapes.py#Square.unit",
+      "kind": "method"
+    },
+    {
+      "id": "py:report.py#build",
+      "kind": "function"
+    },
+    {
+      "id": "py:report.py#report",
+      "kind": "function"
+    }
+  ],
+  "edges": [
+    {
+      "source": "py:shapes.py",
+      "kind": "contains",
+      "target": "py:shapes.py#Shape"
+    },
+    {
+      "source": "py:shapes.py#Shape",
+      "kind": "contains",
+      "target": "py:shapes.py#Shape.area"
+    },
+    {
+      "source": "py:shapes.py#Shape",
+      "kind": "contains",
+      "target": "py:shapes.py#Shape.describe"
+    },
+    {
+      "source": "py:shapes.py",
+      "kind": "contains",
+      "target": "py:shapes.py#Circle"
+    },
+    {
+      "source": "py:shapes.py#Circle",
+      "kind": "contains",
+      "target": "py:shapes.py#Circle.__init__"
+    },
+    {
+      "source": "py:shapes.py#Circle",
+      "kind": "contains",
+      "target": "py:shapes.py#Circle.area"
+    },
+    {
+      "source": "py:shapes.py",
+      "kind": "contains",
+      "target": "py:shapes.py#Square"
+    },
+    {
+      "source": "py:shapes.py#Square",
+      "kind": "contains",
+      "target": "py:shapes.py#Square.__init__"
+    },
+    {
+      "source": "py:shapes.py#Square",
+      "kind": "contains",
+      "target": "py:shapes.py#Square.area"
+    },
+    {
+      "source": "py:shapes.py#Square",
+      "kind": "contains",
+      "target": "py:shapes.py#Square.unit"
+    },
+    {
+      "source": "py:report.py",
+      "kind": "contains",
+      "target": "py:report.py#build"
+    },
+    {
+      "source": "py:report.py",
+      "kind": "contains",
+      "target": "py:report.py#report"
+    },
+    {
+      "source": "py:report.py",
+      "kind": "imports",
+      "target": "py:shapes.py"
+    },
+    {
+      "source": "py:shapes.py#Circle",
+      "kind": "extends",
+      "target": "py:shapes.py#Shape"
+    },
+    {
+      "source": "py:shapes.py#Square",
+      "kind": "extends",
+      "target": "py:shapes.py#Shape"
+    },
+    {
+      "source": "py:shapes.py#Circle.area",
+      "kind": "overrides",
+      "target": "py:shapes.py#Shape.area"
+    },
+    {
+      "source": "py:shapes.py#Square.area",
+      "kind": "overrides",
+      "target": "py:shapes.py#Shape.area"
+    },
+    {
+      "source": "py:shapes.py#Shape.describe",
+      "kind": "calls",
+      "target": "py:shapes.py#Shape.area",
+      "confidence": "exact",
+      "detail": "self-call"
+    },
+    {
+      "source": "py:report.py#build",
+      "kind": "calls",
+      "target": "py:shapes.py#Square.unit",
+      "confidence": "exact"
+    },
+    {
+      "source": "py:report.py#build",
+      "kind": "instantiates",
+      "target": "py:shapes.py#Circle",
+      "confidence": "exact"
+    },
+    {
+      "source": "py:shapes.py#Square.unit",
+      "kind": "instantiates",
+      "target": "py:shapes.py#Square",
+      "confidence": "inferred",
+      "detail": "cls-call"
+    },
+    {
+      "source": "py:report.py#report",
+      "kind": "calls",
+      "target": "py:report.py#build",
+      "confidence": "exact"
+    },
+    {
+      "source": "py:report.py#report",
+      "kind": "calls",
+      "target": "py:shapes.py#Shape.describe",
+      "confidence": "heuristic"
+    }
+  ]
+}

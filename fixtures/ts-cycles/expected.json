@@ -1,0 +1,181 @@
+{
+  "description": "A three-module import cycle, a two-module cycle closed by a type-only import, and a bystander.",
+  "language": "ts",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls"
+  ],
+  "nodes": [
+    {
+      "id": "ts:src/a.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/b.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/c.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/d.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/e.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/f.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/a.ts#a",
+      "kind": "function"
+    },
+    {
+      "id": "ts:src/b.ts#b",
+      "kind": "function"
+    },
+    {
+      "id": "ts:src/c.ts#c",
+      "kind": "function"
+    },
+    {
+      "id": "ts:src/d.ts#D",
+      "kind": "type-alias"
+    },
+    {
+      "id": "ts:src/d.ts#makeD",
+      "kind": "function"
+    },
+    {
+      "id": "ts:src/e.ts#E",
+      "kind": "type-alias"
+    },
+    {
+      "id": "ts:src/e.ts#makeE",
+      "kind": "function"
+    },
+    {
+      "id": "ts:src/f.ts#answer",
+      "kind": "variable"
+    }
+  ],
+  "edges": [
+    {
+      "source": "ts:src/a.ts",
+      "kind": "contains",
+      "target": "ts:src/a.ts#a"
+    },
+    {
+      "source": "ts:src/b.ts",
+      "kind": "contains",
+      "target": "ts:src/b.ts#b"
+    },
+    {
+      "source": "ts:src/c.ts",
+      "kind": "contains",
+      "target": "ts:src/c.ts#c"
+    },
+    {
+      "source": "ts:src/d.ts",
+      "kind": "contains",
+      "target": "ts:src/d.ts#D"
+    },
+    {
+      "source": "ts:src/d.ts",
+      "kind": "contains",
+      "target": "ts:src/d.ts#makeD"
+    },
+    {
+      "source": "ts:src/e.ts",
+      "kind": "contains",
+      "target": "ts:src/e.ts#E"
+    },
+    {
+      "source": "ts:src/e.ts",
+      "kind": "contains",
+      "target": "ts:src/e.ts#makeE"
+    },
+    {
+      "source": "ts:src/f.ts",
+      "kind": "contains",
+      "target": "ts:src/f.ts#answer"
+    },
+    {
+      "source": "ts:src/a.ts",
+      "kind": "imports",
+      "target": "ts:src/b.ts"
+    },
+    {
+      "source": "ts:src/b.ts",
+      "kind": "imports",
+      "target": "ts:src/c.ts"
+    },
+    {
+      "source": "ts:src/c.ts",
+      "kind": "imports",
+      "target": "ts:src/a.ts"
+    },
+    {
+      "source": "ts:src/d.ts",
+      "kind": "imports",
+      "target": "ts:src/e.ts",
+      "detail": "type-only"
+    },
+    {
+      "source": "ts:src/e.ts",
+      "kind": "imports",
+      "target": "ts:src/d.ts"
+    },
+    {
+      "source": "ts:src/f.ts",
+      "kind": "imports",
+      "target": "ts:src/a.ts"
+    },
+    {
+      "source": "ts:src/a.ts#a",
+      "kind": "calls",
+      "target": "ts:src/b.ts#b",
+      "confidence": "exact"
+    },
+    {
+      "source": "ts:src/b.ts#b",
+      "kind": "calls",
+      "target": "ts:src/c.ts#c",
+      "confidence": "exact"
+    },
+    {
+      "source": "ts:src/c.ts#c",
+      "kind": "calls",
+      "target": "ts:src/a.ts#a",
+      "confidence": "exact"
+    },
+    {
+      "source": "ts:src/e.ts#makeE",
+      "kind": "calls",
+      "target": "ts:src/d.ts#makeD",
+      "confidence": "exact"
+    },
+    {
+      "source": "ts:src/f.ts#answer",
+      "kind": "calls",
+      "target": "ts:src/a.ts#a",
+      "confidence": "exact"
+    }
+  ],
+  "cycles": [
+    [
+      "ts:src/a.ts",
+      "ts:src/b.ts",
+      "ts:src/c.ts"
+    ],
+    [
+      "ts:src/d.ts",
+      "ts:src/e.ts"
+    ]
+  ]
+}

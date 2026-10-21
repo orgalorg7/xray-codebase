@@ -1,0 +1,131 @@
+{
+  "description": "CommonJS require/module.exports, destructured requires and calls through a module object.",
+  "language": "js",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates"
+  ],
+  "nodes": [
+    {
+      "id": "js:lib/format.js",
+      "kind": "module"
+    },
+    {
+      "id": "js:lib/logger.js",
+      "kind": "module"
+    },
+    {
+      "id": "js:index.js",
+      "kind": "module"
+    },
+    {
+      "id": "js:lib/format.js#pad",
+      "kind": "function"
+    },
+    {
+      "id": "js:lib/format.js#formatDate",
+      "kind": "function"
+    },
+    {
+      "id": "js:lib/logger.js#Logger",
+      "kind": "class"
+    },
+    {
+      "id": "js:lib/logger.js#Logger.constructor",
+      "kind": "method"
+    },
+    {
+      "id": "js:lib/logger.js#Logger.log",
+      "kind": "method"
+    },
+    {
+      "id": "js:index.js#run",
+      "kind": "function"
+    }
+  ],
+  "edges": [
+    {
+      "source": "js:lib/format.js",
+      "kind": "contains",
+      "target": "js:lib/format.js#pad"
+    },
+    {
+      "source": "js:lib/format.js",
+      "kind": "contains",
+      "target": "js:lib/format.js#formatDate"
+    },
+    {
+      "source": "js:lib/logger.js",
+      "kind": "contains",
+      "target": "js:lib/logger.js#Logger"
+    },
+    {
+      "source": "js:lib/logger.js#Logger",
+      "kind": "contains",
+      "target": "js:lib/logger.js#Logger.constructor"
+    },
+    {
+      "source": "js:lib/logger.js#Logger",
+      "kind": "contains",
+      "target": "js:lib/logger.js#Logger.log"
+    },
+    {
+      "source": "js:index.js",
+      "kind": "contains",
+      "target": "js:index.js#run"
+    },
+    {
+      "source": "js:lib/logger.js",
+      "kind": "imports",
+      "target": "js:lib/format.js"
+    },
+    {
+      "source": "js:index.js",
+      "kind": "imports",
+      "target": "js:lib/logger.js"
+    },
+    {
+      "source": "js:index.js",
+      "kind": "imports",
+      "target": "js:lib/format.js"
+    },
+    {
+      "source": "js:lib/format.js#formatDate",
+      "kind": "calls",
+      "target": "js:lib/format.js#pad",
+      "confidence": "exact"
+    },
+    {
+      "source": "js:lib/logger.js#Logger.log",
+      "kind": "calls",
+      "target": "js:lib/format.js#formatDate",
+      "confidence": "exact"
+    },
+    {
+      "source": "js:index.js#run",
+      "kind": "calls",
+      "target": "js:lib/logger.js#Logger.log",
+      "confidence": "inferred"
+    },
+    {
+      "source": "js:index.js#run",
+      "kind": "calls",
+      "target": "js:lib/format.js#pad",
+      "confidence": "exact"
+    },
+    {
+      "source": "js:index.js#run",
+      "kind": "instantiates",
+      "target": "js:lib/logger.js#Logger",
+      "confidence": "exact"
+    },
+    {
+      "source": "js:index.js",
+      "kind": "calls",
+      "target": "js:index.js#run",
+      "confidence": "exact"
+    }
+  ]
+}

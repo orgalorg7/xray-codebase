@@ -1,0 +1,222 @@
+{
+  "description": "Interface implementation, inheritance, overrides, super and this calls, interface dispatch.",
+  "language": "ts",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates",
+    "extends",
+    "implements",
+    "overrides"
+  ],
+  "nodes": [
+    {
+      "id": "ts:src/repository.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/user-repo.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/admin-repo.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/service.ts",
+      "kind": "module"
+    },
+    {
+      "id": "ts:src/repository.ts#Repository",
+      "kind": "interface"
+    },
+    {
+      "id": "ts:src/repository.ts#Repository.find",
+      "kind": "method"
+    },
+    {
+      "id": "ts:src/repository.ts#User",
+      "kind": "type-alias"
+    },
+    {
+      "id": "ts:src/user-repo.ts#UserRepo",
+      "kind": "class"
+    },
+    {
+      "id": "ts:src/user-repo.ts#UserRepo.users",
+      "kind": "property"
+    },
+    {
+      "id": "ts:src/user-repo.ts#UserRepo.find",
+      "kind": "method"
+    },
+    {
+      "id": "ts:src/user-repo.ts#UserRepo.add",
+      "kind": "method"
+    },
+    {
+      "id": "ts:src/admin-repo.ts#AdminRepo",
+      "kind": "class"
+    },
+    {
+      "id": "ts:src/admin-repo.ts#AdminRepo.find",
+      "kind": "method"
+    },
+    {
+      "id": "ts:src/admin-repo.ts#AdminRepo.isAdmin",
+      "kind": "method"
+    },
+    {
+      "id": "ts:src/service.ts#lookup",
+      "kind": "function"
+    },
+    {
+      "id": "ts:src/service.ts#adminLookup",
+      "kind": "function"
+    }
+  ],
+  "edges": [
+    {
+      "source": "ts:src/repository.ts",
+      "kind": "contains",
+      "target": "ts:src/repository.ts#Repository"
+    },
+    {
+      "source": "ts:src/repository.ts#Repository",
+      "kind": "contains",
+      "target": "ts:src/repository.ts#Repository.find"
+    },
+    {
+      "source": "ts:src/repository.ts",
+      "kind": "contains",
+      "target": "ts:src/repository.ts#User"
+    },
+    {
+      "source": "ts:src/user-repo.ts",
+      "kind": "contains",
+      "target": "ts:src/user-repo.ts#UserRepo"
+    },
+    {
+      "source": "ts:src/user-repo.ts#UserRepo",
+      "kind": "contains",
+      "target": "ts:src/user-repo.ts#UserRepo.users"
+    },
+    {
+      "source": "ts:src/user-repo.ts#UserRepo",
+      "kind": "contains",
+      "target": "ts:src/user-repo.ts#UserRepo.find"
+    },
+    {
+      "source": "ts:src/user-repo.ts#UserRepo",
+      "kind": "contains",
+      "target": "ts:src/user-repo.ts#UserRepo.add"
+    },
+    {
+      "source": "ts:src/admin-repo.ts",
+      "kind": "contains",
+      "target": "ts:src/admin-repo.ts#AdminRepo"
+    },
+    {
+      "source": "ts:src/admin-repo.ts#AdminRepo",
+      "kind": "contains",
+      "target": "ts:src/admin-repo.ts#AdminRepo.find"
+    },
+    {
+      "source": "ts:src/admin-repo.ts#AdminRepo",
+      "kind": "contains",
+      "target": "ts:src/admin-repo.ts#AdminRepo.isAdmin"
+    },
+    {
+      "source": "ts:src/service.ts",
+      "kind": "contains",
+      "target": "ts:src/service.ts#lookup"
+    },
+    {
+      "source": "ts:src/service.ts",
+      "kind": "contains",
+      "target": "ts:src/service.ts#adminLookup"
+    },
+    {
+      "source": "ts:src/user-repo.ts",
+      "kind": "imports",
+      "target": "ts:src/repository.ts",
+      "detail": "type-only"
+    },
+    {
+      "source": "ts:src/admin-repo.ts",
+      "kind": "imports",
+      "target": "ts:src/repository.ts",
+      "detail": "type-only"
+    },
+    {
+      "source": "ts:src/admin-repo.ts",
+      "kind": "imports",
+      "target": "ts:src/user-repo.ts"
+    },
+    {
+      "source": "ts:src/service.ts",
+      "kind": "imports",
+      "target": "ts:src/admin-repo.ts"
+    },
+    {
+      "source": "ts:src/service.ts",
+      "kind": "imports",
+      "target": "ts:src/repository.ts",
+      "detail": "type-only"
+    },
+    {
+      "source": "ts:src/user-repo.ts#UserRepo",
+      "kind": "implements",
+      "target": "ts:src/repository.ts#Repository"
+    },
+    {
+      "source": "ts:src/admin-repo.ts#AdminRepo",
+      "kind": "extends",
+      "target": "ts:src/user-repo.ts#UserRepo"
+    },
+    {
+      "source": "ts:src/user-repo.ts#UserRepo.find",
+      "kind": "overrides",
+      "target": "ts:src/repository.ts#Repository.find",
+      "detail": "implements"
+    },
+    {
+      "source": "ts:src/admin-repo.ts#AdminRepo.find",
+      "kind": "overrides",
+      "target": "ts:src/user-repo.ts#UserRepo.find"
+    },
+    {
+      "source": "ts:src/admin-repo.ts#AdminRepo.find",
+      "kind": "calls",
+      "target": "ts:src/user-repo.ts#UserRepo.find",
+      "confidence": "exact",
+      "detail": "super-call"
+    },
+    {
+      "source": "ts:src/admin-repo.ts#AdminRepo.find",
+      "kind": "calls",
+      "target": "ts:src/admin-repo.ts#AdminRepo.isAdmin",
+      "confidence": "exact",
+      "detail": "self-call"
+    },
+    {
+      "source": "ts:src/service.ts#lookup",
+      "kind": "calls",
+      "target": "ts:src/repository.ts#Repository.find",
+      "confidence": "exact"
+    },
+    {
+      "source": "ts:src/service.ts#adminLookup",
+      "kind": "calls",
+      "target": "ts:src/service.ts#lookup",
+      "confidence": "exact"
+    },
+    {
+      "source": "ts:src/service.ts#adminLookup",
+      "kind": "instantiates",
+      "target": "ts:src/admin-repo.ts#AdminRepo",
+      "confidence": "exact"
+    }
+  ]
+}
