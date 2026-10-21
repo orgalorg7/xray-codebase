@@ -1,5 +1,5 @@
 import type { GraphNode } from "@xray/schema";
-import { splitIdentifier } from "@xray/store";
+import { splitIdentifier } from "@xray/schema";
 import {
   CALL_KINDS,
   compareStrings,

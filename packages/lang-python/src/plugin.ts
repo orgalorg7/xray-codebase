@@ -1,4 +1,6 @@
+import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import {
   AnalysisBuilder,
   type AnalysisResult,
@@ -11,9 +13,15 @@ import type { Language } from "@xray/schema";
 import { extractModule, type ModuleInfo } from "./extract.js";
 import { PythonProject } from "./resolve.js";
 
-const GRAMMAR = createRequire(import.meta.url).resolve(
-  "tree-sitter-python/tree-sitter-python.wasm",
-);
+/**
+ * The Python grammar. Bundled builds ship it next to the code (`grammars/`); in the workspace
+ * it comes from the tree-sitter-python package.
+ */
+function grammarPath(): string {
+  const bundled = fileURLToPath(new URL("./grammars/tree-sitter-python.wasm", import.meta.url));
+  if (existsSync(bundled)) return bundled;
+  return createRequire(import.meta.url).resolve("tree-sitter-python/tree-sitter-python.wasm");
+}
 
 export const languageOfPath = (path: string): Language | undefined =>
   /\.py$/.test(path) ? "py" : undefined;
@@ -34,7 +42,7 @@ export function createPythonPlugin(): LanguagePlugin {
       // Resolution is whole-project, so any change re-resolves; no change reuses the last result.
       const fingerprint = JSON.stringify(input.files.map((f) => [f.path, f.hash]));
       if (last?.fingerprint === fingerprint) return last.result;
-      parser ??= createParser(GRAMMAR);
+      parser ??= createParser(grammarPath());
       const ready = await parser;
       const builder = new AnalysisBuilder();
       const modules: ModuleInfo[] = [];

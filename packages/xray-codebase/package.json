@@ -1,0 +1,49 @@
+{
+  "name": "xray-codebase",
+  "version": "0.1.0",
+  "description": "X-ray vision for any codebase: an interactive, zoomable map of architecture, calls and dependencies. TypeScript, JavaScript and Python.",
+  "keywords": [
+    "architecture",
+    "dependency-graph",
+    "call-graph",
+    "code-map",
+    "circular-dependencies",
+    "impact-analysis",
+    "visualization",
+    "static-analysis"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "xray": "./dist/xray.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "smoke": "node smoke.mjs"
+  },
+  "dependencies": {
+    "@fastify/compress": "9.2.2",
+    "@fastify/static": "10.1.6",
+    "@fastify/websocket": "11.3.4",
+    "d3-hierarchy": "3.1.2",
+    "fastify": "5.12.7",
+    "ignore": "7.0.13",
+    "typescript": "6.0.3",
+    "web-tree-sitter": "0.27.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@xray/cli": "workspace:*",
+    "@xray/ui": "workspace:*",
+    "esbuild": "0.28.2",
+    "tree-sitter-python": "0.25.0"
+  }
+}

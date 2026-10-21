@@ -20,3 +20,8 @@ jobs:
       - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm test
+      # xray checks its own architecture: no import cycles, layering rules in .xray.json.
+      - run: node packages/cli/dist/bin.js check --format github --no-git
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      - run: pnpm --filter xray-codebase build && pnpm --filter xray-codebase smoke

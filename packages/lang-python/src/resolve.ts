@@ -6,11 +6,13 @@ import {
   type GraphEdge,
   type GraphNode,
   moduleId,
-  type SourceLocation,
-  symbolId,
 } from "@xray/schema";
 import { type Def, field, type ImportRecord, type ModuleInfo } from "./extract.js";
 import { detectFrameworks } from "./frameworks.js";
+import { defId, locationOf } from "./syntax.js";
+
+export { defId, locationOf };
+
 import { STDLIB_MODULES } from "./stdlib.js";
 
 /** How a member was reached, which decides an edge's confidence and detail. */
@@ -99,19 +101,6 @@ const BUILTIN_METHOD_STOPLIST = new Set([
 
 const named = (node: SyntaxNode): SyntaxNode[] =>
   node.namedChildren.filter((n): n is SyntaxNode => n !== null);
-
-export function locationOf(node: SyntaxNode, path: string): SourceLocation {
-  return {
-    file: path,
-    line: node.startPosition.row + 1,
-    column: node.startPosition.column + 1,
-    endLine: node.endPosition.row + 1,
-    endColumn: node.endPosition.column + 1,
-  };
-}
-
-export const defId = (mod: ModuleInfo, def: Def): string =>
-  symbolId("py", mod.path, def.qualifiedName);
 
 /**
  * Cross-module resolution for a Python project: module naming, import binding, class MRO and

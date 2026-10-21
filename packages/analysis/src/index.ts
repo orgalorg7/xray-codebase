@@ -1,6 +1,5 @@
 export * from "./cycles.js";
 export * from "./districts.js";
-export * from "./git.js";
 export * from "./graph-index.js";
 export * from "./impact.js";
 export * from "./layout.js";

@@ -1,0 +1,33 @@
+{
+  "name": "@xray/cli",
+  "version": "0.1.0",
+  "description": "The xray command line: scan, open the map, search features, trace calls, find cycles, check rules, export.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "xray": "./dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/analysis": "workspace:*",
+    "@xray/schema": "workspace:*",
+    "@xray/server": "workspace:*",
+    "@xray/service": "workspace:*"
+  },
+  "devDependencies": {
+    "@xray/testkit": "workspace:*"
+  }
+}

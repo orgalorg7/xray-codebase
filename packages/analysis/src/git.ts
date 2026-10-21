@@ -130,3 +130,15 @@ export function gitHistory(root: string, options: GitHistoryOptions = {}): GitHi
   }
   return parseGitLog(output, options);
 }
+
+/** The current commit of a repository, or undefined outside git. Cheap enough to poll. */
+export function gitHead(root: string): string | undefined {
+  try {
+    return execFileSync("git", ["-C", root, "rev-parse", "HEAD"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return undefined;
+  }
+}

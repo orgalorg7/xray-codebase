@@ -6,3 +6,7 @@ coverage/
 .xray/
 bench/repos/
 .DS_Store
+e2e/.export-path
+test-results/
+playwright-report/
+packages/xray-codebase/LICENSE

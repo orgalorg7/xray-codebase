@@ -30,7 +30,7 @@ export function buildStructure(
   modules: readonly { id: string; path: string }[],
 ): { nodes: GraphNode[]; edges: GraphEdge[] } {
   const rootPackage = packageName(root);
-  const repo: GraphNode = { id: REPO_ID, kind: "repo", name: basename(root), qualifiedName: "" };
+  const repo: GraphNode = { id: REPO_ID, kind: "repo", name: basename(root), qualifiedName: "." };
   if (rootPackage) repo.meta = { packageName: rootPackage.name, manifest: rootPackage.manifest };
   const nodes = new Map<string, GraphNode>([[REPO_ID, repo]]);
   const edges: GraphEdge[] = [];

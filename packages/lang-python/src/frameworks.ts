@@ -1,7 +1,8 @@
 import type { SyntaxNode } from "@xray/parser";
 import { type GraphNode, moduleId, symbolId } from "@xray/schema";
 import { type Def, field, type ModuleInfo, stringValue } from "./extract.js";
-import { defId, locationOf, type PythonProject } from "./resolve.js";
+import type { PythonProject } from "./resolve.js";
+import { defId, locationOf } from "./syntax.js";
 
 const ROUTE_DECORATORS = new Set([
   "get",

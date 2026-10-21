@@ -8,8 +8,8 @@ import {
   type Language,
   parseId,
   type SourceLocation,
+  splitIdentifier,
 } from "@xray/schema";
-import { splitIdentifier } from "./tokens.js";
 
 const SCHEMA_VERSION = 1;
 

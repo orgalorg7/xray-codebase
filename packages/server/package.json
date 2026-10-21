@@ -1,0 +1,37 @@
+{
+  "name": "@xray/server",
+  "version": "0.0.0",
+  "description": "Local xray server: keeps a repository scanned and serves the map API, live updates and the UI.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@fastify/compress": "9.2.2",
+    "@fastify/static": "10.1.6",
+    "@fastify/websocket": "11.3.4",
+    "@xray/analysis": "workspace:*",
+    "@xray/engine": "workspace:*",
+    "@xray/schema": "workspace:*",
+    "@xray/service": "workspace:*",
+    "@xray/store": "workspace:*",
+    "fastify": "5.12.7"
+  },
+  "devDependencies": {
+    "@types/ws": "8.18.2",
+    "@xray/testkit": "workspace:*",
+    "ws": "8.22.0"
+  }
+}

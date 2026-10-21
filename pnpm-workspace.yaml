@@ -3,6 +3,7 @@ packages:
   - "bench"
 # Only the prebuilt .wasm grammar is used; the native Node binding is never built.
 allowBuilds:
+  esbuild: true
   tree-sitter-python: false
 minimumReleaseAgeExclude:
   - "@biomejs/biome@2.6.2"
@@ -23,3 +24,4 @@ minimumReleaseAgeExclude:
   - "@turbo/windows-64@2.11.10"
   - "@turbo/windows-arm64@2.11.10"
   - turbo@2.11.10
+  - vite@8.3.5

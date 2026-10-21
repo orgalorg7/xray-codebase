@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { validateGraph } from "@xray/schema";
 import { GraphStore } from "@xray/store";
 import { goldenProblems, listFixtures, loadFixture } from "@xray/testkit";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -24,6 +25,7 @@ describe.each(listFixtures())("golden %s through the engine", (name) => {
     graph.edges = graph.edges.filter((edge) => !/^(repo|dir):/.test(edge.source));
     expect(goldenProblems(expected, graph)).toEqual([]);
     expect(report.diagnostics).toEqual([]);
+    expect(validateGraph(store.exportGraph())).toMatchObject({ ok: true });
     store.close();
   });
 });

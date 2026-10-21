@@ -74,7 +74,7 @@ export function mapLayout(index: GraphIndex, size = 1000): MapLayout {
   if (externals.length > 0) {
     const center = size / 2;
     const orbit = inner / 2 + (size - inner) / 4;
-    const r = Math.min((size - inner) / 5, (Math.PI * orbit) / externals.length);
+    const r = Math.min((size - inner) / 9, (Math.PI * orbit * 0.6) / externals.length);
     externals.forEach((id, i) => {
       const angle = (2 * Math.PI * i) / externals.length - Math.PI / 2;
       placements.set(id, {
@@ -87,6 +87,14 @@ export function mapLayout(index: GraphIndex, size = 1000): MapLayout {
   }
   return { size, placements };
 }
+
+const AREA_KINDS: ReadonlySet<string> = new Set([
+  "repo",
+  "package",
+  "directory",
+  "module",
+  "external",
+]);
 
 export type Road = {
   source: string;
@@ -101,13 +109,18 @@ export type Road = {
  * These are the "roads" drawn when zoomed out.
  */
 export function roads(index: GraphIndex, layout: MapLayout, depth: number): Road[] {
+  // Roads join areas (directories, packages, files), never individual symbols: symbol-level
+  // relations are shown for a selection instead.
+  const isArea = (id: string): boolean => AREA_KINDS.has(index.node(id)?.kind ?? "function");
   const lift = (id: string): string | undefined => {
     const own = layout.placements.get(id);
     if (!own) return undefined;
-    if (own.depth <= depth) return id;
+    if (own.depth <= depth && isArea(id)) return id;
     return index
       .ancestors(id)
-      .find((a) => (layout.placements.get(a)?.depth ?? Number.POSITIVE_INFINITY) <= depth);
+      .find(
+        (a) => isArea(a) && (layout.placements.get(a)?.depth ?? Number.POSITIVE_INFINITY) <= depth,
+      );
   };
   const roadMap = new Map<string, Road>();
   for (const edge of index.edges) {

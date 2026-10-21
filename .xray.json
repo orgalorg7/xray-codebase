@@ -1,0 +1,49 @@
+{
+  "check": {
+    "maxImportCycles": 0,
+    "ignoreTypeOnlyCycles": true,
+    "layers": [
+      {
+        "name": "the schema is the foundation",
+        "from": ["packages/schema/src/**"],
+        "disallow": ["packages/*/src/**"],
+        "allow": ["packages/schema/src/**"]
+      },
+      {
+        "name": "analysis and service must run in browsers",
+        "from": ["packages/analysis/src/**", "packages/service/src/**"],
+        "disallow": [
+          "packages/store/**",
+          "packages/engine/**",
+          "packages/server/**",
+          "packages/parser/**",
+          "packages/lang-*/**",
+          "packages/cli/**"
+        ]
+      },
+      {
+        "name": "the UI only talks to the service API",
+        "from": ["packages/ui/src/**"],
+        "disallow": [
+          "packages/store/**",
+          "packages/engine/**",
+          "packages/server/**",
+          "packages/parser/**",
+          "packages/lang-*/**",
+          "packages/cli/**"
+        ]
+      },
+      {
+        "name": "language plugins do not know about storage or the engine",
+        "from": ["packages/parser/src/**", "packages/lang-*/src/**"],
+        "disallow": [
+          "packages/store/**",
+          "packages/engine/**",
+          "packages/server/**",
+          "packages/service/**",
+          "packages/analysis/**"
+        ]
+      }
+    ]
+  }
+}

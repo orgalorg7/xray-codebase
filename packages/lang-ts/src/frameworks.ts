@@ -1,7 +1,7 @@
 import type { AnalysisBuilder, SourceFile } from "@xray/parser";
 import { type GraphNode, symbolId } from "@xray/schema";
 import ts from "typescript";
-import { locationOf, moduleSymbolOf } from "./analyze.js";
+import { locationOf, moduleSymbolOf } from "./syntax.js";
 
 export type FrameworkContext = {
   sourceFile: ts.SourceFile;

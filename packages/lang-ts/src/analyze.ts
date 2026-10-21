@@ -13,6 +13,9 @@ import {
 } from "@xray/schema";
 import ts from "typescript";
 import { detectFrameworks } from "./frameworks.js";
+import { locationOf, moduleSymbolOf } from "./syntax.js";
+
+export { locationOf, moduleSymbolOf };
 
 const ASSET_IMPORT =
   /\.(css|scss|sass|less|styl|svg|png|jpe?g|gif|webp|avif|ico|bmp|woff2?|ttf|otf|eot|mp3|mp4|webm|wav|ogg|md|mdx|txt|html|wasm|graphql|gql)$/i;
@@ -113,25 +116,6 @@ export function languageOfPath(path: string): Language | undefined {
   if (/\.[cm]?jsx?$/.test(path)) return "js";
   return undefined;
 }
-
-export function locationOf(node: ts.Node, sourceFile: ts.SourceFile, path: string): SourceLocation {
-  const start = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
-  const end = sourceFile.getLineAndCharacterOfPosition(node.getEnd());
-  return {
-    file: path,
-    line: start.line + 1,
-    column: start.character + 1,
-    endLine: end.line + 1,
-    endColumn: end.character + 1,
-  };
-}
-
-/**
- * The module symbol of a file. `getSymbolAtLocation` returns nothing for CommonJS files, whose
- * symbol is only reachable through the (untyped but stable) `symbol` property.
- */
-export const moduleSymbolOf = (checker: ts.TypeChecker, sf: ts.SourceFile): ts.Symbol | undefined =>
-  checker.getSymbolAtLocation(sf) ?? (sf as unknown as { symbol?: ts.Symbol }).symbol;
 
 const unwrap = (expr: ts.Expression): ts.Expression => {
   let current = expr;

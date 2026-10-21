@@ -3,15 +3,13 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { gitHistory, parseGitLog, renamedPath } from "../src/git.js";
 import {
   deadCode,
   districts,
-  gitHistory,
   hotspots,
   mapLayout,
   nodeMetrics,
-  parseGitLog,
-  renamedPath,
   roads,
   unusedExports,
 } from "../src/index.js";

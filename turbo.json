@@ -8,5 +8,6 @@
     "typecheck": {
       "dependsOn": ["^build"]
     }
-  }
+  },
+  "globalPassThroughEnv": ["CI", "PLAYWRIGHT_CHANNEL", "XRAY_UI_DIR"]
 }

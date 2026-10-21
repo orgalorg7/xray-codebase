@@ -8,6 +8,9 @@
     { "path": "packages/lang-ts" },
     { "path": "packages/lang-python" },
     { "path": "packages/engine" },
-    { "path": "packages/analysis" }
+    { "path": "packages/analysis" },
+    { "path": "packages/service" },
+    { "path": "packages/server" },
+    { "path": "packages/cli" }
   ]
 }

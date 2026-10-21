@@ -1,0 +1,25 @@
+name: xray check
+description: Fail the build on new circular imports or broken layering rules, with inline annotations.
+author: xray contributors
+branding:
+  icon: eye
+  color: blue
+inputs:
+  args:
+    description: Arguments for the xray CLI.
+    default: check --format github
+  version:
+    description: Version of the xray-codebase package to run.
+    default: latest
+  working-directory:
+    description: Repository directory to analyze.
+    default: .
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+    - shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npx --yes xray-codebase@${{ inputs.version }} ${{ inputs.args }}

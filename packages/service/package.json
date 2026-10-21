@@ -1,0 +1,30 @@
+{
+  "name": "@xray/service",
+  "version": "0.0.0",
+  "description": "The xray API over a graph snapshot: map, details, search, impact, tracing, cycles, insights, checks and exports. Browser-safe.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/analysis": "workspace:*",
+    "@xray/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@xray/engine": "workspace:*",
+    "@xray/store": "workspace:*",
+    "@xray/testkit": "workspace:*"
+  }
+}
