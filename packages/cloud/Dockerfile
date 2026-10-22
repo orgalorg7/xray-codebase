@@ -8,12 +8,11 @@ WORKDIR /src
 COPY . .
 # Only what the server and the UI need (and the root's build tools), with a cached store.
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter "@xray/cloud..." --filter "@xray/ui..." --filter "xray-monorepo" \
-      --config.fetch-timeout=600000 --config.fetch-retries=5
+    pnpm install --frozen-lockfile --filter "@xray/cloud..." --filter "@xray/ui..." --filter "xray-monorepo"
 RUN pnpm turbo run build --filter=@xray/cloud... --filter=@xray/ui
 # A self-contained copy of the server with production dependencies only, plus the built UI.
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
-    pnpm --filter @xray/cloud deploy --prod --legacy --config.fetch-timeout=600000 /app \
+    pnpm --filter @xray/cloud deploy --prod --legacy /app \
  && cp -r packages/ui/dist /app/dist/ui
 
 FROM node:24-slim
