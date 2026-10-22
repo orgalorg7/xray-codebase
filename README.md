@@ -17,16 +17,18 @@ Languages: TypeScript/JavaScript and Python.
 
 ## Quick start
 
-From a checkout of this repository (the npm package `xray-codebase` is prepared but not
-published yet):
+In any TypeScript, JavaScript or Python repository (Node 24 or newer):
 
 ```sh
-pnpm install && pnpm build
-node packages/cli/dist/bin.js open path/to/some/repo
+npx xray-codebase open
 ```
 
-`xray open` scans the repository (the index lives in `<repo>/.xray/`), starts a local server on
-127.0.0.1 and opens the map. It rescans as files change.
+`xray open` scans the repository (the index lives in `<repo>/.xray/`, so add `.xray/` to its
+`.gitignore`), starts a local server on 127.0.0.1 and opens the map. It rescans as files change.
+Later commands reuse the index while no file has changed.
+
+From a checkout of this repository: `pnpm install && pnpm build`, then
+`node packages/cli/dist/bin.js open path/to/some/repo`.
 
 ## The map
 
@@ -81,7 +83,7 @@ Symbols can be IDs, `path#Name`, `path:line`, a file path or a plain name. Every
 
 `xray check --update-baseline` records today's cycles so that only new ones fail. With
 `--format github` violations become inline annotations; [action.yml](action.yml) packages that
-as a GitHub Action (usable once `xray-codebase` is on npm). xray checks its own architecture this
+as a GitHub Action. xray checks its own architecture this
 way: see [.xray.json](.xray.json).
 
 ## How it works

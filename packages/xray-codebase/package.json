@@ -1,6 +1,6 @@
 {
   "name": "xray-codebase",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "X-ray vision for any codebase: an interactive, zoomable map of architecture, calls and dependencies. TypeScript, JavaScript and Python.",
   "keywords": [
     "architecture",

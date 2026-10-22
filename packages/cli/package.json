@@ -1,6 +1,6 @@
 {
   "name": "@xray/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The xray command line: scan, open the map, search features, trace calls, find cycles, check rules, export.",
   "license": "MIT",
   "type": "module",

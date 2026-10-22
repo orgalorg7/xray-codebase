@@ -105,6 +105,8 @@ export type Project = {
   callablesByName: Map<string, string[]>;
   /** Method nodes by short name: the only candidates for name-based `x.name()` guesses. */
   methodsByName: Map<string, string[]>;
+  /** Top-level nodes per file path, whose `exported` flag the resolution pass fills in. */
+  topLevel: Map<string, GraphNode[]>;
 };
 
 export const declarationKey = (node: ts.Node): string =>
@@ -176,34 +178,19 @@ const isDefaultExport = (node: ts.Node): boolean =>
 const isStatic = (node: ts.Node): boolean =>
   (ts.getCombinedModifierFlags(node as ts.Declaration) & ts.ModifierFlags.Static) !== 0;
 
-/** Analyzes the files of one TypeScript program. Declarations must be extracted for every program first. */
-export class ProgramAnalyzer {
+/**
+ * Pass 1: declarations from syntax. Runs over every file before any type checker exists, so
+ * resolution can link across all programs while only one program is in memory at a time.
+ */
+export class DeclarationExtractor {
   readonly #project: Project;
-  readonly #program: ts.Program;
-  readonly #checker: ts.TypeChecker;
-  readonly #host: ts.ModuleResolutionHost;
-  readonly #resolutionCache: ts.ModuleResolutionCache;
 
-  constructor(project: Project, program: ts.Program, host: ts.ModuleResolutionHost) {
+  constructor(project: Project) {
     this.#project = project;
-    this.#program = program;
-    this.#checker = program.getTypeChecker();
-    this.#host = host;
-    this.#resolutionCache = ts.createModuleResolutionCache(
-      project.root,
-      (name) => name,
-      program.getCompilerOptions(),
-    );
   }
 
-  #sourceFile(file: SourceFile): ts.SourceFile | undefined {
-    return this.#program.getSourceFile(resolve(file.absolutePath));
-  }
-
-  // ---- pass 1: declarations ------------------------------------------------------------
-
-  extract(file: SourceFile): void {
-    const sf = this.#sourceFile(file);
+  /** Records a file's declarations from its syntax alone (no type checker needed). */
+  extract(file: SourceFile, sf: ts.SourceFile | undefined): void {
     const builder = this.#project.builder;
     const mod = moduleId(file.language, file.path);
     builder.node(file.path, {
@@ -218,7 +205,7 @@ export class ProgramAnalyzer {
       builder.diagnostics.push({
         severity: "warning",
         file: file.path,
-        message: "not part of the TypeScript program",
+        message: "could not be parsed",
       });
       return;
     }
@@ -242,7 +229,7 @@ export class ProgramAnalyzer {
       };
       const signature = options.signatureOf && this.#signature(options.signatureOf);
       if (signature) node.signature = signature;
-      const doc = this.#doc(options.name ?? decl);
+      const doc = this.#doc(decl);
       if (doc) node.doc = doc;
       if (parent === mod) topLevel.push(node);
       if (options.meta) node.meta = options.meta;
@@ -400,9 +387,8 @@ export class ProgramAnalyzer {
       }
     }
 
-    // Exports resolve through the declarations registered above, so mark them last.
-    const exported = this.#exportedIds(sf);
-    for (const node of topLevel) node.exported = exported.has(node.id);
+    // Whether each one is exported needs the type checker: decided in the resolution pass.
+    this.#project.topLevel.set(file.path, topLevel);
   }
 
   /** `exports.x = function () {}`, `module.exports.x = ...`, `module.exports = function name() {}`. */
@@ -467,6 +453,56 @@ export class ProgramAnalyzer {
     if (id !== undefined) this.#project.declarations.set(declarationKey(left), id);
   }
 
+  /**
+   * The signature as written: parameters and the declared return type. Printing inferred types
+   * instead would make the checker infer every function's full type (slow, memory-hungry and
+   * often unreadable for ORM queries or schema builders).
+   */
+  #signature(node: ts.Node): string | undefined {
+    if (!ts.isFunctionLike(node)) return undefined;
+    const decl = node as ts.SignatureDeclaration;
+    const sf = node.getSourceFile();
+    const params = decl.parameters.map((p) => p.getText(sf)).join(", ");
+    const returns = decl.type ? `: ${decl.type.getText(sf)}` : "";
+    const text = `(${params})${returns}`.replace(/\s+/g, " ");
+    return text.length > 300 ? `${text.slice(0, 297)}...` : text;
+  }
+
+  /** The first paragraph of the declaration's JSDoc, read from the syntax. */
+  #doc(decl: ts.Node): string | undefined {
+    const docs = ts.getJSDocCommentsAndTags(decl).filter((d): d is ts.JSDoc => ts.isJSDoc(d));
+    const comment = docs.at(-1)?.comment;
+    const text = typeof comment === "string" ? comment : (ts.getTextOfJSDocComment(comment) ?? "");
+    const first = text.split(/\n\s*\n/)[0]?.trim() ?? "";
+    if (first === "") return undefined;
+    return first.length > 500 ? `${first.slice(0, 497)}...` : first;
+  }
+}
+
+/** Pass 2: relationships, using one program's type checker. */
+export class ProgramAnalyzer {
+  readonly #project: Project;
+  readonly #program: ts.Program;
+  readonly #checker: ts.TypeChecker;
+  readonly #host: ts.ModuleResolutionHost;
+  readonly #resolutionCache: ts.ModuleResolutionCache;
+
+  constructor(project: Project, program: ts.Program, host: ts.ModuleResolutionHost) {
+    this.#project = project;
+    this.#program = program;
+    this.#checker = program.getTypeChecker();
+    this.#host = host;
+    this.#resolutionCache = ts.createModuleResolutionCache(
+      project.root,
+      (name) => name,
+      program.getCompilerOptions(),
+    );
+  }
+
+  #sourceFile(file: SourceFile): ts.SourceFile | undefined {
+    return this.#program.getSourceFile(resolve(file.absolutePath));
+  }
+
   /** IDs of the nodes a module exports, including CommonJS `module.exports` forms. */
   #exportedIds(sf: ts.SourceFile): Set<string> {
     const ids = new Set<string>();
@@ -481,31 +517,6 @@ export class ProgramAnalyzer {
       if (id !== undefined) ids.add(id);
     }
     return ids;
-  }
-
-  #signature(node: ts.Node): string | undefined {
-    if (!ts.isFunctionLike(node)) return undefined;
-    try {
-      const signature = this.#checker.getSignatureFromDeclaration(node as ts.SignatureDeclaration);
-      if (signature === undefined) return undefined;
-      const text = this.#checker.signatureToString(
-        signature,
-        undefined,
-        ts.TypeFormatFlags.NoTruncation,
-      );
-      return text.length > 300 ? `${text.slice(0, 297)}...` : text;
-    } catch {
-      return undefined;
-    }
-  }
-
-  #doc(nameNode: ts.Node): string | undefined {
-    const symbol = this.#checker.getSymbolAtLocation(nameNode);
-    if (symbol === undefined) return undefined;
-    const text = ts.displayPartsToString(symbol.getDocumentationComment(this.#checker));
-    const first = text.split(/\n\s*\n/)[0]?.trim() ?? "";
-    if (first === "") return undefined;
-    return first.length > 500 ? `${first.slice(0, 497)}...` : first;
   }
 
   // ---- symbol resolution ---------------------------------------------------------------
@@ -574,6 +585,10 @@ export class ProgramAnalyzer {
   resolve(file: SourceFile): void {
     const sf = this.#sourceFile(file);
     if (sf === undefined) return;
+    const exported = this.#exportedIds(sf);
+    for (const node of this.#project.topLevel.get(file.path) ?? []) {
+      node.exported = exported.has(node.id);
+    }
     const mod = moduleId(file.language, file.path);
     const owners = detectFrameworks({
       sourceFile: sf,
@@ -1049,6 +1064,22 @@ class BodyWalker {
     });
   }
 
+  /** `this`, `super`, or a name bound to an import, class, enum, namespace or function. */
+  #cheapReceiver(expr: ts.Expression): boolean {
+    const inner = unwrap(expr);
+    if (inner.kind === ts.SyntaxKind.ThisKeyword || inner.kind === ts.SyntaxKind.SuperKeyword)
+      return true;
+    if (!ts.isIdentifier(inner)) return false;
+    const symbol = this.checker.getSymbolAtLocation(inner);
+    const cheap =
+      ts.SymbolFlags.Alias |
+      ts.SymbolFlags.Class |
+      ts.SymbolFlags.Enum |
+      ts.SymbolFlags.Module |
+      ts.SymbolFlags.Function;
+    return symbol !== undefined && (symbol.flags & cheap) !== 0;
+  }
+
   #reference(node: ts.Identifier, owner: string, inType: boolean): void {
     if (this.#handled.has(node)) return;
     const parent = node.parent;
@@ -1058,6 +1089,16 @@ class BodyWalker {
       ts.getNameOfDeclaration(parent as ts.Declaration) === node;
     if (isDeclarationName) return;
     if (ts.isJsxAttribute(parent) || ts.isJsxClosingElement(parent)) return;
+    // Resolving `x.prop` means inferring the type of `x`, which for long chains over ORM or
+    // schema types is very expensive. References are only followed where the receiver is cheap
+    // to know; calls (handled separately) still resolve any receiver.
+    if (
+      ts.isPropertyAccessExpression(parent) &&
+      parent.name === node &&
+      !this.#cheapReceiver(parent.expression)
+    ) {
+      return;
+    }
     const target = this.analyzer.targetOf(this.checker.getSymbolAtLocation(node));
     if (target === undefined || target === owner || target.startsWith(`${owner}.`)) return;
     const key = `${owner}\u0000${target}`;

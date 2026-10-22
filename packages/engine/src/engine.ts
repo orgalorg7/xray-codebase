@@ -73,7 +73,7 @@ export class Engine {
    * Scans the repository. A call made while a scan runs waits for one follow-up scan, shared by
    * every caller that arrives in the meantime, so the result always reflects the latest files.
    */
-  scan(): Promise<ScanReport> {
+  scan(options: { force?: boolean } = {}): Promise<ScanReport> {
     if (this.#scanning) {
       this.#queued ??= this.#scanning
         .catch(() => undefined)
@@ -83,13 +83,13 @@ export class Engine {
         });
       return this.#queued;
     }
-    this.#scanning = this.#scan().finally(() => {
+    this.#scanning = this.#scan(options.force ?? false).finally(() => {
       this.#scanning = undefined;
     });
     return this.#scanning;
   }
 
-  async #scan(): Promise<ScanReport> {
+  async #scan(force: boolean): Promise<ScanReport> {
     const started = performance.now();
     const paths = discoverFiles(this.root, {
       ignore: this.#ignore,
@@ -129,6 +129,32 @@ export class Engine {
     }
     for (const path of this.#files.keys()) if (!current.has(path)) this.#files.delete(path);
     const read = performance.now();
+
+    // Nothing changed since the stored index was written (e.g. a new process, such as each CLI
+    // command): reuse it instead of re-analyzing. Changes outside source files (dependencies,
+    // compiler configs) need a forced scan.
+    if (!force && this.#indexIsCurrent(current)) {
+      const stats = this.#store.stats();
+      const now = performance.now();
+      return {
+        files: current.size,
+        added: [],
+        changed: [],
+        removed: [],
+        rewritten: 0,
+        skipped,
+        nodes: stats.nodes,
+        edges: stats.edges,
+        diagnostics: [],
+        timings: {
+          discover: discovered - started,
+          read: read - discovered,
+          analyze: 0,
+          write: 0,
+          total: now - started,
+        },
+      };
+    }
 
     const diagnostics: Diagnostic[] = [];
     const analyses: FileAnalysis[] = [];
@@ -210,6 +236,15 @@ export class Engine {
         total: written - started,
       },
     };
+  }
+
+  /** The stored index covers exactly these files, unchanged, each fully analyzed. */
+  #indexIsCurrent(current: ReadonlyMap<string, SourceFile>): boolean {
+    const stored = this.#store.listFiles();
+    if (stored.length === 0 || stored.length !== current.size) return false;
+    return stored.every(
+      (record) => record.digest !== undefined && current.get(record.path)?.hash === record.hash,
+    );
   }
 
   /**

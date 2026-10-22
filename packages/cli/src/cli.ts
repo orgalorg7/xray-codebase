@@ -16,7 +16,7 @@ import {
 import { buildHtml, findUiDir, type SnapshotData } from "./html.js";
 import { type IO, line, painter } from "./io.js";
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.1";
 
 const HELP = `xray: X-ray vision for any codebase
 
@@ -47,8 +47,10 @@ Run "xray <command> --help" for command options.`;
 const COMMAND_HELP: Record<string, string> = {
   open: `xray open [dir] [--port 4400] [--host 127.0.0.1] [--no-browser] [--no-watch]
 Scans the repository, starts a local server and opens the map. Rescans as files change.`,
-  scan: `xray scan [dir]
-Builds or incrementally updates the index in <dir>/.xray/index.db and prints a summary.`,
+  scan: `xray scan [dir] [--force]
+Builds or incrementally updates the index in <dir>/.xray/index.db and prints a summary.
+Unchanged files are not re-analyzed; --force re-analyzes everything (after dependency or
+tsconfig changes).`,
   where: `xray where <query> [-n 10] [--json]
 Ranks code by how well it matches the query and how connected it is to the matches.`,
   impact: `xray impact <symbol...> [--depth N] [--no-guesses] [--json]
@@ -170,14 +172,14 @@ type Command = (args: string[], io: IO) => Promise<number>;
 
 const COMMANDS: Record<string, Command> = {
   async scan(args, io) {
-    const { values, positionals } = parse(args, {});
+    const { values, positionals } = parse(args, { force: { type: "boolean" } });
     if (helpRequested(io, "scan", values)) return 0;
     const p = painter(io);
     const root = resolve(io.cwd, (values.dir as string | undefined) ?? positionals[0] ?? ".");
     if (!existsSync(root)) throw new Error(`no such directory: ${root}`);
     const workspace = new Workspace({ root, git: !values["no-git"] });
     try {
-      const report = await workspace.scan();
+      const report = await workspace.scan({ force: Boolean(values.force) });
       if (values.json) return json(io, { ...report, index: join(root, ".xray", "index.db") });
       const meta = (await workspace.service()).meta();
       io.out(

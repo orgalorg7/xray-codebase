@@ -98,6 +98,28 @@ describe("Engine", () => {
     expect(store.getNode("ts:src/app.ts#main")).toBeUndefined();
   });
 
+  it("reuses an up-to-date index from an earlier process unless forced", async () => {
+    cpSync(loadFixture("ts-reexports").dir, dir, { recursive: true });
+    const path = join(dir, "index.db");
+    const first = GraphStore.open(path);
+    await new Engine({ root: dir, store: first }).scan();
+    const stats = first.stats();
+    first.close();
+
+    const second = GraphStore.open(path);
+    const reused = await new Engine({ root: dir, store: second }).scan();
+    expect(reused).toMatchObject({ rewritten: 0, nodes: stats.nodes, edges: stats.edges });
+    expect(reused.timings.analyze).toBe(0);
+    const forced = await new Engine({ root: dir, store: second }).scan({ force: true });
+    expect(forced.timings.analyze).toBeGreaterThan(0);
+
+    write("src/extra.ts", "export const extra = 1;\n");
+    const changed = await new Engine({ root: dir, store: second }).scan();
+    expect(changed.added).toEqual(["src/extra.ts"]);
+    expect(changed.timings.analyze).toBeGreaterThan(0);
+    second.close();
+  });
+
   it("shares one follow-up scan between concurrent callers", async () => {
     write("a.ts", "export const a = 1;\n");
     const engine = new Engine({ root: dir, store });

@@ -126,15 +126,51 @@ export function groupByConfig(root: string, files: readonly SourceFile[]): Progr
   return [...groups.values()];
 }
 
-type CachedSourceFile = { text: string; target: ts.ScriptTarget; sourceFile: ts.SourceFile };
+type CachedSourceFile = {
+  text: string;
+  target: ts.ScriptTarget;
+  format: ts.ResolutionMode;
+  sourceFile: ts.SourceFile;
+};
 
 /**
- * Builds programs whose project files come from the engine's snapshot rather than disk, and
- * reuses parsed source files (and the previous program) across scans.
+ * Parses files once and builds programs whose project files come from the engine's snapshot
+ * rather than disk. Programs are built one at a time and released after use: holding every
+ * program of a multi-app repository at once costs gigabytes, mostly in node_modules types.
  */
 export class ProgramCache {
   readonly #sourceFiles = new Map<string, CachedSourceFile>();
-  readonly #programs = new Map<string, ts.Program>();
+
+  #parse(
+    fileName: string,
+    text: string,
+    languageVersionOrOptions: ts.ScriptTarget | ts.CreateSourceFileOptions,
+  ): ts.SourceFile {
+    const options =
+      typeof languageVersionOrOptions === "object" ? languageVersionOrOptions : undefined;
+    const target = options
+      ? options.languageVersion
+      : (languageVersionOrOptions as ts.ScriptTarget);
+    // node16/nodenext programs parse each file as ESM or CommonJS; a tree parsed for another
+    // format must not be reused.
+    const format = options?.impliedNodeFormat;
+    const cached = this.#sourceFiles.get(fileName);
+    if (cached?.text === text && cached.target === target && cached.format === format) {
+      return cached.sourceFile;
+    }
+    const sourceFile = ts.createSourceFile(fileName, text, languageVersionOrOptions, true);
+    this.#sourceFiles.set(fileName, { text, target, format, sourceFile });
+    return sourceFile;
+  }
+
+  /** A project file's syntax tree, shared with the program built for its group later. */
+  parse(file: SourceFile, group: ProgramGroup): ts.SourceFile {
+    return this.#parse(
+      resolve(file.absolutePath),
+      file.text,
+      group.options.target ?? ts.ScriptTarget.ES2022,
+    );
+  }
 
   /** `allFiles` is the whole project snapshot; only the group's files become root names. */
   program(
@@ -160,27 +196,28 @@ export class ProgramCache {
     host.getDirectories = (dir) => (inside(dir) ? ts.sys.getDirectories(dir) : []);
     host.getSourceFile = (fileName, languageVersionOrOptions) => {
       const text = readFile(fileName);
-      if (text === undefined) return undefined;
-      const target =
-        typeof languageVersionOrOptions === "object"
-          ? languageVersionOrOptions.languageVersion
-          : languageVersionOrOptions;
-      const cached = this.#sourceFiles.get(fileName);
-      if (cached?.text === text && cached.target === target) return cached.sourceFile;
-      const sourceFile = ts.createSourceFile(fileName, text, languageVersionOrOptions, true);
-      this.#sourceFiles.set(fileName, { text, target, sourceFile });
-      return sourceFile;
+      return text === undefined ? undefined : this.#parse(fileName, text, languageVersionOrOptions);
     };
-
-    const oldProgram = this.#programs.get(group.key);
     const program = ts.createProgram({
       rootNames: group.files.map((file) => resolve(file.absolutePath)),
       options: group.options,
       host,
-      ...(oldProgram === undefined ? {} : { oldProgram }),
     });
-    this.#programs.set(group.key, program);
     return { program, host };
+  }
+
+  /**
+   * Forgets parsed dependency files (node_modules and other non-project files) so the next
+   * group's program does not keep them alive. TypeScript's own lib files stay: every group
+   * uses them.
+   */
+  releaseDependencies(projectFiles: ReadonlySet<string>): void {
+    const libDir = dirname(ts.getDefaultLibFilePath({}));
+    for (const fileName of this.#sourceFiles.keys()) {
+      const absolute = resolve(fileName);
+      if (!projectFiles.has(absolute) && !absolute.startsWith(libDir + sep))
+        this.#sourceFiles.delete(fileName);
+    }
   }
 }
 

@@ -41,7 +41,7 @@ afterEach(() => {
 describe("xray", () => {
   it("prints help and version", async () => {
     expect((await run("--help")).out).toContain("X-ray vision for any codebase");
-    expect((await run("--version")).out).toBe("0.1.0\n");
+    expect((await run("--version")).out).toBe("0.1.1\n");
     expect((await run("where", "--help")).out).toContain("xray where <query>");
     const unknown = await run("frobnicate");
     expect(unknown.code).toBe(2);

@@ -64,9 +64,9 @@ export class Workspace extends EventEmitter<WorkspaceEvents> {
     return this.#service as XrayService;
   }
 
-  async scan(): Promise<ScanReport> {
+  async scan(options: { force?: boolean } = {}): Promise<ScanReport> {
     this.emit("scanning");
-    const report = await this.#engine.scan();
+    const report = await this.#engine.scan(options);
     this.#refreshGit();
     this.#service = new XrayService(this.#snapshot(report));
     this.#lastReport = report;

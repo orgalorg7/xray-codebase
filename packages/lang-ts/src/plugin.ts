@@ -5,7 +5,7 @@ import {
   type LanguagePlugin,
   type ProjectInput,
 } from "@xray/parser";
-import { languageOfPath, ProgramAnalyzer, type Project } from "./analyze.js";
+import { DeclarationExtractor, languageOfPath, ProgramAnalyzer, type Project } from "./analyze.js";
 import { groupByConfig, ProgramCache } from "./program.js";
 
 /**
@@ -30,16 +30,18 @@ export function createTypeScriptPlugin(): LanguagePlugin {
         declarations: new Map(),
         callablesByName: new Map(),
         methodsByName: new Map(),
+        topLevel: new Map(),
       };
       const groups = groupByConfig(input.root, input.files);
-      const analyzers = groups.map((group) => {
-        const { program, host } = cache.program(input.root, group, input.files);
-        return { group, analyzer: new ProgramAnalyzer(project, program, host) };
-      });
-      for (const { group, analyzer } of analyzers) {
-        for (const file of group.files) analyzer.extract(file);
+      // Pass 1: every file's declarations, from syntax only.
+      const extractor = new DeclarationExtractor(project);
+      for (const group of groups) {
+        for (const file of group.files) extractor.extract(file, cache.parse(file, group));
       }
-      for (const { group, analyzer } of analyzers) {
+      // Pass 2: one program at a time, released before the next is built.
+      for (const group of groups) {
+        const { program, host } = cache.program(input.root, group, input.files);
+        const analyzer = new ProgramAnalyzer(project, program, host);
         for (const file of group.files) {
           try {
             analyzer.resolve(file);
@@ -51,6 +53,7 @@ export function createTypeScriptPlugin(): LanguagePlugin {
             });
           }
         }
+        cache.releaseDependencies(new Set(project.files.keys()));
       }
       const result = builder.build();
       last = { fingerprint, result };
