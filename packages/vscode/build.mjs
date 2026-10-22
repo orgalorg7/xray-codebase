@@ -4,7 +4,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { build } from "esbuild";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -43,12 +43,22 @@ await build({
   banner: { js: 'const __xrayImportMetaUrl = require("node:url").pathToFileURL(__filename).href;' },
 });
 
-// Runtime assets next to the worker: tree-sitter's runtime and Python grammar, TypeScript's libs.
+// Runtime assets next to the worker: tree-sitter's runtime and grammars, TypeScript's libs.
 cpSync(require.resolve("web-tree-sitter/web-tree-sitter.wasm"), join(dist, "web-tree-sitter.wasm"));
 cpSync(
   require.resolve("tree-sitter-python/tree-sitter-python.wasm"),
   join(dist, "grammars", "tree-sitter-python.wasm"),
 );
+// Go, Java, Kotlin, Rust, C#, PHP and Ruby grammars.
+const languagesDir = join(join(here, "..", ".."), "packages", "languages");
+const { GRAMMARS } = await import(pathToFileURL(join(languagesDir, "dist", "index.js")).href);
+const fromLanguages = createRequire(join(languagesDir, "package.json"));
+for (const grammar of GRAMMARS) {
+  cpSync(
+    fromLanguages.resolve(`${grammar.package}/${grammar.file}`),
+    join(dist, "grammars", grammar.file),
+  );
+}
 const tsLib = dirname(require.resolve("typescript"));
 for (const file of readdirSync(tsLib)) {
   if (/^lib\..*\.d\.ts$|^lib\.d\.ts$/.test(file)) cpSync(join(tsLib, file), join(dist, file));

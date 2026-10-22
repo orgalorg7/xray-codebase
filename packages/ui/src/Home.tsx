@@ -1,3 +1,4 @@
+import { LANGUAGE_NAMES, type Language } from "@xray/schema";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { formatCount, plural, timeAgo } from "./format";
 import { savedTheme } from "./state";
@@ -30,8 +31,6 @@ type MapSummary = {
 };
 
 const EXAMPLES = ["expressjs/express", "psf/requests", "sindresorhus/ky", "pallets/flask"];
-
-const LANGUAGES: Record<string, string> = { ts: "TypeScript", js: "JavaScript", py: "Python" };
 
 const FEATURES = [
   {
@@ -246,7 +245,7 @@ export function Home({ target, repo }: { target?: string | undefined; repo?: str
                     </span>
                     <span className="recent-meta">
                       {Object.keys(m.languages)
-                        .map((l) => LANGUAGES[l] ?? l)
+                        .map((l) => LANGUAGE_NAMES[l as Language] ?? l)
                         .join(", ")}{" "}
                       · {m.ref === m.sha ? m.sha.slice(0, 7) : m.ref} ·{" "}
                       {timeAgo(new Date(m.createdAt).toISOString())}

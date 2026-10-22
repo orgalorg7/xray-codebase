@@ -1450,3 +1450,92 @@ kbd {
     padding: 12px;
   }
 }
+
+/* ---- changes view ----------------------------------------------------------------------- */
+
+.changes-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.changes-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 99px;
+  padding: 1px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chip.active,
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stat-value .added {
+  color: var(--ok);
+}
+
+.stat-value .removed {
+  color: var(--danger);
+}
+
+.removed-node {
+  padding: 3px 6px;
+  color: var(--muted);
+  text-decoration: line-through;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dep-row {
+  padding-bottom: 4px;
+}
+
+.dep-target {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 4px;
+  padding-left: 12px;
+}
+
+.signature-change {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 6px;
+}
+
+.signature-change code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  padding-left: 8px;
+}
+
+.signature-change code.removed {
+  color: var(--danger);
+  text-decoration: line-through;
+}
+
+.cycle-row.static {
+  cursor: default;
+}
+
+.cycle-row.resolved .cycle-members {
+  color: var(--ok);
+}

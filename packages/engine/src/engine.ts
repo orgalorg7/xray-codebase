@@ -3,15 +3,17 @@ import { type FSWatcher, readFileSync, statSync, watch } from "node:fs";
 import { join, resolve } from "node:path";
 import { createPythonPlugin } from "@xray/lang-python";
 import { createTypeScriptPlugin } from "@xray/lang-ts";
+import { createLanguagePlugins } from "@xray/languages";
 import type { Diagnostic, FileAnalysis, LanguagePlugin, SourceFile } from "@xray/parser";
 import type { GraphStore } from "@xray/store";
 import { DEFAULT_IGNORES, discoverFiles } from "./discover.js";
+import { linkHttpCalls } from "./http.js";
 import { buildStructure } from "./structure.js";
 
 export type EngineOptions = {
   root: string;
   store: GraphStore;
-  /** Defaults to TypeScript/JavaScript and Python. */
+  /** Defaults to TypeScript/JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP and Ruby. */
   plugins?: LanguagePlugin[];
   /** Extra gitignore-style patterns. */
   ignore?: readonly string[];
@@ -63,7 +65,11 @@ export class Engine {
   constructor(options: EngineOptions) {
     this.root = resolve(options.root);
     this.#store = options.store;
-    this.#plugins = options.plugins ?? [createTypeScriptPlugin(), createPythonPlugin()];
+    this.#plugins = options.plugins ?? [
+      createTypeScriptPlugin(),
+      createPythonPlugin(),
+      ...createLanguagePlugins(),
+    ];
     this.#ignore = options.ignore ?? [];
     this.#maxFileSize = options.maxFileSize ?? 1024 * 1024;
     this.#maxFiles = options.maxFiles ?? Number.POSITIVE_INFINITY;
@@ -189,6 +195,12 @@ export class Engine {
           message: `${plugin.name} plugin failed: ${error instanceof Error ? error.message : String(error)}`,
         });
       }
+    }
+    // Requests in one file to routes in another (often another language).
+    const links = linkHttpCalls(analyses, current);
+    for (const [index, analysis] of analyses.entries()) {
+      const extra = links.get(analysis.path);
+      if (extra) analyses[index] = { ...analysis, edges: [...analysis.edges, ...extra] };
     }
     const analyzed = performance.now();
 

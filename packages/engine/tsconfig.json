@@ -10,6 +10,7 @@
     { "path": "../store" },
     { "path": "../parser" },
     { "path": "../lang-ts" },
-    { "path": "../lang-python" }
+    { "path": "../lang-python" },
+    { "path": "../languages" }
   ]
 }

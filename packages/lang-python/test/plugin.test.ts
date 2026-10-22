@@ -317,3 +317,46 @@ describe("robustness", () => {
     expect(g.node("py:m.py#Node.walk")).toBeDefined();
   });
 });
+
+describe("module state", () => {
+  it("tells reads of module variables from writes", async () => {
+    const g = await analyze({
+      "state.py": py(`
+        count = 0
+        cache = {}
+        seen = set()
+
+        def bump():
+            global count
+            count += 1
+            cache["a"] = count
+            seen.add("a")
+
+        def local_only():
+            count = 5
+            return count
+
+        def show():
+            return count + cache.get("a", 0) + len(seen)
+      `),
+      "other.py": py(`
+        from state import cache
+
+        def clear_all():
+            cache.clear()
+      `),
+    });
+    const access = (from: string, to: string) =>
+      g.edges
+        .filter((e) => e.source === from && e.target === to && e.kind === "references")
+        .map((e) => e.detail)
+        .sort();
+    expect(access("py:state.py#bump", "py:state.py#count")).toEqual(["reads", "writes"]);
+    expect(access("py:state.py#bump", "py:state.py#cache")).toEqual(["writes"]);
+    expect(access("py:state.py#bump", "py:state.py#seen")).toEqual(["writes"]);
+    // Without `global`, assigning makes a local: not the module's count.
+    expect(access("py:state.py#local_only", "py:state.py#count")).toEqual([]);
+    expect(access("py:state.py#show", "py:state.py#cache")).toEqual(["reads"]);
+    expect(access("py:other.py#clear_all", "py:state.py#cache")).toEqual(["writes"]);
+  });
+});

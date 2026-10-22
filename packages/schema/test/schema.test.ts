@@ -71,7 +71,7 @@ describe("ids", () => {
   });
 
   it("rejects malformed ids", () => {
-    for (const id of ["", "nope", "rb:x.rb", "ts:", "ts:a.ts#", "ext:npm", "ext:/x", ":x"]) {
+    for (const id of ["", "nope", "zz:x.zz", "ts:", "ts:a.ts#", "ext:npm", "ext:/x", ":x"]) {
       expect(parseId(id), id).toBeUndefined();
     }
   });

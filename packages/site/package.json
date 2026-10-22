@@ -22,6 +22,7 @@
   "dependencies": {
     "@xray/cli": "workspace:*",
     "@xray/cloud": "workspace:*",
+    "@xray/schema": "workspace:*",
     "@xray/server": "workspace:*",
     "@xray/service": "workspace:*"
   },

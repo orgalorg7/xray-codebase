@@ -6,7 +6,7 @@ type Item =
   | { kind: "status"; label: string; description?: string; tooltip?: string; icon: string }
   | {
       kind: "group";
-      id: "cycles" | "hotspots" | "dead";
+      id: "cycles" | "hotspots" | "state" | "dead";
       label: string;
       count: number;
       icon: string;
@@ -82,6 +82,13 @@ export class InsightsTree implements vscode.TreeDataProvider<Item> {
         },
         {
           kind: "group",
+          id: "state",
+          label: "Shared mutable state",
+          count: data.insights.state.length,
+          icon: "database",
+        },
+        {
+          kind: "group",
           id: "dead",
           label: "Possibly dead code",
           count: data.insights.deadCode.length,
@@ -101,6 +108,13 @@ export class InsightsTree implements vscode.TreeDataProvider<Item> {
           kind: "node",
           node: m.node,
           description: `${m.lines.toLocaleString()} lines · ${m.fanIn} in`,
+        }));
+      }
+      if (item.id === "state") {
+        return data.insights.state.map((v) => ({
+          kind: "node",
+          node: v.node,
+          description: `${v.writers.length} writing · ${v.readers.length} reading`,
         }));
       }
       return data.insights.deadCode.map((d) => ({

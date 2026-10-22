@@ -70,6 +70,8 @@ export function runCheck(
     const seen = new Set<string>();
     for (const edge of index.edges) {
       if (!DEPENDENCY_KINDS.includes(edge.kind)) continue;
+      // Requests over HTTP are not code depending on code.
+      if (edge.detail === "http") continue;
       const from = pathOf(edge.source);
       const to = pathOf(edge.target);
       if (!from || !to || from === to) continue;

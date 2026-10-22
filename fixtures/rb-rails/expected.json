@@ -1,0 +1,529 @@
+{
+  "description": "Ruby: global constants, a class reopened in two files, mixins, instance variables, Foo.new inference, require_relative and autoloaded dependencies, Rails routes with resources and namespaces, Sinatra, RSpec.",
+  "language": "rb",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates",
+    "extends",
+    "implements",
+    "overrides",
+    "handles"
+  ],
+  "nodes": [
+    {
+      "id": "rb:app/controllers/application_controller.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:app/controllers/application_controller.rb#ApplicationController",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/controllers/users_controller.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:app/controllers/users_controller.rb#UsersController",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/controllers/users_controller.rb#UsersController.show",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/controllers/users_controller.rb#UsersController.index",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/models/application_record.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:app/models/application_record.rb#ApplicationRecord",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/models/application_record.rb#ApplicationRecord.validate!",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/models/concerns/auditable.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:app/models/concerns/auditable.rb#Auditable",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/models/concerns/auditable.rb#Auditable.audit",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/models/user.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:app/models/user.rb#User",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/models/user.rb#User.id",
+      "kind": "property"
+    },
+    {
+      "id": "rb:app/models/user.rb#User.initialize",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/models/user.rb#User.save",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/models/user.rb#User.find_by_id",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/services/shop/extra.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:app/services/shop/extra.rb#Shop",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/services/shop/extra.rb#Shop.UserRepo",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/services/shop/extra.rb#Shop.UserRepo.count",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/services/user_repo.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:app/services/user_repo.rb#Shop",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/services/user_repo.rb#Shop.UserRepo",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/services/user_repo.rb#Shop.UserRepo.initialize",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/services/user_repo.rb#Shop.UserRepo.store",
+      "kind": "property"
+    },
+    {
+      "id": "rb:app/services/user_repo.rb#Shop.UserRepo.find",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app/services/user_repo.rb#Shop.Store",
+      "kind": "class"
+    },
+    {
+      "id": "rb:app/services/user_repo.rb#Shop.Store.put",
+      "kind": "method"
+    },
+    {
+      "id": "rb:app.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:app.rb#GET /health",
+      "kind": "route"
+    },
+    {
+      "id": "rb:config/routes.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:config/routes.rb#GET /users/:id",
+      "kind": "route"
+    },
+    {
+      "id": "rb:config/routes.rb#GET /users",
+      "kind": "route"
+    },
+    {
+      "id": "rb:config/routes.rb#GET /admin/reports",
+      "kind": "route"
+    },
+    {
+      "id": "rb:config/routes.rb#GET /admin/reports/:id",
+      "kind": "route"
+    },
+    {
+      "id": "rb:config/routes.rb#POST /admin/reports",
+      "kind": "route"
+    },
+    {
+      "id": "rb:config/routes.rb#PATCH /admin/reports/:id",
+      "kind": "route"
+    },
+    {
+      "id": "rb:config/routes.rb#DELETE /admin/reports/:id",
+      "kind": "route"
+    },
+    {
+      "id": "rb:spec/user_repo_spec.rb",
+      "kind": "module"
+    },
+    {
+      "id": "rb:spec/user_repo_spec.rb#test:Shop::UserRepo #find finds users",
+      "kind": "test"
+    },
+    {
+      "id": "ext:gem/redis",
+      "kind": "external"
+    }
+  ],
+  "edges": [
+    {
+      "source": "rb:app/controllers/application_controller.rb",
+      "kind": "contains",
+      "target": "rb:app/controllers/application_controller.rb#ApplicationController"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb",
+      "kind": "contains",
+      "target": "rb:app/controllers/users_controller.rb#UsersController"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb#UsersController",
+      "kind": "contains",
+      "target": "rb:app/controllers/users_controller.rb#UsersController.show"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb#UsersController",
+      "kind": "contains",
+      "target": "rb:app/controllers/users_controller.rb#UsersController.index"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb#UsersController",
+      "kind": "extends",
+      "target": "rb:app/controllers/application_controller.rb#ApplicationController"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb",
+      "kind": "imports",
+      "target": "rb:app/services/shop/extra.rb",
+      "confidence": "inferred",
+      "detail": "autoload"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb#UsersController.show",
+      "kind": "instantiates",
+      "target": "rb:app/services/shop/extra.rb#Shop.UserRepo"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb",
+      "kind": "imports",
+      "target": "rb:app/services/user_repo.rb",
+      "confidence": "inferred",
+      "detail": "autoload"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb#UsersController.show",
+      "kind": "calls",
+      "target": "rb:app/services/user_repo.rb#Shop.UserRepo.find",
+      "confidence": "inferred"
+    },
+    {
+      "source": "rb:app/controllers/users_controller.rb#UsersController.show",
+      "kind": "calls",
+      "target": "rb:app/services/shop/extra.rb#Shop.UserRepo.count",
+      "confidence": "inferred"
+    },
+    {
+      "source": "rb:app/models/application_record.rb",
+      "kind": "contains",
+      "target": "rb:app/models/application_record.rb#ApplicationRecord"
+    },
+    {
+      "source": "rb:app/models/application_record.rb#ApplicationRecord",
+      "kind": "contains",
+      "target": "rb:app/models/application_record.rb#ApplicationRecord.validate!"
+    },
+    {
+      "source": "rb:app/models/concerns/auditable.rb",
+      "kind": "contains",
+      "target": "rb:app/models/concerns/auditable.rb#Auditable"
+    },
+    {
+      "source": "rb:app/models/concerns/auditable.rb#Auditable",
+      "kind": "contains",
+      "target": "rb:app/models/concerns/auditable.rb#Auditable.audit"
+    },
+    {
+      "source": "rb:app/models/user.rb",
+      "kind": "contains",
+      "target": "rb:app/models/user.rb#User"
+    },
+    {
+      "source": "rb:app/models/user.rb#User",
+      "kind": "contains",
+      "target": "rb:app/models/user.rb#User.id"
+    },
+    {
+      "source": "rb:app/models/user.rb#User",
+      "kind": "contains",
+      "target": "rb:app/models/user.rb#User.initialize"
+    },
+    {
+      "source": "rb:app/models/user.rb#User",
+      "kind": "contains",
+      "target": "rb:app/models/user.rb#User.save"
+    },
+    {
+      "source": "rb:app/models/user.rb#User",
+      "kind": "contains",
+      "target": "rb:app/models/user.rb#User.find_by_id"
+    },
+    {
+      "source": "rb:app/models/user.rb#User",
+      "kind": "extends",
+      "target": "rb:app/models/application_record.rb#ApplicationRecord"
+    },
+    {
+      "source": "rb:app/models/user.rb#User",
+      "kind": "extends",
+      "target": "rb:app/models/concerns/auditable.rb#Auditable"
+    },
+    {
+      "source": "rb:app/models/user.rb",
+      "kind": "imports",
+      "target": "rb:app/models/application_record.rb",
+      "confidence": "inferred",
+      "detail": "autoload"
+    },
+    {
+      "source": "rb:app/models/user.rb#User.save",
+      "kind": "calls",
+      "target": "rb:app/models/application_record.rb#ApplicationRecord.validate!"
+    },
+    {
+      "source": "rb:app/models/user.rb",
+      "kind": "imports",
+      "target": "rb:app/models/concerns/auditable.rb",
+      "confidence": "inferred",
+      "detail": "autoload"
+    },
+    {
+      "source": "rb:app/models/user.rb#User.save",
+      "kind": "calls",
+      "target": "rb:app/models/concerns/auditable.rb#Auditable.audit"
+    },
+    {
+      "source": "rb:app/models/user.rb#User.find_by_id",
+      "kind": "instantiates",
+      "target": "rb:app/models/user.rb#User"
+    },
+    {
+      "source": "rb:app/services/shop/extra.rb",
+      "kind": "contains",
+      "target": "rb:app/services/shop/extra.rb#Shop"
+    },
+    {
+      "source": "rb:app/services/shop/extra.rb#Shop",
+      "kind": "contains",
+      "target": "rb:app/services/shop/extra.rb#Shop.UserRepo"
+    },
+    {
+      "source": "rb:app/services/shop/extra.rb#Shop.UserRepo",
+      "kind": "contains",
+      "target": "rb:app/services/shop/extra.rb#Shop.UserRepo.count"
+    },
+    {
+      "source": "rb:app/services/shop/extra.rb",
+      "kind": "imports",
+      "target": "rb:app/services/user_repo.rb",
+      "confidence": "inferred",
+      "detail": "autoload"
+    },
+    {
+      "source": "rb:app/services/shop/extra.rb#Shop.UserRepo.count",
+      "kind": "calls",
+      "target": "rb:app/services/user_repo.rb#Shop.UserRepo.find"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb",
+      "kind": "contains",
+      "target": "rb:app/services/user_repo.rb#Shop"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop",
+      "kind": "contains",
+      "target": "rb:app/services/user_repo.rb#Shop.UserRepo"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.UserRepo",
+      "kind": "contains",
+      "target": "rb:app/services/user_repo.rb#Shop.UserRepo.initialize"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.UserRepo",
+      "kind": "contains",
+      "target": "rb:app/services/user_repo.rb#Shop.UserRepo.store"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.UserRepo",
+      "kind": "contains",
+      "target": "rb:app/services/user_repo.rb#Shop.UserRepo.find"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop",
+      "kind": "contains",
+      "target": "rb:app/services/user_repo.rb#Shop.Store"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.Store",
+      "kind": "contains",
+      "target": "rb:app/services/user_repo.rb#Shop.Store.put"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb",
+      "kind": "imports",
+      "target": "ext:gem/redis"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.UserRepo.initialize",
+      "kind": "instantiates",
+      "target": "rb:app/services/user_repo.rb#Shop.Store"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb",
+      "kind": "imports",
+      "target": "rb:app/models/user.rb",
+      "confidence": "inferred",
+      "detail": "autoload"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.UserRepo.find",
+      "kind": "calls",
+      "target": "rb:app/models/user.rb#User.find_by_id"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.UserRepo.find",
+      "kind": "calls",
+      "target": "rb:app/services/user_repo.rb#Shop.Store.put",
+      "confidence": "inferred"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.UserRepo.find",
+      "kind": "calls",
+      "target": "rb:app/models/user.rb#User.save"
+    },
+    {
+      "source": "rb:app/services/user_repo.rb#Shop.UserRepo.find",
+      "kind": "instantiates",
+      "target": "rb:app/models/user.rb#User"
+    },
+    {
+      "source": "rb:app.rb",
+      "kind": "contains",
+      "target": "rb:app.rb#GET /health"
+    },
+    {
+      "source": "rb:app.rb",
+      "kind": "imports",
+      "target": "rb:app/services/user_repo.rb"
+    },
+    {
+      "source": "rb:app.rb#GET /health",
+      "kind": "calls",
+      "target": "rb:app/services/user_repo.rb#Shop.UserRepo.find"
+    },
+    {
+      "source": "rb:app.rb",
+      "kind": "imports",
+      "target": "rb:app/services/shop/extra.rb",
+      "confidence": "inferred",
+      "detail": "autoload"
+    },
+    {
+      "source": "rb:app.rb#GET /health",
+      "kind": "instantiates",
+      "target": "rb:app/services/shop/extra.rb#Shop.UserRepo"
+    },
+    {
+      "source": "rb:config/routes.rb",
+      "kind": "contains",
+      "target": "rb:config/routes.rb#GET /users/:id"
+    },
+    {
+      "source": "rb:config/routes.rb#GET /users/:id",
+      "kind": "handles",
+      "target": "rb:app/controllers/users_controller.rb#UsersController.show"
+    },
+    {
+      "source": "rb:config/routes.rb",
+      "kind": "contains",
+      "target": "rb:config/routes.rb#GET /users"
+    },
+    {
+      "source": "rb:config/routes.rb#GET /users",
+      "kind": "handles",
+      "target": "rb:app/controllers/users_controller.rb#UsersController.index"
+    },
+    {
+      "source": "rb:config/routes.rb",
+      "kind": "contains",
+      "target": "rb:config/routes.rb#GET /admin/reports"
+    },
+    {
+      "source": "rb:config/routes.rb",
+      "kind": "contains",
+      "target": "rb:config/routes.rb#GET /admin/reports/:id"
+    },
+    {
+      "source": "rb:config/routes.rb",
+      "kind": "contains",
+      "target": "rb:config/routes.rb#POST /admin/reports"
+    },
+    {
+      "source": "rb:config/routes.rb",
+      "kind": "contains",
+      "target": "rb:config/routes.rb#PATCH /admin/reports/:id"
+    },
+    {
+      "source": "rb:config/routes.rb",
+      "kind": "contains",
+      "target": "rb:config/routes.rb#DELETE /admin/reports/:id"
+    },
+    {
+      "source": "rb:spec/user_repo_spec.rb",
+      "kind": "contains",
+      "target": "rb:spec/user_repo_spec.rb#test:Shop::UserRepo #find finds users"
+    },
+    {
+      "source": "rb:spec/user_repo_spec.rb",
+      "kind": "imports",
+      "target": "rb:app/services/user_repo.rb"
+    },
+    {
+      "source": "rb:spec/user_repo_spec.rb#test:Shop::UserRepo #find finds users",
+      "kind": "calls",
+      "target": "rb:app/services/user_repo.rb#Shop.UserRepo.find"
+    },
+    {
+      "source": "rb:spec/user_repo_spec.rb",
+      "kind": "imports",
+      "target": "rb:app/services/shop/extra.rb",
+      "confidence": "inferred",
+      "detail": "autoload"
+    },
+    {
+      "source": "rb:spec/user_repo_spec.rb#test:Shop::UserRepo #find finds users",
+      "kind": "instantiates",
+      "target": "rb:app/services/shop/extra.rb#Shop.UserRepo"
+    }
+  ]
+}

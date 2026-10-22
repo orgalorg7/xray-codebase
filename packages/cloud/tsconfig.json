@@ -5,5 +5,5 @@
     "outDir": "dist"
   },
   "include": ["src"],
-  "references": [{ "path": "../service" }, { "path": "../server" }]
+  "references": [{ "path": "../schema" }, { "path": "../service" }, { "path": "../server" }]
 }

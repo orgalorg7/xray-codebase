@@ -13,7 +13,7 @@ your workspace and how they depend on each other, then puts that knowledge where
 - **Hovers** add caller counts and map links to declarations and calls.
 - **Sidebar** lists import cycles, hotspot files and possibly dead code.
 
-TypeScript, JavaScript and Python. Static analysis only: your code is never run and nothing
+TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP and Ruby. Static analysis only: your code is never run and nothing
 leaves your machine. Links say how sure they are: resolved exactly, inferred from types, or
 guessed by name.
 

@@ -4,7 +4,18 @@ import { type Graph, type Language, moduleId, parseId } from "@xray/schema";
 import { describe, expect, it } from "vitest";
 import { listFixtures, loadFixture, scoreGraph } from "../src/index.js";
 
-const SOURCE_EXTENSIONS: Record<string, Language> = { ".ts": "ts", ".js": "js", ".py": "py" };
+const SOURCE_EXTENSIONS: Record<string, Language> = {
+  ".ts": "ts",
+  ".js": "js",
+  ".py": "py",
+  ".go": "go",
+  ".java": "java",
+  ".kt": "kt",
+  ".rs": "rs",
+  ".cs": "cs",
+  ".php": "php",
+  ".rb": "rb",
+};
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
@@ -19,10 +30,16 @@ describe("fixtures", () => {
 
   it("are all discovered", () => {
     expect(names).toEqual([
+      "cs-aspnet",
+      "go-modules",
       "js-commonjs",
+      "jvm-mixed",
+      "php-laravel",
       "py-classes",
       "py-cycles",
       "py-packages",
+      "rb-rails",
+      "rs-workspace",
       "ts-classes",
       "ts-cycles",
       "ts-reexports",
@@ -49,12 +66,23 @@ describe("fixtures", () => {
       expect(nodeIds.size).toBe(expected.nodes.length);
       for (const node of expected.nodes) {
         const parsed = parseId(node.id);
-        expect(parsed?.type, node.id).toBe(node.kind === "module" ? "module" : "symbol");
+        expect(parsed?.type, node.id).toBe(
+          node.kind === "module" ? "module" : node.kind === "external" ? "external" : "symbol",
+        );
         if (parsed?.type === "symbol") {
           expect(nodeIds.has(moduleId(parsed.language, parsed.path)), node.id).toBe(true);
+          // Routes, test titles and Kotlin's implicit Companion are named by xray, not the code.
+          if (
+            node.kind === "route" ||
+            node.kind === "test" ||
+            /\bCompanion\b/.test(parsed.qualifiedName)
+          )
+            continue;
           const source = readFileSync(join(dir, parsed.path), "utf8");
           const name = parsed.qualifiedName.split(".").at(-1) ?? "";
-          expect(source, node.id).toMatch(new RegExp(`\\b${name.replaceAll("$", "\\$")}\\b`));
+          const escaped = name.replace(/[.*+?^${}()|[\]\\!]/g, "\\$&");
+          const end = /\w$/.test(name) ? "\\b" : "";
+          expect(source, node.id).toMatch(new RegExp(`\\b${escaped}${end}`));
         }
       }
     });

@@ -169,6 +169,8 @@ export type InsightsView = {
   districts: (Omit<District, "modules"> & { modules: number; sample: Summary[] })[];
   /** Files changed most often, when git history is available. */
   churn: { file: string; commits: number; authors: number }[];
+  /** Module-level variables changed by some code and used by other code. */
+  state: { node: Summary; writers: Summary[]; readers: Summary[]; modules: number }[];
 };
 
 export type DsmView = {
@@ -188,4 +190,33 @@ export type FileSymbol = Summary & {
   callers: number;
   /** Distinct nodes that depend on it in any way (calls, references, inheritance, ...). */
   dependents: number;
+};
+
+export type DependencyView = { source: Summary; target: Summary };
+
+/** How the architecture changed between two versions (see `diffGraphs`), ready to show. */
+export type DiffView = {
+  /** What was compared, such as `main` and `working tree`. */
+  before: { label: string; scannedAt: string };
+  after: { label: string; scannedAt: string };
+  modules: { added: Summary[]; removed: Summary[] };
+  symbols: { added: Summary[]; removed: Summary[] };
+  dependencies: { added: DependencyView[]; removed: DependencyView[] };
+  directories: { added: DependencyView[]; removed: DependencyView[] };
+  cycles: { introduced: Summary[][]; resolved: Summary[][] };
+  api: {
+    added: Summary[];
+    removed: Summary[];
+    changed: { node: Summary; before: string; after: string }[];
+  };
+  routes: { added: Summary[]; removed: Summary[] };
+  coupling: { node: Summary; before: number; after: number }[];
+};
+
+/** Revisions to compare the working tree with: branches and recent commits. */
+export type RevisionsView = {
+  /** The checked-out branch, or HEAD when detached. */
+  current: string;
+  branches: string[];
+  commits: { sha: string; subject: string; date: string }[];
 };

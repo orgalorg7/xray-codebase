@@ -1,7 +1,14 @@
 import { useSyncExternalStore } from "react";
 import type { Theme } from "./map/colors";
 
-export type Mode = "explore" | "directions" | "impact" | "cycles" | "insights" | "matrix";
+export type Mode =
+  | "explore"
+  | "directions"
+  | "impact"
+  | "cycles"
+  | "insights"
+  | "matrix"
+  | "changes";
 
 export type LayerKey = "roads" | "cycles" | "churn" | "dead" | "coverage" | "districts";
 
@@ -41,6 +48,8 @@ export type AppState = {
   impactDepth?: number | undefined;
   impactHeuristic: boolean;
   cycle?: number | undefined;
+  /** The revision the Changes view compares the working tree with. */
+  base?: string | undefined;
   ignoreTypeOnly: boolean;
   matrixLevel: "module" | "directory";
   tree?: { id: string; direction: "in" | "out" } | undefined;
@@ -79,7 +88,15 @@ export function useStore<T>(store: Store, select: (state: AppState) => T): T {
 
 // ---- URL ------------------------------------------------------------------------------
 
-const MODES: Mode[] = ["explore", "directions", "impact", "cycles", "insights", "matrix"];
+const MODES: Mode[] = [
+  "explore",
+  "directions",
+  "impact",
+  "cycles",
+  "insights",
+  "matrix",
+  "changes",
+];
 
 /** The shareable part of the state, as a URL hash. */
 export function toHash(state: AppState): string {
@@ -94,6 +111,7 @@ export function toHash(state: AppState): string {
   if (state.impactDepth !== undefined) params.set("depth", String(state.impactDepth));
   if (!state.impactHeuristic) params.set("guesses", "off");
   if (state.cycle !== undefined) params.set("cycle", String(state.cycle));
+  if (state.base) params.set("base", state.base);
   if (state.ignoreTypeOnly) params.set("types", "off");
   if (state.matrixLevel !== "module") params.set("level", state.matrixLevel);
   if (state.tree) params.set("tree", `${state.tree.direction}:${state.tree.id}`);
@@ -139,6 +157,7 @@ export function fromHash(hash: string, base: AppState): AppState {
   set("impactTarget", params.get("impact"));
   set("impactDepth", number("depth"));
   set("cycle", number("cycle"));
+  set("base", params.get("base"));
   if (tree) {
     const [direction, ...rest] = tree.split(":");
     if ((direction === "in" || direction === "out") && rest.length > 0)

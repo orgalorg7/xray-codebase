@@ -1099,9 +1099,13 @@ class BodyWalker {
     ) {
       return;
     }
-    const target = this.analyzer.targetOf(this.checker.getSymbolAtLocation(node));
+    const symbol = this.checker.getSymbolAtLocation(node);
+    const target = this.analyzer.targetOf(symbol);
     if (target === undefined || target === owner || target.startsWith(`${owner}.`)) return;
-    const key = `${owner}\u0000${target}`;
+    // Module-level variables are state: say whether this code reads or writes it.
+    const access =
+      !inType && isModuleVariable(this.checker, symbol) ? stateAccess(node) : undefined;
+    const key = `${owner}\u0000${target}\u0000${access ?? ""}`;
     if (this.#references.has(key)) return;
     this.#references.add(key);
     const edge: GraphEdge = {
@@ -1112,6 +1116,97 @@ class BodyWalker {
       location: locationOf(node, this.sf, this.file.path),
     };
     if (inType) edge.detail = "type";
+    else if (access) edge.detail = access;
     this.#edge(edge);
   }
+}
+
+/** Whether a symbol is a variable declared at the top level of a module (`let cache = …`). */
+function isModuleVariable(checker: ts.TypeChecker, symbol: ts.Symbol | undefined): boolean {
+  const resolved =
+    symbol && symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
+  const declaration = resolved?.valueDeclaration;
+  return (
+    declaration !== undefined &&
+    ts.isVariableDeclaration(declaration) &&
+    ts.isVariableDeclarationList(declaration.parent) &&
+    ts.isVariableStatement(declaration.parent.parent) &&
+    ts.isSourceFile(declaration.parent.parent.parent)
+  );
+}
+
+/** Methods that change the collection they are called on. */
+const MUTATORS = new Set([
+  "push",
+  "pop",
+  "shift",
+  "unshift",
+  "splice",
+  "sort",
+  "reverse",
+  "fill",
+  "set",
+  "add",
+  "delete",
+  "clear",
+  "assign",
+]);
+
+const ASSIGNMENTS = new Set([
+  ts.SyntaxKind.EqualsToken,
+  ts.SyntaxKind.PlusEqualsToken,
+  ts.SyntaxKind.MinusEqualsToken,
+  ts.SyntaxKind.AsteriskEqualsToken,
+  ts.SyntaxKind.SlashEqualsToken,
+  ts.SyntaxKind.PercentEqualsToken,
+  ts.SyntaxKind.AmpersandAmpersandEqualsToken,
+  ts.SyntaxKind.BarBarEqualsToken,
+  ts.SyntaxKind.QuestionQuestionEqualsToken,
+  ts.SyntaxKind.AsteriskAsteriskEqualsToken,
+  ts.SyntaxKind.LessThanLessThanEqualsToken,
+  ts.SyntaxKind.GreaterThanGreaterThanEqualsToken,
+  ts.SyntaxKind.AmpersandEqualsToken,
+  ts.SyntaxKind.BarEqualsToken,
+  ts.SyntaxKind.CaretEqualsToken,
+]);
+
+/**
+ * Whether a use of a variable changes it: assigning it or a property or element of it,
+ * `++`/`--`, `delete`, or calling a mutating method on it (`cache.set(…)`, `list.push(…)`).
+ */
+function stateAccess(node: ts.Identifier): "reads" | "writes" {
+  let expr: ts.Node = node;
+  while (
+    (ts.isPropertyAccessExpression(expr.parent) || ts.isElementAccessExpression(expr.parent)) &&
+    expr.parent.expression === expr
+  ) {
+    expr = expr.parent;
+  }
+  const parent = expr.parent;
+  if (
+    ts.isBinaryExpression(parent) &&
+    parent.left === expr &&
+    ASSIGNMENTS.has(parent.operatorToken.kind)
+  ) {
+    return "writes";
+  }
+  if (
+    (ts.isPrefixUnaryExpression(parent) || ts.isPostfixUnaryExpression(parent)) &&
+    (parent.operator === ts.SyntaxKind.PlusPlusToken ||
+      parent.operator === ts.SyntaxKind.MinusMinusToken)
+  ) {
+    return "writes";
+  }
+  if (ts.isDeleteExpression(parent)) return "writes";
+  const method = node.parent;
+  if (
+    ts.isPropertyAccessExpression(method) &&
+    method.expression === node &&
+    MUTATORS.has(method.name.text) &&
+    ts.isCallExpression(method.parent) &&
+    method.parent.expression === method
+  ) {
+    return "writes";
+  }
+  return "reads";
 }

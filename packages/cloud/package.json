@@ -24,6 +24,7 @@
     "@fastify/compress": "9.2.2",
     "@fastify/static": "10.1.6",
     "@fastify/websocket": "11.3.4",
+    "@xray/schema": "workspace:*",
     "@xray/server": "workspace:*",
     "@xray/service": "workspace:*",
     "fastify": "5.12.7"

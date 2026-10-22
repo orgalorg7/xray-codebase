@@ -1,0 +1,373 @@
+{
+  "description": "Cargo workspace of two crates: the module tree, crate:: and super:: paths, pub use re-exports across crates, impl blocks and impl Trait for Type, Self, let inference, actix and axum routes, an inline test module.",
+  "language": "rs",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates",
+    "extends",
+    "implements",
+    "overrides",
+    "handles"
+  ],
+  "nodes": [
+    {
+      "id": "rs:core/src/lib.rs",
+      "kind": "module"
+    },
+    {
+      "id": "rs:core/src/models.rs",
+      "kind": "module"
+    },
+    {
+      "id": "rs:core/src/models.rs#User",
+      "kind": "class"
+    },
+    {
+      "id": "rs:core/src/models.rs#User.id",
+      "kind": "property"
+    },
+    {
+      "id": "rs:core/src/models.rs#User.load",
+      "kind": "method"
+    },
+    {
+      "id": "rs:core/src/models.rs#User.save",
+      "kind": "method"
+    },
+    {
+      "id": "rs:core/src/models.rs#validate",
+      "kind": "function"
+    },
+    {
+      "id": "rs:core/src/models.rs#Keyed",
+      "kind": "interface"
+    },
+    {
+      "id": "rs:core/src/models.rs#Keyed.key",
+      "kind": "method"
+    },
+    {
+      "id": "rs:core/src/models.rs#User.key",
+      "kind": "method"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs",
+      "kind": "module"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs#Repo",
+      "kind": "class"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs#Repo.users",
+      "kind": "property"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs#Repo.db",
+      "kind": "property"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs#Db",
+      "kind": "class"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs#Db.query",
+      "kind": "method"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs#Repo.new",
+      "kind": "method"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs#Repo.find",
+      "kind": "method"
+    },
+    {
+      "id": "rs:core/src/store/mod.rs#tests.finds",
+      "kind": "test"
+    },
+    {
+      "id": "rs:web/src/handlers.rs",
+      "kind": "module"
+    },
+    {
+      "id": "rs:web/src/handlers.rs#list",
+      "kind": "function"
+    },
+    {
+      "id": "rs:web/src/handlers.rs#create",
+      "kind": "function"
+    },
+    {
+      "id": "rs:web/src/handlers.rs#get_user",
+      "kind": "function"
+    },
+    {
+      "id": "rs:web/src/handlers.rs#GET /users/{id}",
+      "kind": "route"
+    },
+    {
+      "id": "rs:web/src/main.rs",
+      "kind": "module"
+    },
+    {
+      "id": "rs:web/src/main.rs#main",
+      "kind": "function"
+    },
+    {
+      "id": "rs:web/src/main.rs#POST /users",
+      "kind": "route"
+    },
+    {
+      "id": "rs:web/src/main.rs#GET /users",
+      "kind": "route"
+    },
+    {
+      "id": "ext:cargo/serde",
+      "kind": "external"
+    },
+    {
+      "id": "ext:cargo/axum",
+      "kind": "external"
+    }
+  ],
+  "edges": [
+    {
+      "source": "rs:core/src/lib.rs",
+      "kind": "imports",
+      "target": "rs:core/src/store/mod.rs"
+    },
+    {
+      "source": "rs:core/src/models.rs",
+      "kind": "contains",
+      "target": "rs:core/src/models.rs#User"
+    },
+    {
+      "source": "rs:core/src/models.rs#User",
+      "kind": "contains",
+      "target": "rs:core/src/models.rs#User.id"
+    },
+    {
+      "source": "rs:core/src/models.rs#User",
+      "kind": "contains",
+      "target": "rs:core/src/models.rs#User.load"
+    },
+    {
+      "source": "rs:core/src/models.rs#User",
+      "kind": "contains",
+      "target": "rs:core/src/models.rs#User.save"
+    },
+    {
+      "source": "rs:core/src/models.rs",
+      "kind": "contains",
+      "target": "rs:core/src/models.rs#validate"
+    },
+    {
+      "source": "rs:core/src/models.rs",
+      "kind": "contains",
+      "target": "rs:core/src/models.rs#Keyed"
+    },
+    {
+      "source": "rs:core/src/models.rs#Keyed",
+      "kind": "contains",
+      "target": "rs:core/src/models.rs#Keyed.key"
+    },
+    {
+      "source": "rs:core/src/models.rs#User",
+      "kind": "contains",
+      "target": "rs:core/src/models.rs#User.key"
+    },
+    {
+      "source": "rs:core/src/models.rs#User",
+      "kind": "implements",
+      "target": "rs:core/src/models.rs#Keyed"
+    },
+    {
+      "source": "rs:core/src/models.rs#User.key",
+      "kind": "overrides",
+      "target": "rs:core/src/models.rs#Keyed.key",
+      "detail": "implements"
+    },
+    {
+      "source": "rs:core/src/models.rs#User.load",
+      "kind": "instantiates",
+      "target": "rs:core/src/models.rs#User"
+    },
+    {
+      "source": "rs:core/src/models.rs#User.save",
+      "kind": "calls",
+      "target": "rs:core/src/models.rs#validate"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs",
+      "kind": "contains",
+      "target": "rs:core/src/store/mod.rs#Repo"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo",
+      "kind": "contains",
+      "target": "rs:core/src/store/mod.rs#Repo.users"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo",
+      "kind": "contains",
+      "target": "rs:core/src/store/mod.rs#Repo.db"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs",
+      "kind": "contains",
+      "target": "rs:core/src/store/mod.rs#Db"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Db",
+      "kind": "contains",
+      "target": "rs:core/src/store/mod.rs#Db.query"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo",
+      "kind": "contains",
+      "target": "rs:core/src/store/mod.rs#Repo.new"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo",
+      "kind": "contains",
+      "target": "rs:core/src/store/mod.rs#Repo.find"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs",
+      "kind": "contains",
+      "target": "rs:core/src/store/mod.rs#tests.finds"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs",
+      "kind": "imports",
+      "target": "rs:core/src/models.rs"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs",
+      "kind": "imports",
+      "target": "ext:cargo/serde"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo.new",
+      "kind": "instantiates",
+      "target": "rs:core/src/store/mod.rs#Repo"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo.find",
+      "kind": "calls",
+      "target": "rs:core/src/store/mod.rs#Db.query"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo.find",
+      "kind": "calls",
+      "target": "rs:core/src/models.rs#User.load"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo.find",
+      "kind": "calls",
+      "target": "rs:core/src/models.rs#User.save",
+      "confidence": "inferred"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#Repo.find",
+      "kind": "calls",
+      "target": "rs:core/src/models.rs#User.key",
+      "confidence": "inferred"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#tests.finds",
+      "kind": "calls",
+      "target": "rs:core/src/store/mod.rs#Repo.new"
+    },
+    {
+      "source": "rs:core/src/store/mod.rs#tests.finds",
+      "kind": "calls",
+      "target": "rs:core/src/store/mod.rs#Repo.find",
+      "confidence": "inferred"
+    },
+    {
+      "source": "rs:web/src/handlers.rs",
+      "kind": "contains",
+      "target": "rs:web/src/handlers.rs#list"
+    },
+    {
+      "source": "rs:web/src/handlers.rs",
+      "kind": "contains",
+      "target": "rs:web/src/handlers.rs#create"
+    },
+    {
+      "source": "rs:web/src/handlers.rs",
+      "kind": "contains",
+      "target": "rs:web/src/handlers.rs#get_user"
+    },
+    {
+      "source": "rs:web/src/handlers.rs",
+      "kind": "imports",
+      "target": "rs:core/src/store/mod.rs"
+    },
+    {
+      "source": "rs:web/src/handlers.rs#list",
+      "kind": "calls",
+      "target": "rs:core/src/store/mod.rs#Repo.new"
+    },
+    {
+      "source": "rs:web/src/handlers.rs#list",
+      "kind": "calls",
+      "target": "rs:core/src/store/mod.rs#Repo.find",
+      "confidence": "inferred"
+    },
+    {
+      "source": "rs:web/src/handlers.rs",
+      "kind": "contains",
+      "target": "rs:web/src/handlers.rs#GET /users/{id}"
+    },
+    {
+      "source": "rs:web/src/handlers.rs#GET /users/{id}",
+      "kind": "handles",
+      "target": "rs:web/src/handlers.rs#get_user"
+    },
+    {
+      "source": "rs:web/src/main.rs",
+      "kind": "contains",
+      "target": "rs:web/src/main.rs#main"
+    },
+    {
+      "source": "rs:web/src/main.rs",
+      "kind": "imports",
+      "target": "rs:core/src/store/mod.rs"
+    },
+    {
+      "source": "rs:web/src/main.rs",
+      "kind": "imports",
+      "target": "ext:cargo/axum"
+    },
+    {
+      "source": "rs:web/src/main.rs#main",
+      "kind": "calls",
+      "target": "rs:web/src/handlers.rs#list"
+    },
+    {
+      "source": "rs:web/src/main.rs",
+      "kind": "contains",
+      "target": "rs:web/src/main.rs#POST /users"
+    },
+    {
+      "source": "rs:web/src/main.rs#POST /users",
+      "kind": "handles",
+      "target": "rs:web/src/handlers.rs#create"
+    },
+    {
+      "source": "rs:web/src/main.rs",
+      "kind": "contains",
+      "target": "rs:web/src/main.rs#GET /users"
+    },
+    {
+      "source": "rs:web/src/main.rs#GET /users",
+      "kind": "handles",
+      "target": "rs:web/src/handlers.rs#list"
+    }
+  ]
+}

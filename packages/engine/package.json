@@ -21,6 +21,7 @@
   "dependencies": {
     "@xray/lang-python": "workspace:*",
     "@xray/lang-ts": "workspace:*",
+    "@xray/languages": "workspace:*",
     "@xray/parser": "workspace:*",
     "@xray/schema": "workspace:*",
     "@xray/store": "workspace:*",

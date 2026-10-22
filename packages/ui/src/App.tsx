@@ -11,6 +11,7 @@ import type { Camera } from "./map/camera";
 import { kindColor, type Theme } from "./map/colors";
 import { type MapHandle, MapView } from "./map/MapView";
 import { buildScene, type Scene } from "./map/scene";
+import { ChangesPanel } from "./panels/ChangesPanel";
 import { CyclesPanel } from "./panels/CyclesPanel";
 import { DirectionsPanel } from "./panels/DirectionsPanel";
 import { ImpactPanel } from "./panels/ImpactPanel";
@@ -40,6 +41,7 @@ const MODES: { mode: Mode; label: string; key: string }[] = [
   { mode: "cycles", label: "Cycles", key: "c" },
   { mode: "insights", label: "Insights", key: "n" },
   { mode: "matrix", label: "Matrix", key: "m" },
+  { mode: "changes", label: "Changes", key: "g" },
 ];
 
 const LEGEND_KINDS = [
@@ -260,6 +262,9 @@ function Shell({
     [store],
   );
 
+  // Comparing revisions needs a backend that maps the repository (local server, VS Code).
+  const modes = useMemo(() => MODES.filter((m) => m.mode !== "changes" || backend.diff), [backend]);
+
   const context: AppContext = useMemo(
     () => ({
       backend,
@@ -307,7 +312,7 @@ function Shell({
       const s = store.get();
       // An open dialog handles its own keys (Escape closes it natively).
       if (s.help) return;
-      const modeKey = MODES.find(
+      const modeKey = modes.find(
         (m) => m.key === e.key.toLowerCase() && e.key.toLowerCase() !== "i",
       );
       if (e.key === "Escape")
@@ -342,7 +347,7 @@ function Shell({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [store, scene, open, toggleTheme]);
+  }, [store, scene, open, toggleTheme, modes]);
 
   return (
     <Context.Provider value={context}>
@@ -360,7 +365,7 @@ function Shell({
           </div>
           <SearchBox ref={searchRef} />
           <nav className="modes" aria-label="Views">
-            {MODES.map((m) => (
+            {modes.map((m) => (
               <button
                 key={m.mode}
                 type="button"
@@ -508,6 +513,8 @@ function SidePanel({ state }: { state: AppState }) {
       return <CyclesPanel />;
     case "insights":
       return <InsightsPanel />;
+    case "changes":
+      return <ChangesPanel />;
     default:
       if (state.tree)
         return (

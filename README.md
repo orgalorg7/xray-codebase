@@ -8,16 +8,32 @@ import, call, inheritance link and reference between them.
 - **Dependencies:** see the full import graph and every circular import.
 - **Where does this live?** Find a feature's code from a plain-language query.
 - **Blast radius:** see everything a change to a function can affect, including routes, CLI commands and tests.
+- **Across languages:** a React component's `fetch("/api/users/" + id)` links to the Go, Python or
+  Java handler that serves it, so a backend change shows its frontend callers.
+- **Time travel:** compare the architecture of two commits: new import cycles, new dependencies
+  between directories, exported API changes.
+- **Shared state:** which functions read and which write module-level variables.
 
 xray is static analysis only. It never runs your code, needs no AI or network, and gives the
 same results on every run. Each link says how sure the analyzer is: resolved exactly, inferred
 from types or assignments, or guessed by name.
 
-Languages: TypeScript/JavaScript and Python.
+Languages: TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP and Ruby.
+
+| Language | How it resolves | Entry points it finds |
+| --- | --- | --- |
+| TypeScript, JavaScript | The TypeScript compiler (types, re-exports, workspaces, CommonJS) | Express/Fastify routes, Next.js handlers, commander/yargs, React components, Jest/Vitest/Mocha |
+| Python | Its own resolver: packages, MRO, `self`/`cls`/`super()`, inference | FastAPI, Flask, Django, click/typer, pytest |
+| Go | Packages by directory through `go.mod`, struct embedding, implicit interfaces | net/http, gin/echo/chi, `Test*` |
+| Java, Kotlin | Packages and imports, resolved together (they call each other) | Spring, JAX-RS, JUnit, `main` |
+| Rust | The crate's module tree, `use`, `impl` blocks and traits, workspaces | actix/rocket, axum, `#[test]` |
+| C# | Namespaces, `using`, static and alias usings | ASP.NET controllers and minimal APIs, xUnit/NUnit/MSTest |
+| PHP | Namespaces, `use`, traits, `require` | Laravel, Symfony, PHPUnit |
+| Ruby | Global constants, reopened classes, mixins, `require` and Rails autoloading | Rails routes, Sinatra, RSpec, minitest |
 
 ## Quick start
 
-In any TypeScript, JavaScript or Python repository (Node 24 or newer):
+In any repository of those languages (Node 24 or newer):
 
 ```sh
 npx xray-codebase open
@@ -58,8 +74,9 @@ current zoom.
 | **Directions** | How does A reach B? The cheapest call routes, step by step |
 | **Blast radius** | What breaks if this changes? Dependents by distance, entry points, tests, risk |
 | **Cycles** | Which files import each other in a loop, and which imports to cut |
-| **Insights** | Hotspot files, large classes, dead code, unused exports, districts, churn |
+| **Insights** | Hotspot files, large classes, shared mutable state, dead code, unused exports, districts, churn |
 | **Matrix** | The dependency structure matrix: layering at a glance |
+| **Changes** | How the architecture changed since a branch, tag or commit; new code highlighted on the map |
 
 Layers add import cycles, git churn, dead code and untested code on top of the map. Every view
 is in the URL, so links can be shared. Press `?` in the map for keyboard shortcuts.
@@ -73,6 +90,7 @@ xray where <query>           Find where a feature lives
 xray impact <symbol...>      What may break if these change
 xray impact --diff [ref]     ...or if the changes since a git ref land
 xray trace <from> <to>       Call routes from one symbol to another
+xray diff <ref> [ref]        How the architecture changed since a git revision
 xray cycles                  Circular imports with suggested cuts
 xray check                   Enforce .xray.json rules in CI
 xray export --format F       json, html (one offline file), dot, mermaid or graphml
@@ -104,7 +122,9 @@ way: see [.xray.json](.xray.json).
 
 [pr-impact](pr-impact/action.yml) comments on each pull request with what its changes reach:
 risk, entry points (routes, commands, components), tests to run and direct dependents, linked to
-the code. It keeps one comment per pull request and updates it on every push.
+the code, followed by how the pull request changes the architecture (new import cycles, new
+dependencies between directories, exported API changes). It keeps one comment per pull request
+and updates it on every push.
 
 ```yaml
 on: pull_request
@@ -123,7 +143,28 @@ jobs:
           fail-on-risk: never # or low, medium, high
 ```
 
-The comment comes from `xray impact --diff <base> --format markdown`, which works with any CI.
+The comment comes from `xray impact --diff <base> --format markdown` and
+`xray diff <base> --format markdown`, which work with any CI.
+
+## Beyond one language
+
+**HTTP links.** After every language is analyzed, xray looks for requests with literal URLs
+(`fetch`, axios, Angular's HttpClient, `requests`, httpx, Go's `http.Get`, RestTemplate,
+`HttpClient.GetAsync`, Guzzle, HTTParty…) and links them to the routes that serve them, in any
+language: `{id}`, `:id`, `<int:id>`, `[id]` and `${id}` all match. A full path match is
+*inferred*; a match of only the end of the path (a backend mounted under a prefix xray cannot see)
+is a *guess*. Tests that call routes through test clients (MockMvc, TestClient, Rack::Test) link
+to them too, so a route's blast radius includes its tests and its frontend callers.
+
+**Architecture diff.** `xray diff main` maps `main` in a temporary git worktree (your checkout
+is untouched) and compares it with the working tree; `xray diff v1.0 v2.0` compares two
+revisions. The map's **Changes** view shows the same comparison, with new code highlighted.
+
+**Module state.** Reads and writes of module-level variables (TypeScript/JavaScript, Python and
+Go) are recorded separately: assignments, `++`, writes to fields or items, and mutating calls
+(`cache.set`, `list.append`) are writes. **Insights** lists *shared mutable state*, variables
+some code changes and other code uses, and the blast radius of a function that writes state
+includes the code that reads it.
 
 ## How it works
 
@@ -134,7 +175,8 @@ The comment comes from `xray impact --diff <base> --format markdown`, which work
 | `@xray/parser` | Language plugin contract, result builder, tree-sitter loader |
 | `@xray/lang-ts` | TypeScript/JavaScript via the TypeScript compiler: imports, re-exports, calls through aliases, generics and typed receivers, inheritance, overrides, CommonJS, JSX, workspace packages |
 | `@xray/lang-python` | Python via tree-sitter: packages and relative imports, `__init__` re-exports, MRO, `self`/`cls`/`super()`, type inference from constructors, annotations and return types |
-| `@xray/engine` | File discovery (`.gitignore`, `.xrayignore`), incremental scans, watch mode, repo/directory/package skeleton |
+| `@xray/languages` | Go, Java, Kotlin, Rust, C#, PHP and Ruby: tree-sitter extractors over one shared resolver (scopes, imports, receiver types, inheritance, routes, tests) |
+| `@xray/engine` | File discovery (`.gitignore`, `.xrayignore`), incremental scans, watch mode, repo/directory/package skeleton, HTTP links between languages |
 | `@xray/analysis` | Cycles with suggested cuts; impact rings, entry points, tests and risk (from symbols or a diff); call routes and trees; feature search; centrality, dead code, unused exports, hotspots; districts; git churn and co-change; the map layout and zoom-level roads |
 | `@xray/service` | The API over a graph snapshot, shared by the server, the HTML export and future editor integrations (browser-safe) |
 | `@xray/server` | Local workspace (index, watch, git) behind a read-only HTTP + WebSocket API |
@@ -145,9 +187,7 @@ The comment comes from `xray impact --diff <base> --format markdown`, which work
 | `@xray/site` | The gallery on GitHub Pages: self-contained map pages of public repositories, rebuilt by a workflow |
 | `@xray/cloud` | Hosted xray: GitHub URL → sandboxed shallow fetch → map, a job queue with live progress, stored maps at permanent links, rate limits, a container image |
 
-Entry points it recognises: Express/Fastify-style routes, Next.js route handlers, commander and
-yargs commands, React components, Jest/Vitest/Mocha tests; FastAPI, Flask and Django routes,
-click/typer commands and pytest tests.
+Entry points it recognises are listed per language in the table at the top.
 
 ### Benchmarks
 
@@ -183,10 +223,11 @@ node packages/cloud/dist/main.js   # the hosted version on :8080 (data in ./data
 
 ## Roadmap
 
-Done: the engine, analyses, CLI and local map, the VS Code extension, the hosted version and
-pull request comments. Next: private repositories in the hosted version (a GitHub App), more
-languages through tree-sitter (Go, Java, Rust, C#), links from frontend `fetch` calls to backend
-routes, and comparing the maps of two commits.
+Done: the engine and its analyses, the CLI and local map, the VS Code extension, the hosted
+version and gallery, pull request comments, ten languages, links between languages over HTTP,
+architecture diffs between commits, and module state. Next: private repositories in the hosted
+version (a GitHub App), message queues and RPC (gRPC, GraphQL) as links between services, and more
+languages (Swift, C and C++, Scala, Elixir).
 
 ## License
 

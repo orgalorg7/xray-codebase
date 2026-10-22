@@ -361,6 +361,8 @@ export class PythonProject {
         if (!locals.has(target.text)) locals.set(target.text, { kind: "unknown" });
         return;
       }
+      // `cache[k] = v` and `obj.attr = v` change an object; they bind no name.
+      if (target.type === "subscript" || target.type === "attribute") return;
       for (const child of named(target)) shadow(child);
     };
     const visit = (node: SyntaxNode): void => {
@@ -1012,13 +1014,36 @@ class BodyWalker {
       // The callee itself is handled by #call; still walk receivers like `foo(x).bar()`.
       return node.type === "identifier";
     }
-    if (parent?.type === "assignment" && field(parent, "left")?.equals(node))
-      return node.type === "identifier";
-    if (node.type === "identifier" && parent?.type === "attribute") return false;
+    const assigned =
+      (parent?.type === "assignment" || parent?.type === "augmented_assignment") &&
+      field(parent, "left")?.equals(node);
+    if (assigned && node.type === "identifier") {
+      // Assigning a module variable needs `global`, which keeps it out of the locals.
+      this.#state(node, owner, ctx);
+      return true;
+    }
+    if (assigned) return false;
+    if (node.type === "identifier" && parent?.type === "attribute") {
+      // `cache.append(x)`, `config.debug`: the object may be module state.
+      if (field(parent, "object")?.equals(node)) this.#state(node, owner, ctx);
+      return false;
+    }
+    if (
+      node.type === "identifier" &&
+      parent?.type === "subscript" &&
+      field(parent, "value")?.equals(node)
+    ) {
+      this.#state(node, owner, ctx);
+      return false;
+    }
     const value = this.project.evaluate(node, ctx);
     if (value?.t !== "def" || value.def.kind === "property") return false;
     const target = defId(value.mod, value.def);
     if (target === owner || target.startsWith(`${owner}.`)) return true;
+    if (node.type === "identifier" && value.def.kind === "variable" && !value.def.parent) {
+      this.#state(node, owner, ctx);
+      return true;
+    }
     const key = `${owner}\u0000${target}`;
     if (!this.#references.has(key)) {
       this.#references.add(key);
@@ -1034,4 +1059,78 @@ class BodyWalker {
     }
     return true;
   }
+
+  /** A read or write of a module-level variable (state) by the owner. */
+  #state(node: SyntaxNode, owner: string, ctx: Context): void {
+    const value = this.project.evaluate(node, ctx);
+    if (value?.t !== "def" || value.def.kind !== "variable" || value.def.parent) return;
+    const target = defId(value.mod, value.def);
+    if (target === owner) return;
+    const access = stateAccess(node);
+    const key = `${owner}\u0000${target}\u0000${access}`;
+    if (this.#references.has(key)) return;
+    this.#references.add(key);
+    this.#edge({
+      source: owner,
+      target,
+      kind: "references",
+      confidence: value.via === "inferred" ? "inferred" : "exact",
+      detail: access,
+      location: locationOf(node, this.mod.path),
+    });
+  }
+}
+
+/** Methods that change the object they are called on. */
+const MUTATORS = new Set([
+  "append",
+  "extend",
+  "insert",
+  "pop",
+  "popitem",
+  "remove",
+  "clear",
+  "update",
+  "setdefault",
+  "add",
+  "discard",
+  "sort",
+  "reverse",
+]);
+
+/**
+ * Whether a use of a name changes it: assigning it (after `global`), assigning or deleting an
+ * attribute or item of it, or calling a mutating method (`cache.update(…)`, `seen.add(x)`).
+ */
+function stateAccess(node: SyntaxNode): "reads" | "writes" {
+  let expr = node;
+  for (let parent = expr.parent; parent; parent = expr.parent) {
+    const object =
+      parent.type === "attribute"
+        ? field(parent, "object")
+        : parent.type === "subscript"
+          ? field(parent, "value")
+          : null;
+    if (!object?.equals(expr)) break;
+    expr = parent;
+  }
+  const parent = expr.parent;
+  if (
+    (parent?.type === "assignment" || parent?.type === "augmented_assignment") &&
+    field(parent, "left")?.equals(expr)
+  ) {
+    return "writes";
+  }
+  if (parent?.type === "delete_statement") return "writes";
+  const method = node.parent;
+  if (
+    method?.type === "attribute" &&
+    field(method, "object")?.equals(node) &&
+    MUTATORS.has(field(method, "attribute")?.text ?? "") &&
+    method.parent?.type === "call" &&
+    field(method.parent, "function")?.equals(method)
+  ) {
+    return "writes";
+  }
+  return "reads";
 }

@@ -1,9 +1,9 @@
 // Bundles the CLI and every @xray workspace package into dist/xray.js, next to the built map
-// UI (dist/ui) and the Python grammar (dist/grammars). npm dependencies stay external.
+// UI (dist/ui) and the language grammars (dist/grammars). npm dependencies stay external.
 import { chmodSync, cpSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { build } from "esbuild";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -38,6 +38,16 @@ cpSync(
   require.resolve("tree-sitter-python/tree-sitter-python.wasm"),
   join(dist, "grammars", "tree-sitter-python.wasm"),
 );
+// Go, Java, Kotlin, Rust, C#, PHP and Ruby grammars.
+const languagesDir = join(root, "packages", "languages");
+const { GRAMMARS } = await import(pathToFileURL(join(languagesDir, "dist", "index.js")).href);
+const fromLanguages = createRequire(join(languagesDir, "package.json"));
+for (const grammar of GRAMMARS) {
+  cpSync(
+    fromLanguages.resolve(`${grammar.package}/${grammar.file}`),
+    join(dist, "grammars", grammar.file),
+  );
+}
 
 cpSync(join(root, "LICENSE"), join(here, "LICENSE"));
 console.log(`built ${pkg.name}@${pkg.version} in ${dist}`);

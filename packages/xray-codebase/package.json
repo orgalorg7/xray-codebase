@@ -1,7 +1,7 @@
 {
   "name": "xray-codebase",
-  "version": "0.2.0",
-  "description": "X-ray vision for any codebase: an interactive, zoomable map of architecture, calls and dependencies. TypeScript, JavaScript and Python.",
+  "version": "0.3.0",
+  "description": "X-ray vision for any codebase: an interactive, zoomable map of architecture, calls and dependencies. TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP and Ruby.",
   "keywords": [
     "architecture",
     "dependency-graph",
@@ -10,7 +10,14 @@
     "circular-dependencies",
     "impact-analysis",
     "visualization",
-    "static-analysis"
+    "static-analysis",
+    "go",
+    "java",
+    "kotlin",
+    "rust",
+    "csharp",
+    "php",
+    "ruby"
   ],
   "license": "MIT",
   "repository": {
@@ -51,6 +58,7 @@
   },
   "devDependencies": {
     "@xray/cli": "workspace:*",
+    "@xray/languages": "workspace:*",
     "@xray/ui": "workspace:*",
     "esbuild": "0.28.2",
     "tree-sitter-python": "0.25.0"

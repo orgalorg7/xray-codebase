@@ -1,0 +1,35 @@
+{
+  "name": "@xray/languages",
+  "version": "0.0.0",
+  "description": "Go, Java, Kotlin, Rust, C#, PHP and Ruby for xray: tree-sitter extraction with a shared resolver.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@tree-sitter-grammars/tree-sitter-kotlin": "1.1.0",
+    "@xray/parser": "workspace:*",
+    "@xray/schema": "workspace:*",
+    "tree-sitter-c-sharp": "0.23.5",
+    "tree-sitter-go": "0.25.0",
+    "tree-sitter-java": "0.23.5",
+    "tree-sitter-php": "0.24.2",
+    "tree-sitter-ruby": "0.23.1",
+    "tree-sitter-rust": "0.24.0"
+  },
+  "devDependencies": {
+    "@xray/testkit": "workspace:*"
+  }
+}

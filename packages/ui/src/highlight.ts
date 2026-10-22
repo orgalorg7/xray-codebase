@@ -17,6 +17,13 @@ function load(): Promise<HighlighterCore> {
         import("@shikijs/langs/tsx"),
         import("@shikijs/langs/javascript"),
         import("@shikijs/langs/python"),
+        import("@shikijs/langs/go"),
+        import("@shikijs/langs/java"),
+        import("@shikijs/langs/kotlin"),
+        import("@shikijs/langs/rust"),
+        import("@shikijs/langs/csharp"),
+        import("slim-grammar:php"),
+        import("slim-grammar:ruby"),
       ],
       engine: createJavaScriptRegexEngine(),
     });
@@ -24,7 +31,18 @@ function load(): Promise<HighlighterCore> {
   return highlighter;
 }
 
-const LANG: Record<Language, string> = { ts: "tsx", js: "javascript", py: "python" };
+const LANG: Record<Language, string> = {
+  ts: "tsx",
+  js: "javascript",
+  py: "python",
+  go: "go",
+  java: "java",
+  kt: "kotlin",
+  rs: "rust",
+  cs: "csharp",
+  php: "php",
+  rb: "ruby",
+};
 
 export type Token = { content: string; color?: string };
 

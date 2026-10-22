@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        xray maps TypeScript, JavaScript and Python code. Once a maintainer approves the request,
+        xray maps TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP and Ruby. Once a maintainer approves the request,
         the map appears in the gallery within a few minutes and this issue gets its link.
   - type: input
     id: repository

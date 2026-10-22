@@ -134,3 +134,17 @@ test("the HTML export works offline", async ({ page }) => {
   await page.locator(".panel .node-link", { hasText: "create_user" }).first().click();
   await expect(page.locator(".code-line-focus").first()).toContainText("def create_user");
 });
+
+test("compares the architecture with an earlier commit", async ({ page }) => {
+  await ready(page, "#mode=changes&base=HEAD~1");
+  await expect(page.locator(".node-title")).toHaveText("Since HEAD~1");
+  await expect(page.locator(".stats")).toContainText("files", { timeout: 20_000 });
+  const added = page.locator(".section", { hasText: "Added files" });
+  await expect(added).toContainText("py-packages/app/main.py");
+  // A revision that does not exist is explained.
+  await page.getByLabel("Git revision to compare with").fill("no-such-branch");
+  await page.getByRole("button", { name: "Compare" }).click();
+  await expect(page.locator(".panel")).toContainText(
+    '"no-such-branch" is not a commit, branch or tag',
+  );
+});

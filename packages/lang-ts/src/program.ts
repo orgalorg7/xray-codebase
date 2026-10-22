@@ -261,6 +261,16 @@ export function workspacePaths(
       .flatMap((candidate) => sourceCandidates(resolve(dirname(manifest), candidate)))
       .find((candidate) => known.has(candidate));
     if (entry !== undefined) paths[pkg.name] = [entry];
+    // Subpath exports: "@acme/server/workspace" → "./workspace": { "development": "./src/…" }.
+    if (pkg.exports !== null && typeof pkg.exports === "object") {
+      for (const [key, value] of Object.entries(pkg.exports as Record<string, unknown>)) {
+        if (!key.startsWith("./") || key.includes("*")) continue;
+        const subpath = entryCandidates({ exports: value })
+          .flatMap((candidate) => sourceCandidates(resolve(dirname(manifest), candidate)))
+          .find((candidate) => known.has(candidate));
+        if (subpath !== undefined) paths[`${pkg.name}${key.slice(1)}`] = [subpath];
+      }
+    }
   }
   return paths;
 }

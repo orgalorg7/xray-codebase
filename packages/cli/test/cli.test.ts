@@ -41,7 +41,7 @@ afterEach(() => {
 describe("xray", () => {
   it("prints help and version", async () => {
     expect((await run("--help")).out).toContain("X-ray vision for any codebase");
-    expect((await run("--version")).out).toBe("0.2.0\n");
+    expect((await run("--version")).out).toBe("0.3.0\n");
     expect((await run("where", "--help")).out).toContain("xray where <query>");
     const unknown = await run("frobnicate");
     expect(unknown.code).toBe(2);
@@ -118,6 +118,57 @@ describe("xray", () => {
     );
     expect(markdown).toContain("<summary><b>Direct dependents");
     expect((await run("impact", "--diff", "--format", "yaml")).code).toBe(2);
+  });
+
+  it("compares the architecture of two revisions", async () => {
+    useFixture("ts-reexports");
+    const git = (...args: string[]) =>
+      execFileSync(
+        "git",
+        ["-C", dir, "-c", "user.name=t", "-c", "user.email=t@example.com", ...args],
+        { stdio: "pipe" },
+      );
+    git("init", "-q");
+    git("add", ".");
+    git("commit", "-q", "-m", "init");
+    // A new module importing math, and math importing it back: a cycle.
+    writeFileSync(
+      join(dir, "src/utils/log.ts"),
+      'import { add } from "./math";\nexport const log = () => add(1, 2);\n',
+    );
+    const math = join(dir, "src/utils/math.ts");
+    writeFileSync(
+      math,
+      `import { log } from "./log";\n${readFileSync(math, "utf8")}\nexport const used = log;\n`,
+    );
+    git("add", ".");
+    git("commit", "-q", "-m", "cycle");
+
+    const text = await run("diff", "HEAD~1", "--no-git");
+    expect(text.code).toBe(0);
+    expect(text.out).toContain("New import cycles (1)");
+    expect(text.out).toContain("src/utils/log.ts → src/utils/math.ts → src/utils/log.ts");
+    expect(text.out).toContain("Added files (1)");
+
+    const json = JSON.parse((await run("diff", "HEAD~1", "HEAD", "--json", "--no-git")).out);
+    expect(json.modules.added.map((m: { id: string }) => m.id)).toEqual(["ts:src/utils/log.ts"]);
+    expect(json.before.label).toBe("HEAD~1");
+
+    const markdown = (await run("diff", "HEAD~1", "--format", "markdown", "--no-git")).out;
+    expect(markdown).toContain("### xray: architecture changes");
+    expect(markdown).toContain("⚠️ **1 new import cycle**");
+
+    // Comparing a revision with itself finds nothing; a bad revision is an error.
+    expect((await run("diff", "HEAD", "HEAD", "--format", "markdown", "--no-git")).out).toContain(
+      "No architecture changes",
+    );
+    expect((await run("diff", "no-such-branch", "--no-git")).err).toContain(
+      '"no-such-branch" is not a commit, branch or tag',
+    );
+    // The temporary worktrees are gone.
+    expect(
+      execFileSync("git", ["-C", dir, "worktree", "list"], { encoding: "utf8" }).trim().split("\n"),
+    ).toHaveLength(1);
   });
 
   it("traces call routes", async () => {

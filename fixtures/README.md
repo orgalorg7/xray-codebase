@@ -31,3 +31,9 @@ and recall per edge kind. Only the kinds listed in a fixture's `edgeKinds` are s
 | `py-classes` | Inheritance, overrides, self calls, `classmethod`/`cls()` |
 | `ts-cycles` | 3-module cycle, cycle closed by a type-only import |
 | `py-cycles` | 2-module cycle through a deferred import |
+| `go-modules` | go.mod packages, a package alias, embedding, implicit interfaces, gin and net/http routes |
+| `jvm-mixed` | Java and Kotlin together: imports, constructors, overrides, inference, Spring routes, JUnit |
+| `cs-aspnet` | Namespaces, `using`, `base()`, return-type inference, ASP.NET routes, xUnit |
+| `rs-workspace` | Two crates: module tree, `crate::`/`super::`, `pub use`, impl blocks, actix and axum routes |
+| `php-laravel` | Namespaces, grouped `use`, traits, `parent::`/`self::`, Laravel routes, PHPUnit |
+| `rb-rails` | Reopened classes, mixins, instance variables, Rails routes and autoloading, Sinatra, RSpec |

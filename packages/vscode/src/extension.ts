@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext): XrayApi {
     const located = editor && workspaces.locate(editor.document.uri);
     if (!editor || !located) {
       void vscode.window.showInformationMessage(
-        "xray: open a TypeScript, JavaScript or Python file in this workspace first.",
+        "xray: open a source file (TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP or Ruby) in this workspace first.",
       );
       return undefined;
     }

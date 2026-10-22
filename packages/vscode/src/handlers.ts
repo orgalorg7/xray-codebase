@@ -1,5 +1,6 @@
+import { commitOf, revisionsOf, serviceAt } from "@xray/server/revisions";
 import type { Workspace } from "@xray/server/workspace";
-import type { FileSymbol, Summary } from "@xray/service";
+import { compareSnapshots, type FileSymbol, type Summary } from "@xray/service";
 
 type ImpactRequest = { ids: string[]; depth?: number; heuristic?: boolean };
 
@@ -47,6 +48,16 @@ export function createHandlers(workspace: Workspace): Record<string, Handler> {
     symbolAt: async (file: string, line: number): Promise<Summary | undefined> => {
       const matches = (await service()).resolve(`${file}:${line}`);
       return matches.find((m) => m.kind !== "module") ?? matches[0];
+    },
+    // ---- changes ----------------------------------------------------------------------------
+    revisions: async () => revisionsOf(workspace.root),
+    diff: async (base: string) => {
+      const commit = commitOf(workspace.root, base);
+      const [{ service: before }, current] = await Promise.all([
+        serviceAt(workspace.root, commit),
+        service(),
+      ]);
+      return compareSnapshots(before, current, { before: base, after: "the working tree" });
     },
     scan: async (force?: boolean) => {
       const report = await workspace.scan({ force: force ?? false });

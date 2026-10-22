@@ -19,7 +19,8 @@
           "packages/parser/**",
           "packages/lang-*/**",
           "packages/cli/**",
-          "packages/cloud/**"
+          "packages/cloud/**",
+          "packages/languages/**"
         ]
       },
       {
@@ -32,12 +33,13 @@
           "packages/parser/**",
           "packages/lang-*/**",
           "packages/cli/**",
-          "packages/cloud/**"
+          "packages/cloud/**",
+          "packages/languages/**"
         ]
       },
       {
         "name": "language plugins do not know about storage or the engine",
-        "from": ["packages/parser/src/**", "packages/lang-*/src/**"],
+        "from": ["packages/parser/src/**", "packages/lang-*/src/**", "packages/languages/src/**"],
         "disallow": [
           "packages/store/**",
           "packages/engine/**",

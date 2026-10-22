@@ -274,3 +274,53 @@ export function hotspots(
     classes,
   };
 }
+
+export type SharedState = {
+  /** The module-level variable. */
+  id: string;
+  /** Functions and methods that change it, and that only read it. */
+  writers: string[];
+  readers: string[];
+  /** Files its writers and readers are in. */
+  modules: number;
+};
+
+/**
+ * Module-level variables that some code changes and other code uses: hidden coupling between
+ * everything that touches them. Most writers first.
+ */
+export function sharedState(index: GraphIndex, limit = 50): SharedState[] {
+  const result: SharedState[] = [];
+  for (const node of index.byKind("variable")) {
+    // Test files share setup between hooks and cases on purpose.
+    const module = index.moduleOf(node.id);
+    if (module && isTestPath(index.node(module)?.qualifiedName ?? "")) continue;
+    const writers = new Set<string>();
+    const readers = new Set<string>();
+    for (const edge of index.in(node.id, ["references"])) {
+      if (edge.source === node.id) continue;
+      if (edge.detail === "writes") writers.add(edge.source);
+      else if (edge.detail === "reads") readers.add(edge.source);
+    }
+    for (const writer of writers) readers.delete(writer);
+    if (writers.size === 0 || writers.size + readers.size < 2) continue;
+    const modules = new Set(
+      [...writers, ...readers].map((id) => index.moduleOf(id)).filter((m) => m !== undefined),
+    );
+    result.push({
+      id: node.id,
+      writers: [...writers].sort(compareStrings),
+      readers: [...readers].sort(compareStrings),
+      modules: modules.size,
+    });
+  }
+  return result
+    .sort(
+      (a, b) =>
+        b.writers.length - a.writers.length ||
+        b.readers.length - a.readers.length ||
+        b.modules - a.modules ||
+        compareStrings(a.id, b.id),
+    )
+    .slice(0, limit);
+}

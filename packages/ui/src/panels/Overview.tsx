@@ -1,9 +1,8 @@
+import { LANGUAGE_NAMES, type Language } from "@xray/schema";
 import { useMemo } from "react";
 import { NodeLink, Section } from "../components/common";
 import { useApp } from "../context";
 import { formatCount, plural, timeAgo } from "../format";
-
-const LANGUAGE_NAMES = { ts: "TypeScript", js: "JavaScript", py: "Python" } as const;
 
 /** The repository at a glance, shown when nothing is selected. */
 export function Overview() {
@@ -49,8 +48,7 @@ export function Overview() {
       <p className="muted">
         {Object.entries(stats.languages)
           .map(
-            ([lang, n]) =>
-              `${LANGUAGE_NAMES[lang as keyof typeof LANGUAGE_NAMES]} ${plural(n ?? 0, "file")}`,
+            ([lang, n]) => `${LANGUAGE_NAMES[lang as Language] ?? lang} ${plural(n ?? 0, "file")}`,
           )
           .join(" · ")}
         {stats.tests > 0 && ` · ${plural(stats.tests, "test")}`}

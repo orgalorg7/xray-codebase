@@ -1,0 +1,435 @@
+{
+  "description": "PHP: namespaces, grouped and function use, constructor promotion, parent:: and self::, traits, return-type inference, Laravel routes to controller actions, a PHPUnit test.",
+  "language": "php",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates",
+    "extends",
+    "implements",
+    "overrides",
+    "handles"
+  ],
+  "nodes": [
+    {
+      "id": "php:app/Http/Controllers/UserController.php",
+      "kind": "module"
+    },
+    {
+      "id": "php:app/Http/Controllers/UserController.php#UserController",
+      "kind": "class"
+    },
+    {
+      "id": "php:app/Http/Controllers/UserController.php#UserController.__construct",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Http/Controllers/UserController.php#UserController.repo",
+      "kind": "property"
+    },
+    {
+      "id": "php:app/Http/Controllers/UserController.php#UserController.show",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Http/Controllers/UserController.php#UserController.log",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Http/Controllers/UserController.php#Controller",
+      "kind": "class"
+    },
+    {
+      "id": "php:app/Http/Controllers/UserController.php#Controller.__construct",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Models/Model.php",
+      "kind": "module"
+    },
+    {
+      "id": "php:app/Models/Model.php#Model",
+      "kind": "class"
+    },
+    {
+      "id": "php:app/Models/Model.php#Model.validate",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Models/Model.php#Keyed",
+      "kind": "interface"
+    },
+    {
+      "id": "php:app/Models/Model.php#Keyed.key",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Models/Model.php#HasAudit",
+      "kind": "class"
+    },
+    {
+      "id": "php:app/Models/Model.php#HasAudit.audit",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Models/User.php",
+      "kind": "module"
+    },
+    {
+      "id": "php:app/Models/User.php#User",
+      "kind": "class"
+    },
+    {
+      "id": "php:app/Models/User.php#User.__construct",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Models/User.php#User.id",
+      "kind": "property"
+    },
+    {
+      "id": "php:app/Models/User.php#User.save",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Models/User.php#User.key",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Models/User.php#User.query",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Repos/UserRepo.php",
+      "kind": "module"
+    },
+    {
+      "id": "php:app/Repos/UserRepo.php#UserRepo",
+      "kind": "class"
+    },
+    {
+      "id": "php:app/Repos/UserRepo.php#UserRepo.find",
+      "kind": "method"
+    },
+    {
+      "id": "php:app/Support/helpers.php",
+      "kind": "module"
+    },
+    {
+      "id": "php:app/Support/helpers.php#clean",
+      "kind": "function"
+    },
+    {
+      "id": "php:routes/web.php",
+      "kind": "module"
+    },
+    {
+      "id": "php:routes/web.php#GET /users/{id}",
+      "kind": "route"
+    },
+    {
+      "id": "php:routes/web.php#POST /users",
+      "kind": "route"
+    },
+    {
+      "id": "php:tests/UserRepoTest.php",
+      "kind": "module"
+    },
+    {
+      "id": "php:tests/UserRepoTest.php#UserRepoTest",
+      "kind": "class"
+    },
+    {
+      "id": "php:tests/UserRepoTest.php#UserRepoTest.testFind",
+      "kind": "test"
+    },
+    {
+      "id": "ext:composer/illuminate",
+      "kind": "external"
+    },
+    {
+      "id": "ext:composer/phpunit",
+      "kind": "external"
+    }
+  ],
+  "edges": [
+    {
+      "source": "php:app/Http/Controllers/UserController.php",
+      "kind": "contains",
+      "target": "php:app/Http/Controllers/UserController.php#UserController"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController",
+      "kind": "contains",
+      "target": "php:app/Http/Controllers/UserController.php#UserController.__construct"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController",
+      "kind": "contains",
+      "target": "php:app/Http/Controllers/UserController.php#UserController.repo"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController",
+      "kind": "contains",
+      "target": "php:app/Http/Controllers/UserController.php#UserController.show"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController",
+      "kind": "contains",
+      "target": "php:app/Http/Controllers/UserController.php#UserController.log"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php",
+      "kind": "contains",
+      "target": "php:app/Http/Controllers/UserController.php#Controller"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#Controller",
+      "kind": "contains",
+      "target": "php:app/Http/Controllers/UserController.php#Controller.__construct"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php",
+      "kind": "imports",
+      "target": "php:app/Repos/UserRepo.php"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php",
+      "kind": "imports",
+      "target": "php:app/Models/User.php"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php",
+      "kind": "imports",
+      "target": "php:app/Models/Model.php"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController",
+      "kind": "extends",
+      "target": "php:app/Http/Controllers/UserController.php#Controller"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController.__construct",
+      "kind": "calls",
+      "target": "php:app/Http/Controllers/UserController.php#Controller.__construct"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController.show",
+      "kind": "calls",
+      "target": "php:app/Repos/UserRepo.php#UserRepo.find"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController.show",
+      "kind": "calls",
+      "target": "php:app/Models/User.php#User.save",
+      "confidence": "inferred"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController.show",
+      "kind": "calls",
+      "target": "php:app/Http/Controllers/UserController.php#UserController.log"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController.show",
+      "kind": "calls",
+      "target": "php:app/Models/User.php#User.query"
+    },
+    {
+      "source": "php:app/Http/Controllers/UserController.php#UserController.log",
+      "kind": "calls",
+      "target": "php:app/Models/Model.php#Keyed.key"
+    },
+    {
+      "source": "php:app/Models/Model.php",
+      "kind": "contains",
+      "target": "php:app/Models/Model.php#Model"
+    },
+    {
+      "source": "php:app/Models/Model.php#Model",
+      "kind": "contains",
+      "target": "php:app/Models/Model.php#Model.validate"
+    },
+    {
+      "source": "php:app/Models/Model.php",
+      "kind": "contains",
+      "target": "php:app/Models/Model.php#Keyed"
+    },
+    {
+      "source": "php:app/Models/Model.php#Keyed",
+      "kind": "contains",
+      "target": "php:app/Models/Model.php#Keyed.key"
+    },
+    {
+      "source": "php:app/Models/Model.php",
+      "kind": "contains",
+      "target": "php:app/Models/Model.php#HasAudit"
+    },
+    {
+      "source": "php:app/Models/Model.php#HasAudit",
+      "kind": "contains",
+      "target": "php:app/Models/Model.php#HasAudit.audit"
+    },
+    {
+      "source": "php:app/Models/User.php",
+      "kind": "contains",
+      "target": "php:app/Models/User.php#User"
+    },
+    {
+      "source": "php:app/Models/User.php#User",
+      "kind": "contains",
+      "target": "php:app/Models/User.php#User.__construct"
+    },
+    {
+      "source": "php:app/Models/User.php#User",
+      "kind": "contains",
+      "target": "php:app/Models/User.php#User.id"
+    },
+    {
+      "source": "php:app/Models/User.php#User",
+      "kind": "contains",
+      "target": "php:app/Models/User.php#User.save"
+    },
+    {
+      "source": "php:app/Models/User.php#User",
+      "kind": "contains",
+      "target": "php:app/Models/User.php#User.key"
+    },
+    {
+      "source": "php:app/Models/User.php#User",
+      "kind": "contains",
+      "target": "php:app/Models/User.php#User.query"
+    },
+    {
+      "source": "php:app/Models/User.php#User",
+      "kind": "extends",
+      "target": "php:app/Models/Model.php#Model"
+    },
+    {
+      "source": "php:app/Models/User.php#User",
+      "kind": "implements",
+      "target": "php:app/Models/Model.php#Keyed"
+    },
+    {
+      "source": "php:app/Models/User.php#User",
+      "kind": "extends",
+      "target": "php:app/Models/Model.php#HasAudit"
+    },
+    {
+      "source": "php:app/Models/User.php#User.key",
+      "kind": "overrides",
+      "target": "php:app/Models/Model.php#Keyed.key",
+      "detail": "implements"
+    },
+    {
+      "source": "php:app/Models/User.php#User.save",
+      "kind": "calls",
+      "target": "php:app/Models/Model.php#Model.validate"
+    },
+    {
+      "source": "php:app/Models/User.php#User.save",
+      "kind": "calls",
+      "target": "php:app/Models/Model.php#HasAudit.audit"
+    },
+    {
+      "source": "php:app/Models/User.php#User.query",
+      "kind": "instantiates",
+      "target": "php:app/Models/User.php#User"
+    },
+    {
+      "source": "php:app/Repos/UserRepo.php",
+      "kind": "contains",
+      "target": "php:app/Repos/UserRepo.php#UserRepo"
+    },
+    {
+      "source": "php:app/Repos/UserRepo.php#UserRepo",
+      "kind": "contains",
+      "target": "php:app/Repos/UserRepo.php#UserRepo.find"
+    },
+    {
+      "source": "php:app/Repos/UserRepo.php",
+      "kind": "imports",
+      "target": "php:app/Models/User.php"
+    },
+    {
+      "source": "php:app/Repos/UserRepo.php",
+      "kind": "imports",
+      "target": "ext:composer/illuminate"
+    },
+    {
+      "source": "php:app/Repos/UserRepo.php",
+      "kind": "imports",
+      "target": "php:app/Support/helpers.php"
+    },
+    {
+      "source": "php:app/Repos/UserRepo.php#UserRepo.find",
+      "kind": "instantiates",
+      "target": "php:app/Models/User.php#User"
+    },
+    {
+      "source": "php:app/Repos/UserRepo.php#UserRepo.find",
+      "kind": "calls",
+      "target": "php:app/Support/helpers.php#clean"
+    },
+    {
+      "source": "php:app/Support/helpers.php",
+      "kind": "contains",
+      "target": "php:app/Support/helpers.php#clean"
+    },
+    {
+      "source": "php:routes/web.php",
+      "kind": "imports",
+      "target": "php:app/Http/Controllers/UserController.php"
+    },
+    {
+      "source": "php:routes/web.php",
+      "kind": "imports",
+      "target": "ext:composer/illuminate"
+    },
+    {
+      "source": "php:routes/web.php",
+      "kind": "contains",
+      "target": "php:routes/web.php#GET /users/{id}"
+    },
+    {
+      "source": "php:routes/web.php#GET /users/{id}",
+      "kind": "handles",
+      "target": "php:app/Http/Controllers/UserController.php#UserController.show"
+    },
+    {
+      "source": "php:routes/web.php",
+      "kind": "contains",
+      "target": "php:routes/web.php#POST /users"
+    },
+    {
+      "source": "php:tests/UserRepoTest.php",
+      "kind": "contains",
+      "target": "php:tests/UserRepoTest.php#UserRepoTest"
+    },
+    {
+      "source": "php:tests/UserRepoTest.php#UserRepoTest",
+      "kind": "contains",
+      "target": "php:tests/UserRepoTest.php#UserRepoTest.testFind"
+    },
+    {
+      "source": "php:tests/UserRepoTest.php",
+      "kind": "imports",
+      "target": "php:app/Repos/UserRepo.php"
+    },
+    {
+      "source": "php:tests/UserRepoTest.php",
+      "kind": "imports",
+      "target": "ext:composer/phpunit"
+    },
+    {
+      "source": "php:tests/UserRepoTest.php#UserRepoTest.testFind",
+      "kind": "calls",
+      "target": "php:app/Repos/UserRepo.php#UserRepo.find"
+    },
+    {
+      "source": "php:tests/UserRepoTest.php#UserRepoTest.testFind",
+      "kind": "instantiates",
+      "target": "php:app/Repos/UserRepo.php#UserRepo"
+    }
+  ]
+}

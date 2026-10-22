@@ -1,8 +1,8 @@
 {
   "name": "xray-vscode",
   "displayName": "xray: Codebase Map",
-  "description": "An interactive map of your codebase in VS Code: callers above every function, blast radius of a change, call routes, circular imports and where features live. TypeScript, JavaScript and Python.",
-  "version": "0.1.0",
+  "description": "An interactive map of your codebase in VS Code: callers above every function, blast radius of a change, call routes, circular imports and where features live. TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP and Ruby.",
+  "version": "0.2.0",
   "publisher": "xray-codebase",
   "license": "MIT",
   "repository": {
@@ -37,7 +37,14 @@
     "impact analysis",
     "codelens",
     "typescript",
-    "python"
+    "python",
+    "go",
+    "java",
+    "kotlin",
+    "rust",
+    "csharp",
+    "php",
+    "ruby"
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
@@ -46,8 +53,23 @@
     "onLanguage:javascript",
     "onLanguage:javascriptreact",
     "onLanguage:python",
+    "onLanguage:go",
+    "onLanguage:java",
+    "onLanguage:kotlin",
+    "onLanguage:rust",
+    "onLanguage:csharp",
+    "onLanguage:php",
+    "onLanguage:ruby",
     "workspaceContains:**/tsconfig.json",
-    "workspaceContains:**/pyproject.toml"
+    "workspaceContains:**/pyproject.toml",
+    "workspaceContains:**/go.mod",
+    "workspaceContains:**/pom.xml",
+    "workspaceContains:**/build.gradle",
+    "workspaceContains:**/build.gradle.kts",
+    "workspaceContains:**/Cargo.toml",
+    "workspaceContains:**/*.csproj",
+    "workspaceContains:**/composer.json",
+    "workspaceContains:**/Gemfile"
   ],
   "contributes": {
     "commands": [
@@ -217,6 +239,7 @@
     "@vscode/test-electron": "3.1.0",
     "@vscode/vsce": "4.0.0",
     "@xray/analysis": "workspace:*",
+    "@xray/languages": "workspace:*",
     "@xray/schema": "workspace:*",
     "@xray/server": "workspace:*",
     "@xray/service": "workspace:*",

@@ -1,0 +1,519 @@
+{
+  "description": "Java and Kotlin calling each other: packages, class, wildcard and static imports, constructors and super(), inheritance and overrides, var and val inference, a Kotlin object and companion, Spring routes, a JUnit test.",
+  "language": "java",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates",
+    "extends",
+    "implements",
+    "overrides",
+    "handles"
+  ],
+  "nodes": [
+    {
+      "id": "java:src/main/java/com/acme/model/Entity.java",
+      "kind": "module"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/Entity.java#Entity",
+      "kind": "class"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/Entity.java#Entity.Entity",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/Entity.java#Entity.validate",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/Entity.java#Entity.key",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/Keyed.java",
+      "kind": "module"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/Keyed.java#Keyed",
+      "kind": "interface"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/Keyed.java#Keyed.key",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/User.java",
+      "kind": "module"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/User.java#User",
+      "kind": "class"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/User.java#User.id",
+      "kind": "property"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/User.java#User.User",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/User.java#User.save",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/model/User.java#User.key",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/store/Strings.java",
+      "kind": "module"
+    },
+    {
+      "id": "java:src/main/java/com/acme/store/Strings.java#Strings",
+      "kind": "class"
+    },
+    {
+      "id": "java:src/main/java/com/acme/store/Strings.java#Strings.trim",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/store/UserRepo.java",
+      "kind": "module"
+    },
+    {
+      "id": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo",
+      "kind": "class"
+    },
+    {
+      "id": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.load",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.all",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "module"
+    },
+    {
+      "id": "java:src/main/java/com/acme/web/UserController.java#UserController",
+      "kind": "class"
+    },
+    {
+      "id": "java:src/main/java/com/acme/web/UserController.java#UserController.repo",
+      "kind": "property"
+    },
+    {
+      "id": "java:src/main/java/com/acme/web/UserController.java#UserController.UserController",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/web/UserController.java#UserController.get",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/web/UserController.java#UserController.create",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/main/java/com/acme/web/UserController.java#GET /api/users/{id}",
+      "kind": "route"
+    },
+    {
+      "id": "java:src/main/java/com/acme/web/UserController.java#POST /api/users",
+      "kind": "route"
+    },
+    {
+      "id": "kt:src/main/kotlin/com/acme/web/Users.kt",
+      "kind": "module"
+    },
+    {
+      "id": "kt:src/main/kotlin/com/acme/web/Users.kt#Users",
+      "kind": "class"
+    },
+    {
+      "id": "kt:src/main/kotlin/com/acme/web/Users.kt#Users.audit",
+      "kind": "method"
+    },
+    {
+      "id": "kt:src/main/kotlin/com/acme/web/Users.kt#Report",
+      "kind": "class"
+    },
+    {
+      "id": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.user",
+      "kind": "property"
+    },
+    {
+      "id": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.print",
+      "kind": "method"
+    },
+    {
+      "id": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.Companion",
+      "kind": "class"
+    },
+    {
+      "id": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.Companion.make",
+      "kind": "method"
+    },
+    {
+      "id": "java:src/test/java/com/acme/store/UserRepoTest.java",
+      "kind": "module"
+    },
+    {
+      "id": "java:src/test/java/com/acme/store/UserRepoTest.java#UserRepoTest",
+      "kind": "class"
+    },
+    {
+      "id": "java:src/test/java/com/acme/store/UserRepoTest.java#UserRepoTest.loads",
+      "kind": "test"
+    },
+    {
+      "id": "ext:maven/org.springframework.web",
+      "kind": "external"
+    },
+    {
+      "id": "ext:maven/org.junit.jupiter",
+      "kind": "external"
+    }
+  ],
+  "edges": [
+    {
+      "source": "java:src/main/java/com/acme/model/Entity.java",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/Entity.java#Entity"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/Entity.java#Entity",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/Entity.java#Entity.Entity"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/Entity.java#Entity",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/Entity.java#Entity.validate"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/Entity.java#Entity",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/Entity.java#Entity.key"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/Entity.java#Entity",
+      "kind": "implements",
+      "target": "java:src/main/java/com/acme/model/Keyed.java#Keyed"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/Entity.java#Entity.key",
+      "kind": "overrides",
+      "target": "java:src/main/java/com/acme/model/Keyed.java#Keyed.key",
+      "detail": "implements"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/Keyed.java",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/Keyed.java#Keyed"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/Keyed.java#Keyed",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/Keyed.java#Keyed.key"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/User.java#User"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java#User",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/User.java#User.id"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java#User",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/User.java#User.User"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java#User",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/User.java#User.save"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java#User",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/model/User.java#User.key"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java#User",
+      "kind": "extends",
+      "target": "java:src/main/java/com/acme/model/Entity.java#Entity"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java#User.key",
+      "kind": "overrides",
+      "target": "java:src/main/java/com/acme/model/Entity.java#Entity.key"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java#User.User",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/model/Entity.java#Entity.Entity"
+    },
+    {
+      "source": "java:src/main/java/com/acme/model/User.java#User.save",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/model/Entity.java#Entity.validate"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/Strings.java",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/store/Strings.java#Strings"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/Strings.java#Strings",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/store/Strings.java#Strings.trim"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/UserRepo.java",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.load"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.all"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/UserRepo.java",
+      "kind": "imports",
+      "target": "java:src/main/java/com/acme/model/User.java"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/UserRepo.java",
+      "kind": "imports",
+      "target": "java:src/main/java/com/acme/store/Strings.java"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.load",
+      "kind": "instantiates",
+      "target": "java:src/main/java/com/acme/model/User.java#User"
+    },
+    {
+      "source": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.load",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/store/Strings.java#Strings.trim"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/web/UserController.java#UserController"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/web/UserController.java#UserController.repo"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/web/UserController.java#UserController.UserController"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/web/UserController.java#UserController.get"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/web/UserController.java#UserController.create"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "imports",
+      "target": "java:src/main/java/com/acme/model/Entity.java"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "imports",
+      "target": "java:src/main/java/com/acme/model/Keyed.java"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "imports",
+      "target": "java:src/main/java/com/acme/model/User.java"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "imports",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "imports",
+      "target": "ext:maven/org.springframework.web"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController.get",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.load"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController.get",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/model/User.java#User.save",
+      "confidence": "inferred"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController.get",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/model/User.java#User.key"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController.create",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/model/User.java#User.save"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController.create",
+      "kind": "instantiates",
+      "target": "java:src/main/java/com/acme/model/User.java#User"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#UserController.create",
+      "kind": "calls",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Users.audit"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/web/UserController.java#GET /api/users/{id}"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#GET /api/users/{id}",
+      "kind": "handles",
+      "target": "java:src/main/java/com/acme/web/UserController.java#UserController.get"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java",
+      "kind": "contains",
+      "target": "java:src/main/java/com/acme/web/UserController.java#POST /api/users"
+    },
+    {
+      "source": "java:src/main/java/com/acme/web/UserController.java#POST /api/users",
+      "kind": "handles",
+      "target": "java:src/main/java/com/acme/web/UserController.java#UserController.create"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt",
+      "kind": "contains",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Users"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Users",
+      "kind": "contains",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Users.audit"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt",
+      "kind": "contains",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Report"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Report",
+      "kind": "contains",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.user"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Report",
+      "kind": "contains",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.print"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Report",
+      "kind": "contains",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.Companion"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.Companion",
+      "kind": "contains",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.Companion.make"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt",
+      "kind": "imports",
+      "target": "java:src/main/java/com/acme/model/User.java"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt",
+      "kind": "imports",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Users.audit",
+      "kind": "instantiates",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Users.audit",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.load",
+      "confidence": "inferred"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Users.audit",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/model/User.java#User.save"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Users.audit",
+      "kind": "calls",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.Companion.make"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.print",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/model/User.java#User.key"
+    },
+    {
+      "source": "kt:src/main/kotlin/com/acme/web/Users.kt#Report.Companion.make",
+      "kind": "instantiates",
+      "target": "kt:src/main/kotlin/com/acme/web/Users.kt#Report"
+    },
+    {
+      "source": "java:src/test/java/com/acme/store/UserRepoTest.java",
+      "kind": "contains",
+      "target": "java:src/test/java/com/acme/store/UserRepoTest.java#UserRepoTest"
+    },
+    {
+      "source": "java:src/test/java/com/acme/store/UserRepoTest.java#UserRepoTest",
+      "kind": "contains",
+      "target": "java:src/test/java/com/acme/store/UserRepoTest.java#UserRepoTest.loads"
+    },
+    {
+      "source": "java:src/test/java/com/acme/store/UserRepoTest.java",
+      "kind": "imports",
+      "target": "ext:maven/org.junit.jupiter"
+    },
+    {
+      "source": "java:src/test/java/com/acme/store/UserRepoTest.java#UserRepoTest.loads",
+      "kind": "calls",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo.load"
+    },
+    {
+      "source": "java:src/test/java/com/acme/store/UserRepoTest.java#UserRepoTest.loads",
+      "kind": "instantiates",
+      "target": "java:src/main/java/com/acme/store/UserRepo.java#UserRepo"
+    }
+  ]
+}

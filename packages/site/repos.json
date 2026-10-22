@@ -1,11 +1,50 @@
 [
-  { "repo": "orgalorg7/xray-codebase" },
-  { "repo": "expressjs/express" },
-  { "repo": "colinhacks/zod" },
-  { "repo": "sindresorhus/ky" },
-  { "repo": "vercel/ms" },
-  { "repo": "fastapi/fastapi" },
-  { "repo": "pallets/flask" },
-  { "repo": "pallets/click" },
-  { "repo": "psf/requests" }
+  {
+    "repo": "orgalorg7/xray-codebase"
+  },
+  {
+    "repo": "expressjs/express"
+  },
+  {
+    "repo": "colinhacks/zod"
+  },
+  {
+    "repo": "sindresorhus/ky"
+  },
+  {
+    "repo": "vercel/ms"
+  },
+  {
+    "repo": "fastapi/fastapi"
+  },
+  {
+    "repo": "pallets/flask"
+  },
+  {
+    "repo": "pallets/click"
+  },
+  {
+    "repo": "psf/requests"
+  },
+  {
+    "repo": "gin-gonic/gin"
+  },
+  {
+    "repo": "spring-projects/spring-petclinic"
+  },
+  {
+    "repo": "square/kotlinpoet"
+  },
+  {
+    "repo": "BurntSushi/ripgrep"
+  },
+  {
+    "repo": "jasontaylordev/CleanArchitecture"
+  },
+  {
+    "repo": "slimphp/Slim"
+  },
+  {
+    "repo": "sinatra/sinatra"
+  }
 ]

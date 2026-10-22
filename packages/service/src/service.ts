@@ -6,6 +6,7 @@ import {
   compareStrings,
   DEPENDENCY_KINDS,
   deadCode,
+  diffGraphs,
   districts,
   FeatureIndex,
   GraphIndex,
@@ -22,6 +23,7 @@ import {
   parseUnifiedDiff,
   roads,
   SYMBOL_KINDS,
+  sharedState,
   symbolsForChanges,
   tracePaths,
   unusedExports,
@@ -30,6 +32,8 @@ import type { EdgeKind, GraphNode, Language } from "@xray/schema";
 import type {
   CyclesView,
   CycleView,
+  DependencyView,
+  DiffView,
   DsmView,
   EdgeView,
   FileSymbol,
@@ -491,6 +495,12 @@ export class XrayService {
             .sort((a, b) => b.commits - a.commits || compareStrings(a.file, b.file))
             .slice(0, 50)
         : [],
+      state: sharedState(index).map((s) => ({
+        node: this.summary(s.id),
+        writers: s.writers.map((id) => this.summary(id)),
+        readers: s.readers.map((id) => this.summary(id)),
+        modules: s.modules,
+      })),
     };
   }
 
@@ -563,3 +573,46 @@ function summarize(node: GraphNode): Summary {
 }
 
 const round = (value: number): number => Math.round(value * 100) / 100;
+
+/**
+ * The architecture diff between two snapshots of a repository: added things are described
+ * from `after`, removed ones from `before`.
+ */
+export function compareSnapshots(
+  before: XrayService,
+  after: XrayService,
+  labels: { before: string; after: string } = { before: "before", after: "after" },
+): DiffView {
+  const diff = diffGraphs(before.snapshot.graph, after.snapshot.graph);
+  const was = (id: string) => before.summary(id);
+  const now = (id: string) => after.summary(id);
+  const deps =
+    (summary: (id: string) => Summary) =>
+    (list: { source: string; target: string }[]): DependencyView[] =>
+      list.map((d) => ({ source: summary(d.source), target: summary(d.target) }));
+  return {
+    before: { label: labels.before, scannedAt: before.snapshot.scannedAt },
+    after: { label: labels.after, scannedAt: after.snapshot.scannedAt },
+    modules: { added: diff.modules.added.map(now), removed: diff.modules.removed.map(was) },
+    symbols: { added: diff.symbols.added.map(now), removed: diff.symbols.removed.map(was) },
+    dependencies: {
+      added: deps(now)(diff.dependencies.added),
+      removed: deps(was)(diff.dependencies.removed),
+    },
+    directories: {
+      added: deps(now)(diff.directories.added),
+      removed: deps(was)(diff.directories.removed),
+    },
+    cycles: {
+      introduced: diff.cycles.introduced.map((c) => c.map(now)),
+      resolved: diff.cycles.resolved.map((c) => c.map(was)),
+    },
+    api: {
+      added: diff.api.added.map(now),
+      removed: diff.api.removed.map(was),
+      changed: diff.api.changed.map((c) => ({ node: now(c.id), before: c.before, after: c.after })),
+    },
+    routes: { added: diff.routes.added.map(now), removed: diff.routes.removed.map(was) },
+    coupling: diff.coupling.map((c) => ({ node: now(c.id), before: c.before, after: c.after })),
+  };
+}

@@ -42,7 +42,7 @@ export const SYMBOL_KINDS: ReadonlySet<NodeKind> = new Set([
 
 /** Test files across the supported ecosystems. */
 export const isTestPath = (path: string): boolean =>
-  /(^|\/)(__tests__|tests?)\/|\.(test|spec)\.[cm]?[jt]sx?$|(^|\/)test_[^/]*\.py$|_test\.py$|(^|\/)conftest\.py$/.test(
+  /(^|\/)(__tests__|tests?|spec)\/|\.(test|spec)\.[cm]?[jt]sx?$|(^|\/)test_[^/]*\.py$|_test\.py$|(^|\/)conftest\.py$|_test\.go$|(Test|Tests|IT)\.(java|kt|cs)$|_(spec|test)\.rb$|Test\.php$|(^|\/)src\/test\//.test(
     path,
   );
 

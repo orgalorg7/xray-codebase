@@ -8,6 +8,13 @@ export const SELECTOR: vscode.DocumentSelector = [
   "javascript",
   "javascriptreact",
   "python",
+  "go",
+  "java",
+  "kotlin",
+  "rust",
+  "csharp",
+  "php",
+  "ruby",
 ].map((language) => ({ language, scheme: "file" }));
 
 const plural = (n: number, word: string): string => `${n} ${word}${n === 1 ? "" : "s"}`;

@@ -6,6 +6,13 @@ allowBuilds:
   "@vscode/vsce-sign": false
   esbuild: true
   tree-sitter-python: false
+  tree-sitter-go: false
+  tree-sitter-java: false
+  tree-sitter-rust: false
+  tree-sitter-c-sharp: false
+  tree-sitter-php: false
+  tree-sitter-ruby: false
+  "@tree-sitter-grammars/tree-sitter-kotlin": false
 minimumReleaseAgeExclude:
   - "@biomejs/biome@2.6.2"
   - "@biomejs/cli-android-arm64@2.6.2"

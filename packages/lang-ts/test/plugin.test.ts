@@ -166,19 +166,54 @@ describe("resolution", () => {
     const g = await analyze({
       "packages/core/package.json": JSON.stringify({
         name: "@acme/core",
-        exports: { ".": { types: "./dist/index.d.ts", default: "./dist/index.js" } },
+        exports: {
+          ".": { types: "./dist/index.d.ts", default: "./dist/index.js" },
+          "./extra": { development: "./src/extra.ts", default: "./dist/extra.js" },
+        },
       }),
       "packages/core/src/index.ts": "export function core() {}\n",
+      "packages/core/src/extra.ts": "export function extra() {}\n",
       "packages/app/package.json": JSON.stringify({ name: "@acme/app" }),
       "packages/app/src/main.ts":
-        'import { core } from "@acme/core";\nexport function main() { core(); }\n',
+        'import { core } from "@acme/core";\nimport { extra } from "@acme/core/extra";\nexport function main() { core(); extra(); }\n',
     });
+    // Subpath exports resolve too, without node_modules.
+    expect(
+      g.edge("ts:packages/app/src/main.ts#main", "calls", "ts:packages/core/src/extra.ts#extra"),
+    ).toBeDefined();
     expect(
       g.edge("ts:packages/app/src/main.ts", "imports", "ts:packages/core/src/index.ts"),
     ).toBeDefined();
     expect(
       g.edge("ts:packages/app/src/main.ts#main", "calls", "ts:packages/core/src/index.ts#core"),
     ).toBeDefined();
+  });
+
+  it("tells reads of module state from writes", async () => {
+    const g = await analyze({
+      "state.ts": [
+        "export let count = 0;",
+        "export const cache = new Map<string, number>();",
+        "const config = { debug: false };",
+        "export function bump() { count++; cache.set('a', count); }",
+        "export function reset() { count = 0; cache.clear(); config.debug = true; }",
+        "export function show() { return count + (cache.get('a') ?? 0) + (config.debug ? 1 : 0); }",
+        "",
+      ].join("\n"),
+      "other.ts": 'import { count } from "./state";\nexport const twice = () => count * 2;\n',
+    });
+    const access = (from: string, to: string) =>
+      g.edges
+        .filter(
+          (e) => e.source === `ts:${from}` && e.target === `ts:${to}` && e.kind === "references",
+        )
+        .map((e) => e.detail)
+        .sort();
+    expect(access("state.ts#bump", "state.ts#count")).toEqual(["reads", "writes"]);
+    expect(access("state.ts#bump", "state.ts#cache")).toEqual(["writes"]);
+    expect(access("state.ts#reset", "state.ts#config")).toEqual(["writes"]);
+    expect(access("state.ts#show", "state.ts#cache")).toEqual(["reads"]);
+    expect(access("other.ts#twice", "state.ts#count")).toEqual(["reads"]);
   });
 
   it("falls back to unique-name heuristics only for unresolvable receivers", async () => {

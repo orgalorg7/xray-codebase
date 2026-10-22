@@ -1,0 +1,347 @@
+{
+  "description": "Go module: packages by directory through go.mod, a package alias, struct embedding, a structurally satisfied interface, inference through := and composite literals, gin and net/http routes, a _test.go test.",
+  "language": "go",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates",
+    "extends",
+    "implements",
+    "overrides",
+    "handles"
+  ],
+  "nodes": [
+    {
+      "id": "go:main.go",
+      "kind": "module"
+    },
+    {
+      "id": "go:main.go#main",
+      "kind": "function"
+    },
+    {
+      "id": "go:main.go#health",
+      "kind": "function"
+    },
+    {
+      "id": "go:main.go#GET /health",
+      "kind": "route"
+    },
+    {
+      "id": "go:models/user.go",
+      "kind": "module"
+    },
+    {
+      "id": "go:models/user.go#User",
+      "kind": "class"
+    },
+    {
+      "id": "go:models/user.go#User.ID",
+      "kind": "property"
+    },
+    {
+      "id": "go:models/user.go#Base",
+      "kind": "class"
+    },
+    {
+      "id": "go:models/user.go#Base.Touch",
+      "kind": "method"
+    },
+    {
+      "id": "go:models/user.go#Load",
+      "kind": "function"
+    },
+    {
+      "id": "go:models/user.go#User.Save",
+      "kind": "method"
+    },
+    {
+      "id": "go:models/user.go#User.Key",
+      "kind": "method"
+    },
+    {
+      "id": "go:store/repo_test.go",
+      "kind": "module"
+    },
+    {
+      "id": "go:store/repo_test.go#TestFind",
+      "kind": "test"
+    },
+    {
+      "id": "go:store/repo.go",
+      "kind": "module"
+    },
+    {
+      "id": "go:store/repo.go#Keyed",
+      "kind": "interface"
+    },
+    {
+      "id": "go:store/repo.go#Keyed.Key",
+      "kind": "method"
+    },
+    {
+      "id": "go:store/repo.go#Repo",
+      "kind": "class"
+    },
+    {
+      "id": "go:store/repo.go#Repo.db",
+      "kind": "property"
+    },
+    {
+      "id": "go:store/repo.go#DB",
+      "kind": "class"
+    },
+    {
+      "id": "go:store/repo.go#DB.Query",
+      "kind": "method"
+    },
+    {
+      "id": "go:store/repo.go#NewRepo",
+      "kind": "function"
+    },
+    {
+      "id": "go:store/repo.go#Repo.Find",
+      "kind": "method"
+    },
+    {
+      "id": "go:store/repo.go#Routes",
+      "kind": "function"
+    },
+    {
+      "id": "go:store/repo.go#show",
+      "kind": "function"
+    },
+    {
+      "id": "go:store/repo.go#GET /users/:id",
+      "kind": "route"
+    },
+    {
+      "id": "ext:go/github.com/gin-gonic/gin",
+      "kind": "external"
+    }
+  ],
+  "edges": [
+    {
+      "source": "go:main.go",
+      "kind": "contains",
+      "target": "go:main.go#main"
+    },
+    {
+      "source": "go:main.go",
+      "kind": "contains",
+      "target": "go:main.go#health"
+    },
+    {
+      "source": "go:main.go",
+      "kind": "imports",
+      "target": "go:store/repo.go"
+    },
+    {
+      "source": "go:main.go#main",
+      "kind": "calls",
+      "target": "go:store/repo.go#Repo.Find"
+    },
+    {
+      "source": "go:main.go#main",
+      "kind": "calls",
+      "target": "go:store/repo.go#NewRepo"
+    },
+    {
+      "source": "go:main.go",
+      "kind": "contains",
+      "target": "go:main.go#GET /health"
+    },
+    {
+      "source": "go:main.go#GET /health",
+      "kind": "handles",
+      "target": "go:main.go#health"
+    },
+    {
+      "source": "go:models/user.go",
+      "kind": "contains",
+      "target": "go:models/user.go#User"
+    },
+    {
+      "source": "go:models/user.go#User",
+      "kind": "contains",
+      "target": "go:models/user.go#User.ID"
+    },
+    {
+      "source": "go:models/user.go",
+      "kind": "contains",
+      "target": "go:models/user.go#Base"
+    },
+    {
+      "source": "go:models/user.go#Base",
+      "kind": "contains",
+      "target": "go:models/user.go#Base.Touch"
+    },
+    {
+      "source": "go:models/user.go",
+      "kind": "contains",
+      "target": "go:models/user.go#Load"
+    },
+    {
+      "source": "go:models/user.go#User",
+      "kind": "contains",
+      "target": "go:models/user.go#User.Save"
+    },
+    {
+      "source": "go:models/user.go#User",
+      "kind": "contains",
+      "target": "go:models/user.go#User.Key"
+    },
+    {
+      "source": "go:models/user.go#User",
+      "kind": "extends",
+      "target": "go:models/user.go#Base"
+    },
+    {
+      "source": "go:models/user.go#Load",
+      "kind": "instantiates",
+      "target": "go:models/user.go#User"
+    },
+    {
+      "source": "go:models/user.go#User.Save",
+      "kind": "calls",
+      "target": "go:models/user.go#Base.Touch"
+    },
+    {
+      "source": "go:models/user.go#User",
+      "kind": "implements",
+      "target": "go:store/repo.go#Keyed",
+      "confidence": "inferred",
+      "detail": "structural"
+    },
+    {
+      "source": "go:models/user.go#User.Key",
+      "kind": "overrides",
+      "target": "go:store/repo.go#Keyed.Key",
+      "confidence": "inferred",
+      "detail": "implements"
+    },
+    {
+      "source": "go:store/repo_test.go",
+      "kind": "contains",
+      "target": "go:store/repo_test.go#TestFind"
+    },
+    {
+      "source": "go:store/repo_test.go#TestFind",
+      "kind": "calls",
+      "target": "go:store/repo.go#Repo.Find"
+    },
+    {
+      "source": "go:store/repo_test.go#TestFind",
+      "kind": "calls",
+      "target": "go:store/repo.go#NewRepo"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "contains",
+      "target": "go:store/repo.go#Keyed"
+    },
+    {
+      "source": "go:store/repo.go#Keyed",
+      "kind": "contains",
+      "target": "go:store/repo.go#Keyed.Key"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "contains",
+      "target": "go:store/repo.go#Repo"
+    },
+    {
+      "source": "go:store/repo.go#Repo",
+      "kind": "contains",
+      "target": "go:store/repo.go#Repo.db"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "contains",
+      "target": "go:store/repo.go#DB"
+    },
+    {
+      "source": "go:store/repo.go#DB",
+      "kind": "contains",
+      "target": "go:store/repo.go#DB.Query"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "contains",
+      "target": "go:store/repo.go#NewRepo"
+    },
+    {
+      "source": "go:store/repo.go#Repo",
+      "kind": "contains",
+      "target": "go:store/repo.go#Repo.Find"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "contains",
+      "target": "go:store/repo.go#Routes"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "contains",
+      "target": "go:store/repo.go#show"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "imports",
+      "target": "go:models/user.go"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "imports",
+      "target": "ext:go/github.com/gin-gonic/gin"
+    },
+    {
+      "source": "go:store/repo.go#NewRepo",
+      "kind": "instantiates",
+      "target": "go:store/repo.go#Repo"
+    },
+    {
+      "source": "go:store/repo.go#NewRepo",
+      "kind": "instantiates",
+      "target": "go:store/repo.go#DB"
+    },
+    {
+      "source": "go:store/repo.go#Repo.Find",
+      "kind": "calls",
+      "target": "go:store/repo.go#DB.Query"
+    },
+    {
+      "source": "go:store/repo.go#Repo.Find",
+      "kind": "calls",
+      "target": "go:models/user.go#Load"
+    },
+    {
+      "source": "go:store/repo.go#Repo.Find",
+      "kind": "calls",
+      "target": "go:models/user.go#User.Save",
+      "confidence": "inferred"
+    },
+    {
+      "source": "go:store/repo.go#show",
+      "kind": "calls",
+      "target": "go:store/repo.go#NewRepo"
+    },
+    {
+      "source": "go:store/repo.go#show",
+      "kind": "calls",
+      "target": "go:store/repo.go#Repo.Find",
+      "confidence": "inferred"
+    },
+    {
+      "source": "go:store/repo.go",
+      "kind": "contains",
+      "target": "go:store/repo.go#GET /users/:id"
+    },
+    {
+      "source": "go:store/repo.go#GET /users/:id",
+      "kind": "handles",
+      "target": "go:store/repo.go#show"
+    }
+  ]
+}

@@ -2,10 +2,13 @@ import { execFileSync, spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { createServer, Workspace } from "@xray/server";
+import { createServer, serviceAt, Workspace } from "@xray/server";
 import {
   type Baseline,
   type CheckConfig,
+  compareSnapshots,
+  type DiffView,
+  diffMarkdown,
   impactMarkdown,
   runCheck,
   type Summary,
@@ -18,7 +21,7 @@ import {
 import { buildHtml, findUiDir } from "./html.js";
 import { type IO, line, painter } from "./io.js";
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
 
 const HELP = `xray: X-ray vision for any codebase
 
@@ -31,6 +34,7 @@ Commands
   impact <symbol...>      What may break if these change
   impact --diff [ref]     ...or if the changes since a git ref (default HEAD) land
   trace <from> <to>       Call routes from one symbol to another
+  diff <ref> [ref]        How the architecture changed since a git revision
   cycles                  Circular imports with suggested cuts
   check                   Enforce rules from .xray.json (cycles, layers) for CI
   export                  Write the graph: --format json|html|dot|mermaid|graphml
@@ -62,6 +66,10 @@ Lists everything that depends on the symbols, by distance, with entry points, te
 https://github.com/owner/repo/blob/<sha>/.`,
   trace: `xray trace <from> <to> [-k 3] [--json]
 The cheapest call routes from <from> to <to>; sure links are preferred over guesses.`,
+  diff: `xray diff <base> [head] [--format text|markdown|json] [--link <url>]
+Maps the repository at <base> (and at <head>, or the working tree) and compares them: files and
+symbols added and removed, new and removed dependencies between files and directories, import
+cycles introduced and resolved, exported API changes, routes and coupling shifts.`,
   cycles: `xray cycles [--ignore-type-only] [--calls] [--json]
 Circular imports between files, each with the smallest set of imports to cut.`,
   check: `xray check [--format text|github] [--update-baseline]
@@ -384,6 +392,38 @@ const COMMANDS: Record<string, Command> = {
     }
   },
 
+  async diff(args, io) {
+    const { values, positionals } = parse(args, {
+      format: { type: "string" },
+      link: { type: "string" },
+    });
+    if (helpRequested(io, "diff", values)) return 0;
+    const format = values.json ? "json" : String(values.format ?? "text");
+    if (!["text", "markdown", "json"].includes(format)) {
+      throw new UsageError(`unknown format "${format}" (text, markdown or json)`);
+    }
+    const [base, head] = positionals;
+    if (!base) throw new UsageError("compare with which revision? For example: xray diff main");
+    const { workspace, service } = await open(io, values);
+    try {
+      const before = await serviceAt(workspace.root, base);
+      const after = head ? (await serviceAt(workspace.root, head)).service : service;
+      const view = compareSnapshots(before.service, after, {
+        before: base,
+        after: head ?? "the working tree",
+      });
+      if (format === "json") return json(io, view);
+      if (format === "markdown") {
+        io.out(diffMarkdown(view, values.link ? { link: String(values.link) } : {}));
+        return 0;
+      }
+      io.out(diffText(view, painter(io), io));
+      return 0;
+    } finally {
+      workspace.close();
+    }
+  },
+
   async trace(args, io) {
     const { values, positionals } = parse(args, { k: { type: "string", short: "k" } });
     if (helpRequested(io, "trace", values)) return 0;
@@ -555,6 +595,55 @@ const COMMANDS: Record<string, Command> = {
     }
   },
 };
+
+/** The architecture diff for a terminal: what matters most first, long lists shortened. */
+function diffText(view: DiffView, p: ReturnType<typeof painter>, io: IO): string {
+  const out: string[] = [];
+  const name = (s: Summary) => line(io, s);
+  const list = (title: string, items: string[], limit = 15) => {
+    if (items.length === 0) return;
+    out.push(`\n${p.bold(`${title} (${items.length})`)}`);
+    for (const item of items.slice(0, limit)) out.push(`  ${item}`);
+    if (items.length > limit) out.push(p.dim(`  …and ${items.length - limit} more`));
+  };
+  const dep = (d: { source: Summary; target: Summary }) => `${d.source.label} → ${d.target.label}`;
+  out.push(
+    `${p.bold("Architecture")} ${p.dim(`${view.before.label} → ${view.after.label}`)}: files +${view.modules.added.length} −${view.modules.removed.length}, dependencies +${view.dependencies.added.length} −${view.dependencies.removed.length}, symbols +${view.symbols.added.length} −${view.symbols.removed.length}`,
+  );
+  list(
+    p.red("New import cycles"),
+    view.cycles.introduced.map((c) => [...c, c[0] as Summary].map((s) => s.label).join(" → ")),
+  );
+  list("New dependencies between directories", view.directories.added.map(dep));
+  list(p.red("Removed exported API"), view.api.removed.map(name));
+  list(
+    "Changed signatures",
+    view.api.changed.map((c) => `${c.node.label}: ${c.before} → ${c.after}`),
+  );
+  list("New routes", view.routes.added.map(name));
+  list("Removed routes", view.routes.removed.map(name));
+  list(
+    p.green("Resolved import cycles"),
+    view.cycles.resolved.map((c) => c.map((s) => s.label).join(" → ")),
+  );
+  list(
+    "Coupling shifts (importers)",
+    view.coupling.map((c) => `${c.node.label}: ${c.before} → ${c.after}`),
+  );
+  list("New dependencies between files", view.dependencies.added.map(dep), 10);
+  list("Removed dependencies between files", view.dependencies.removed.map(dep), 10);
+  list(
+    "Added files",
+    view.modules.added.map((s) => s.label),
+    10,
+  );
+  list(
+    "Removed files",
+    view.modules.removed.map((s) => s.label),
+    10,
+  );
+  return `${out.join("\n")}\n`;
+}
 
 function openBrowser(url: string): void {
   const [command, args] =

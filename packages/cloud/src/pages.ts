@@ -1,5 +1,6 @@
 import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { LANGUAGE_NAMES, type Language } from "@xray/schema";
 import type { MapRecord } from "./results.js";
 
 /** What a page shows: the start page, a map, or a repository being mapped. */
@@ -18,12 +19,10 @@ const escapeHtml = (text: string): string =>
 export const mapPath = (map: { owner: string; repo: string; sha: string }): string =>
   `/github/${map.owner}/${map.repo}/${map.sha}`;
 
-const LANGUAGE_NAMES: Record<string, string> = { ts: "TypeScript", js: "JavaScript", py: "Python" };
-
 /** "1,234 files of TypeScript and Python, 9,876 symbols and 20,123 links between them" */
 export function describeMap(map: MapRecord): string {
   const languages = new Intl.ListFormat("en").format(
-    Object.keys(map.languages).map((l) => LANGUAGE_NAMES[l] ?? l),
+    Object.keys(map.languages).map((l) => LANGUAGE_NAMES[l as Language] ?? l),
   );
   return `${map.files.toLocaleString("en")} files${languages ? ` of ${languages}` : ""}, ${map.symbols.toLocaleString("en")} symbols and ${map.edges.toLocaleString("en")} links between them`;
 }

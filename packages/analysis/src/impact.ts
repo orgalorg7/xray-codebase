@@ -79,6 +79,11 @@ export function impact(
       for (const edge of index.out(current.id, ["overrides"])) {
         reach(edge.target, "overrides", current.id, weakest(current.confidence, "inferred"));
       }
+      // A changed writer of module state changes what its readers see.
+      for (const edge of index.out(current.id, ["references"])) {
+        if (edge.detail !== "writes") continue;
+        reach(edge.target, "references", current.id, weakest(current.confidence, "inferred"));
+      }
     }
     frontier = next;
   }

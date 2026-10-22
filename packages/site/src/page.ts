@@ -1,3 +1,4 @@
+import { LANGUAGE_NAMES, type Language } from "@xray/schema";
 import type { MapEntry } from "./build.js";
 
 export type PageOptions = {
@@ -10,8 +11,6 @@ const escapeHtml = (text: string): string =>
     /[&<>"']/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string,
   );
-
-const LANGUAGES: Record<string, string> = { ts: "TypeScript", js: "JavaScript", py: "Python" };
 
 const count = (n: number): string =>
   n >= 10_000 ? `${Math.round(n / 1000)}k` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
@@ -112,7 +111,7 @@ export function renderIndex(maps: readonly MapEntry[], options: PageOptions = {}
   const cards = maps
     .map((m) => {
       const languages = Object.keys(m.languages)
-        .map((l) => `<span class="chip">${escapeHtml(LANGUAGES[l] ?? l)}</span>`)
+        .map((l) => `<span class="chip">${escapeHtml(LANGUAGE_NAMES[l as Language] ?? l)}</span>`)
         .join("");
       const at = m.ref === m.sha ? m.sha.slice(0, 7) : `${m.ref} @ ${m.sha.slice(0, 7)}`;
       return `<li><a href="${escapeHtml(m.path)}">
@@ -135,7 +134,7 @@ circular imports, where a feature lives, and the blast radius of a change. Pick 
 ${maps.length > 0 ? `<ul class="maps">\n${cards}\n</ul>` : '<p class="empty">No maps yet.</p>'}
 <h2 id="use">Map your own code</h2>
 <div class="use">
-  <div><h3>Command line</h3><p>In any TypeScript, JavaScript or Python repository (Node 24+): <code>npx xray-codebase open</code></p></div>
+  <div><h3>Command line</h3><p>In any repository of TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP or Ruby (Node 24+): <code>npx xray-codebase open</code></p></div>
   <div><h3>VS Code</h3><p>The map in an editor tab, callers above every function and the blast radius from the cursor.${github ? ` See <a href="${github}/tree/main/packages/vscode">the extension</a>.` : ""}</p></div>
   <div><h3>Pull requests</h3><p>A comment on each pull request with what the change reaches and which tests to run.${github ? ` See <a href="${github}#blast-radius-on-pull-requests">pr-impact</a>.` : ""}</p></div>
 </div>

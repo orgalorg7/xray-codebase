@@ -1,11 +1,13 @@
 import type {
   CyclesView,
+  DiffView,
   DsmView,
   ImpactView,
   InsightsView,
   MapData,
   Meta,
   NodeDetails,
+  RevisionsView,
   RoadsView,
   SearchView,
   Snapshot,
@@ -51,6 +53,10 @@ export interface Backend {
   fileUrl?(file: string, line?: number): string;
   /** Where the mapped code comes from, when it is not a local folder. */
   readonly origin?: { label: string; href: string };
+  /** How the architecture changed since a git revision (local repositories only). */
+  diff?(base: string): Promise<DiffView>;
+  /** Branches and recent commits to compare with. */
+  revisions?(): Promise<RevisionsView>;
 }
 
 /** Links to files under a URL prefix such as `https://github.com/o/r/blob/<sha>/`. */
@@ -73,12 +79,19 @@ class HttpBackend implements Backend {
   readonly live: boolean;
   readonly origin?: { label: string; href: string };
   readonly fileUrl?: (file: string, line?: number) => string;
+  readonly diff?: (base: string) => Promise<DiffView>;
+  readonly revisions?: () => Promise<RevisionsView>;
   readonly #api: string;
 
   constructor(options: HttpOptions = {}) {
     this.#api = options.api ?? "/api";
     this.live = options.live ?? true;
     if (options.origin) this.origin = options.origin;
+    // A live server maps the repository on this machine, so it can map older revisions too.
+    if (this.live) {
+      this.diff = (base: string) => this.#get<DiffView>("diff", { base });
+      this.revisions = () => this.#get<RevisionsView>("revisions");
+    }
     if (options.sourceUrl) this.fileUrl = githubFileUrl(options.sourceUrl);
   }
 
@@ -94,7 +107,17 @@ class HttpBackend implements Backend {
     const qs = query.toString();
     const response = await fetch(`${this.#api}/${path}${qs ? `?${qs}` : ""}`);
     if (response.status === 404) return undefined as T;
-    if (!response.ok) throw new Error(`${path}: ${response.status} ${await response.text()}`);
+    if (!response.ok) {
+      // The server explains errors as { error: "…" }.
+      const text = await response.text();
+      let message = text;
+      try {
+        message = (JSON.parse(text) as { error?: string }).error ?? text;
+      } catch {
+        // Not JSON: show the text as it is.
+      }
+      throw new Error(message || `${path}: ${response.status}`);
+    }
     return (await response.json()) as T;
   }
 
@@ -255,6 +278,8 @@ class VsCodeBackend implements Backend {
   cycles = (ignoreTypeOnly?: boolean) => this.#call<CyclesView>("cycles", ignoreTypeOnly);
   insights = () => this.#call<InsightsView>("insights");
   dsm = (level: "module" | "directory") => this.#call<DsmView>("dsm", level);
+  diff = (base: string) => this.#call<DiffView>("diff", base);
+  revisions = () => this.#call<RevisionsView>("revisions");
 
   openFile(file: string, line?: number): void {
     this.#api.postMessage({ type: "openFile", file, line });

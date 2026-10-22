@@ -75,6 +75,39 @@ export function InsightsPanel() {
         </Section>
       )}
 
+      {(data.state?.length ?? 0) > 0 && (
+        <Section title="Shared mutable state" count={data.state.length}>
+          <p className="muted">
+            Module-level variables that some code changes and other code reads: hidden coupling.
+            Click one to highlight who writes it (orange) and who reads it (blue).
+          </p>
+          <Limited
+            items={data.state}
+            render={(s) => (
+              <NodeLink
+                key={s.node.id}
+                node={s.node}
+                theme={theme}
+                onOpen={(id) => {
+                  const colors = new Map<string, string>([[id, "#e03131"]]);
+                  for (const r of s.readers) colors.set(r.id, "#1c7ed6");
+                  for (const w of s.writers) colors.set(w.id, "#f08c00");
+                  setOverlay({ highlight: { colors, dim: true } });
+                  frame([...colors.keys()]);
+                  open(id);
+                }}
+                detail={
+                  <span className="muted">
+                    {plural(s.writers.length, "writer")} · {plural(s.readers.length, "reader")}
+                    {s.modules > 1 ? ` · ${s.modules} files` : ""}
+                  </span>
+                }
+              />
+            )}
+          />
+        </Section>
+      )}
+
       <Section
         title="Possibly dead code"
         count={data.deadCode.length}

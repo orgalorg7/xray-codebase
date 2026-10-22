@@ -40,6 +40,17 @@ export default async function setup() {
       recursive: true,
     });
   }
+  // Two commits, the second adding the Python package: the Changes view compares them.
+  const git = (...args: string[]) =>
+    execFileSync("git", ["-c", "user.name=xray", "-c", "user.email=xray@example.com", ...args], {
+      cwd: root,
+      stdio: "ignore",
+    });
+  git("init", "--quiet", "--initial-branch=main");
+  git("add", "ts-classes", "ts-cycles");
+  git("commit", "--quiet", "-m", "typescript");
+  git("add", "py-packages");
+  git("commit", "--quiet", "-m", "python");
   const workspace = new Workspace({ root, git: false });
   await workspace.scan();
   const app = await createServer({

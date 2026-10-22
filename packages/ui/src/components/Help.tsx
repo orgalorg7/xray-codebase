@@ -10,7 +10,7 @@ const SHORTCUTS: [string, string][] = [
   ["U", "Select the parent (file, directory)"],
   ["I", "Blast radius of the selection"],
   ["D", "Directions from the selection"],
-  ["E / R / C / N / M", "Explore, Directions, Cycles, Insights, Matrix"],
+  ["E / R / C / N / M / G", "Explore, Directions, Cycles, Insights, Matrix, Changes"],
   ["T", "Light / dark theme"],
   ["?", "This help"],
 ];

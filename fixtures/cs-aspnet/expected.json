@@ -1,0 +1,429 @@
+{
+  "description": "C#: file-scoped and block namespaces, using directives, base(), properties and fields, var inference through return types, ASP.NET attribute routes with [controller], a minimal API route, an xUnit test.",
+  "language": "cs",
+  "edgeKinds": [
+    "contains",
+    "imports",
+    "calls",
+    "instantiates",
+    "extends",
+    "implements",
+    "overrides",
+    "handles"
+  ],
+  "nodes": [
+    {
+      "id": "cs:src/Data/UserRepo.cs",
+      "kind": "module"
+    },
+    {
+      "id": "cs:src/Data/UserRepo.cs#UserRepo",
+      "kind": "class"
+    },
+    {
+      "id": "cs:src/Data/UserRepo.cs#UserRepo.Load",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Data/UserRepo.cs#Strings",
+      "kind": "class"
+    },
+    {
+      "id": "cs:src/Data/UserRepo.cs#Strings.Trim",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Models/Entity.cs",
+      "kind": "module"
+    },
+    {
+      "id": "cs:src/Models/Entity.cs#Entity",
+      "kind": "class"
+    },
+    {
+      "id": "cs:src/Models/Entity.cs#Entity.Validate",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Models/Entity.cs#Entity.Key",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Models/Entity.cs#IKeyed",
+      "kind": "interface"
+    },
+    {
+      "id": "cs:src/Models/Entity.cs#IKeyed.Key",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Models/User.cs",
+      "kind": "module"
+    },
+    {
+      "id": "cs:src/Models/User.cs#User",
+      "kind": "class"
+    },
+    {
+      "id": "cs:src/Models/User.cs#User.Id",
+      "kind": "property"
+    },
+    {
+      "id": "cs:src/Models/User.cs#User.User",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Models/User.cs#User.Save",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Models/User.cs#User.Key",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Program.cs",
+      "kind": "module"
+    },
+    {
+      "id": "cs:src/Program.cs#Health",
+      "kind": "class"
+    },
+    {
+      "id": "cs:src/Program.cs#Health.Check",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Program.cs#GET /health",
+      "kind": "route"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs",
+      "kind": "module"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs#UsersController",
+      "kind": "class"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs#UsersController._repo",
+      "kind": "property"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs#UsersController.UsersController",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs#UsersController.Get",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs#UsersController.Create",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs#UsersController.Audit",
+      "kind": "method"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs#GET /api/Users/{id}",
+      "kind": "route"
+    },
+    {
+      "id": "cs:src/Web/UsersController.cs#POST /api/Users",
+      "kind": "route"
+    },
+    {
+      "id": "cs:tests/UserRepoTests.cs",
+      "kind": "module"
+    },
+    {
+      "id": "cs:tests/UserRepoTests.cs#UserRepoTests",
+      "kind": "class"
+    },
+    {
+      "id": "cs:tests/UserRepoTests.cs#UserRepoTests.Loads",
+      "kind": "test"
+    },
+    {
+      "id": "ext:nuget/Microsoft.AspNetCore",
+      "kind": "external"
+    },
+    {
+      "id": "ext:nuget/Xunit",
+      "kind": "external"
+    }
+  ],
+  "edges": [
+    {
+      "source": "cs:src/Data/UserRepo.cs",
+      "kind": "contains",
+      "target": "cs:src/Data/UserRepo.cs#UserRepo"
+    },
+    {
+      "source": "cs:src/Data/UserRepo.cs#UserRepo",
+      "kind": "contains",
+      "target": "cs:src/Data/UserRepo.cs#UserRepo.Load"
+    },
+    {
+      "source": "cs:src/Data/UserRepo.cs",
+      "kind": "contains",
+      "target": "cs:src/Data/UserRepo.cs#Strings"
+    },
+    {
+      "source": "cs:src/Data/UserRepo.cs#Strings",
+      "kind": "contains",
+      "target": "cs:src/Data/UserRepo.cs#Strings.Trim"
+    },
+    {
+      "source": "cs:src/Data/UserRepo.cs",
+      "kind": "imports",
+      "target": "cs:src/Models/Entity.cs"
+    },
+    {
+      "source": "cs:src/Data/UserRepo.cs",
+      "kind": "imports",
+      "target": "cs:src/Models/User.cs"
+    },
+    {
+      "source": "cs:src/Data/UserRepo.cs#UserRepo.Load",
+      "kind": "instantiates",
+      "target": "cs:src/Models/User.cs#User"
+    },
+    {
+      "source": "cs:src/Data/UserRepo.cs#UserRepo.Load",
+      "kind": "calls",
+      "target": "cs:src/Data/UserRepo.cs#Strings.Trim"
+    },
+    {
+      "source": "cs:src/Models/Entity.cs",
+      "kind": "contains",
+      "target": "cs:src/Models/Entity.cs#Entity"
+    },
+    {
+      "source": "cs:src/Models/Entity.cs#Entity",
+      "kind": "contains",
+      "target": "cs:src/Models/Entity.cs#Entity.Validate"
+    },
+    {
+      "source": "cs:src/Models/Entity.cs#Entity",
+      "kind": "contains",
+      "target": "cs:src/Models/Entity.cs#Entity.Key"
+    },
+    {
+      "source": "cs:src/Models/Entity.cs",
+      "kind": "contains",
+      "target": "cs:src/Models/Entity.cs#IKeyed"
+    },
+    {
+      "source": "cs:src/Models/Entity.cs#IKeyed",
+      "kind": "contains",
+      "target": "cs:src/Models/Entity.cs#IKeyed.Key"
+    },
+    {
+      "source": "cs:src/Models/User.cs",
+      "kind": "contains",
+      "target": "cs:src/Models/User.cs#User"
+    },
+    {
+      "source": "cs:src/Models/User.cs#User",
+      "kind": "contains",
+      "target": "cs:src/Models/User.cs#User.Id"
+    },
+    {
+      "source": "cs:src/Models/User.cs#User",
+      "kind": "contains",
+      "target": "cs:src/Models/User.cs#User.User"
+    },
+    {
+      "source": "cs:src/Models/User.cs#User",
+      "kind": "contains",
+      "target": "cs:src/Models/User.cs#User.Save"
+    },
+    {
+      "source": "cs:src/Models/User.cs#User",
+      "kind": "contains",
+      "target": "cs:src/Models/User.cs#User.Key"
+    },
+    {
+      "source": "cs:src/Models/User.cs#User",
+      "kind": "extends",
+      "target": "cs:src/Models/Entity.cs#Entity"
+    },
+    {
+      "source": "cs:src/Models/User.cs#User",
+      "kind": "implements",
+      "target": "cs:src/Models/Entity.cs#IKeyed"
+    },
+    {
+      "source": "cs:src/Models/User.cs#User.Key",
+      "kind": "overrides",
+      "target": "cs:src/Models/Entity.cs#Entity.Key"
+    },
+    {
+      "source": "cs:src/Models/User.cs#User.Save",
+      "kind": "calls",
+      "target": "cs:src/Models/Entity.cs#Entity.Validate"
+    },
+    {
+      "source": "cs:src/Program.cs",
+      "kind": "contains",
+      "target": "cs:src/Program.cs#Health"
+    },
+    {
+      "source": "cs:src/Program.cs#Health",
+      "kind": "contains",
+      "target": "cs:src/Program.cs#Health.Check"
+    },
+    {
+      "source": "cs:src/Program.cs",
+      "kind": "imports",
+      "target": "cs:src/Data/UserRepo.cs"
+    },
+    {
+      "source": "cs:src/Program.cs",
+      "kind": "contains",
+      "target": "cs:src/Program.cs#GET /health"
+    },
+    {
+      "source": "cs:src/Program.cs#GET /health",
+      "kind": "handles",
+      "target": "cs:src/Program.cs#Health.Check"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs",
+      "kind": "contains",
+      "target": "cs:src/Web/UsersController.cs#UsersController"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController",
+      "kind": "contains",
+      "target": "cs:src/Web/UsersController.cs#UsersController._repo"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController",
+      "kind": "contains",
+      "target": "cs:src/Web/UsersController.cs#UsersController.UsersController"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController",
+      "kind": "contains",
+      "target": "cs:src/Web/UsersController.cs#UsersController.Get"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController",
+      "kind": "contains",
+      "target": "cs:src/Web/UsersController.cs#UsersController.Create"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController",
+      "kind": "contains",
+      "target": "cs:src/Web/UsersController.cs#UsersController.Audit"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs",
+      "kind": "imports",
+      "target": "cs:src/Data/UserRepo.cs"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs",
+      "kind": "imports",
+      "target": "cs:src/Models/Entity.cs"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs",
+      "kind": "imports",
+      "target": "cs:src/Models/User.cs"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs",
+      "kind": "imports",
+      "target": "ext:nuget/Microsoft.AspNetCore"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController.Get",
+      "kind": "calls",
+      "target": "cs:src/Data/UserRepo.cs#UserRepo.Load"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController.Get",
+      "kind": "calls",
+      "target": "cs:src/Models/User.cs#User.Save",
+      "confidence": "inferred"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController.Get",
+      "kind": "instantiates",
+      "target": "cs:src/Models/User.cs#User"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController.Get",
+      "kind": "calls",
+      "target": "cs:src/Web/UsersController.cs#UsersController.Audit"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController.Create",
+      "kind": "calls",
+      "target": "cs:src/Models/User.cs#User.Save"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController.Create",
+      "kind": "instantiates",
+      "target": "cs:src/Models/User.cs#User"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#UsersController.Audit",
+      "kind": "calls",
+      "target": "cs:src/Models/User.cs#User.Key"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs",
+      "kind": "contains",
+      "target": "cs:src/Web/UsersController.cs#GET /api/Users/{id}"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#GET /api/Users/{id}",
+      "kind": "handles",
+      "target": "cs:src/Web/UsersController.cs#UsersController.Get"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs",
+      "kind": "contains",
+      "target": "cs:src/Web/UsersController.cs#POST /api/Users"
+    },
+    {
+      "source": "cs:src/Web/UsersController.cs#POST /api/Users",
+      "kind": "handles",
+      "target": "cs:src/Web/UsersController.cs#UsersController.Create"
+    },
+    {
+      "source": "cs:tests/UserRepoTests.cs",
+      "kind": "contains",
+      "target": "cs:tests/UserRepoTests.cs#UserRepoTests"
+    },
+    {
+      "source": "cs:tests/UserRepoTests.cs#UserRepoTests",
+      "kind": "contains",
+      "target": "cs:tests/UserRepoTests.cs#UserRepoTests.Loads"
+    },
+    {
+      "source": "cs:tests/UserRepoTests.cs",
+      "kind": "imports",
+      "target": "cs:src/Data/UserRepo.cs"
+    },
+    {
+      "source": "cs:tests/UserRepoTests.cs",
+      "kind": "imports",
+      "target": "ext:nuget/Xunit"
+    },
+    {
+      "source": "cs:tests/UserRepoTests.cs#UserRepoTests.Loads",
+      "kind": "calls",
+      "target": "cs:src/Data/UserRepo.cs#UserRepo.Load"
+    },
+    {
+      "source": "cs:tests/UserRepoTests.cs#UserRepoTests.Loads",
+      "kind": "instantiates",
+      "target": "cs:src/Data/UserRepo.cs#UserRepo"
+    }
+  ]
+}

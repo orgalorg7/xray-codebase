@@ -2,8 +2,10 @@ import { existsSync } from "node:fs";
 import compress from "@fastify/compress";
 import fastifyStatic from "@fastify/static";
 import websocket from "@fastify/websocket";
+import { compareSnapshots, type DiffView } from "@xray/service";
 import Fastify, { type FastifyInstance } from "fastify";
 import { mapApi } from "./map-api.js";
+import { commitOf, revisionsOf, serviceAt } from "./revisions.js";
 import type { Workspace } from "./workspace.js";
 
 export type ServerOptions = {
@@ -37,6 +39,34 @@ export async function createServer(options: ServerOptions): Promise<FastifyInsta
   await app.register(websocket);
 
   await app.register(mapApi, { prefix: "/api", service: () => workspace.service() });
+  // How the architecture changed since a revision (the map's Changes view). Mapping a revision
+  // takes a full scan, so recent comparisons are kept.
+  const diffs = new Map<string, Promise<DiffView>>();
+  app.get("/api/revisions", async () => revisionsOf(workspace.root));
+  app.get<{ Querystring: { base?: string } }>("/api/diff", async (req, reply) => {
+    const base = String(req.query.base ?? "HEAD");
+    let commit: string;
+    try {
+      commit = commitOf(workspace.root, base);
+    } catch (error) {
+      return reply
+        .code(400)
+        .send({ error: error instanceof Error ? error.message : String(error) });
+    }
+    const current = await workspace.service();
+    const key = `${commit}\u0000${current.snapshot.scannedAt}`;
+    let diff = diffs.get(key);
+    if (!diff) {
+      diff = serviceAt(workspace.root, commit).then(({ service }) =>
+        compareSnapshots(service, current, { before: base, after: "the working tree" }),
+      );
+      diff.catch(() => diffs.delete(key));
+      diffs.set(key, diff);
+      if (diffs.size > 4) diffs.delete(diffs.keys().next().value as string);
+    }
+    return diff;
+  });
+
   app.post("/api/rescan", async () => {
     const report = await workspace.scan();
     return {
