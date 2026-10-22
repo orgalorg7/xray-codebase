@@ -53,6 +53,12 @@ export interface Backend {
   readonly origin?: { label: string; href: string };
 }
 
+/** Links to files under a URL prefix such as `https://github.com/o/r/blob/<sha>/`. */
+const githubFileUrl =
+  (base: string) =>
+  (file: string, line?: number): string =>
+    `${base}${file.split("/").map(encodeURIComponent).join("/")}${line ? `#L${line}` : ""}`;
+
 type HttpOptions = {
   /** The API's path, `/api` for `xray open`. */
   api?: string;
@@ -73,11 +79,7 @@ class HttpBackend implements Backend {
     this.#api = options.api ?? "/api";
     this.live = options.live ?? true;
     if (options.origin) this.origin = options.origin;
-    const base = options.sourceUrl;
-    if (base) {
-      this.fileUrl = (file, line) =>
-        `${base}${file.split("/").map(encodeURIComponent).join("/")}${line ? `#L${line}` : ""}`;
-    }
+    if (options.sourceUrl) this.fileUrl = githubFileUrl(options.sourceUrl);
   }
 
   async #get<T>(
@@ -139,10 +141,21 @@ class HttpBackend implements Backend {
 /** Runs the service in the page over an embedded snapshot: the self-contained HTML export. */
 class LocalBackend implements Backend {
   readonly live = false;
+  readonly origin?: { label: string; href: string };
+  readonly fileUrl?: (file: string, line?: number) => string;
   readonly #service: XrayService;
 
   constructor(snapshot: Snapshot) {
     this.#service = new XrayService(snapshot);
+    // Maps of a GitHub repository at a commit (the hosted site, the gallery) link back to it.
+    const github = /^https:\/\/github\.com\/([\w.-]+\/[\w.-]+)\/tree\/([0-9a-f]{40})$/.exec(
+      snapshot.root,
+    );
+    if (github) {
+      const [, repo, sha] = github as unknown as [string, string, string];
+      this.origin = { label: `github.com/${repo} @ ${sha.slice(0, 7)}`, href: snapshot.root };
+      this.fileUrl = githubFileUrl(`https://github.com/${repo}/blob/${sha}/`);
+    }
   }
 
   meta = async () => this.#service.meta();

@@ -1,0 +1,59 @@
+name: Map request
+
+# A maintainer approves a "Request a map" issue by adding the map-approved label: the repository
+# joins packages/site/repos.json, the gallery is rebuilt, and the issue gets the map's link.
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+jobs:
+  add:
+    if: github.event.label.name == 'map-approved'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE: ${{ github.event.issue.number }}
+      # Untrusted text: only ever read from the environment, never pasted into scripts.
+      BODY: ${{ github.event.issue.body }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile && pnpm turbo run build --filter=@xray/site...
+      - id: add
+        run: |
+          # The issue form puts the answer two lines under its "### Repository" heading.
+          INPUT=$(printf '%s\n' "$BODY" | tr -d '\r' | awk '/^### Repository/ { getline; getline; print; exit }')
+          # Prints "added owner/repo" or "listed owner/repo", validated and normalized; fails on
+          # anything that is not a GitHub repository.
+          RESULT=$(node packages/site/dist/main.js add "$INPUT")
+          echo "$RESULT"
+          REPO=${RESULT#* }
+          if [ "${RESULT%% *}" = "added" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+            git add packages/site/repos.json
+            git commit -m "gallery: add $REPO"
+            git push
+          fi
+          echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+      - env:
+          REPO: ${{ steps.add.outputs.repo }}
+        run: |
+          gh workflow run pages.yml --ref main
+          NAME=${GITHUB_REPOSITORY#*/}
+          URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${NAME}/maps/${REPO}/"
+          gh issue comment "$ISSUE" --body "The map of \`$REPO\` is being built and will be at $URL in a few minutes."
+          gh issue close "$ISSUE"
+      - if: failure()
+        run: |
+          gh issue comment "$ISSUE" --body "This repository could not be added to the gallery. See the [workflow run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) for why."

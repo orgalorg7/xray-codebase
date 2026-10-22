@@ -12,6 +12,7 @@
     { "path": "packages/service" },
     { "path": "packages/server" },
     { "path": "packages/cli" },
-    { "path": "packages/cloud" }
+    { "path": "packages/cloud" },
+    { "path": "packages/site" }
   ]
 }

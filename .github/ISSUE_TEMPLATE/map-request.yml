@@ -1,0 +1,18 @@
+name: Request a map
+description: Ask for a public GitHub repository to be added to the xray gallery.
+title: "Map request"
+labels: ["map-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        xray maps TypeScript, JavaScript and Python code. Once a maintainer approves the request,
+        the map appears in the gallery within a few minutes and this issue gets its link.
+  - type: input
+    id: repository
+    attributes:
+      label: Repository
+      description: A public GitHub repository, optionally with a branch or tag.
+      placeholder: github.com/owner/repo
+    validations:
+      required: true

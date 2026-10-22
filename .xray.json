@@ -48,10 +48,10 @@
         ]
       },
       {
-        "name": "the hosted service sits on top: nothing depends on it",
+        "name": "the hosted service sits on top: only the gallery builds on it",
         "from": ["packages/*/src/**"],
         "disallow": ["packages/cloud/**"],
-        "allow": ["packages/cloud/src/**"]
+        "allow": ["packages/cloud/src/**", "packages/site/src/**"]
       }
     ]
   }

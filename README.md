@@ -39,6 +39,11 @@ xray comes in three forms that share one engine and one map:
   replace `github.com` with the site's address. See [packages/cloud](packages/cloud/README.md)
   to run it.
 
+**See it without installing anything:** the [gallery](https://orgalorg7.github.io/xray-codebase/)
+has maps of express, zod, fastapi, flask, xray itself and more. It is rebuilt weekly from
+[packages/site/repos.json](packages/site/repos.json), and anyone can
+[request a map](https://github.com/orgalorg7/xray-codebase/issues/new?template=map-request.yml).
+
 ## The map
 
 The map nests code like places: directories are regions, files are cities, classes and functions
@@ -137,6 +142,7 @@ The comment comes from `xray impact --diff <base> --format markdown`, which work
 | `@xray/cli` | The `xray` command |
 | `xray-codebase` | The publishable npm package: the CLI bundled with the UI |
 | `xray-vscode` | The VS Code extension: an analysis worker per folder, the map in a webview, CodeLens, hovers, sidebar |
+| `@xray/site` | The gallery on GitHub Pages: self-contained map pages of public repositories, rebuilt by a workflow |
 | `@xray/cloud` | Hosted xray: GitHub URL → sandboxed shallow fetch → map, a job queue with live progress, stored maps at permanent links, rate limits, a container image |
 
 Entry points it recognises: Express/Fastify-style routes, Next.js route handlers, commander and

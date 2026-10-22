@@ -1,0 +1,31 @@
+{
+  "name": "@xray/site",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The xray gallery: maps of public repositories as a static site (GitHub Pages).",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@xray/cli": "workspace:*",
+    "@xray/cloud": "workspace:*",
+    "@xray/server": "workspace:*",
+    "@xray/service": "workspace:*"
+  },
+  "devDependencies": {
+    "@xray/testkit": "workspace:*"
+  }
+}

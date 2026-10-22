@@ -242,6 +242,25 @@ importers:
         specifier: workspace:*
         version: link:../testkit
 
+  packages/site:
+    dependencies:
+      '@xray/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@xray/cloud':
+        specifier: workspace:*
+        version: link:../cloud
+      '@xray/server':
+        specifier: workspace:*
+        version: link:../server
+      '@xray/service':
+        specifier: workspace:*
+        version: link:../service
+    devDependencies:
+      '@xray/testkit':
+        specifier: workspace:*
+        version: link:../testkit
+
   packages/store:
     dependencies:
       '@xray/schema':

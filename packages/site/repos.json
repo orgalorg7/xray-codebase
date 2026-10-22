@@ -1,0 +1,11 @@
+[
+  { "repo": "orgalorg7/xray-codebase" },
+  { "repo": "expressjs/express" },
+  { "repo": "colinhacks/zod" },
+  { "repo": "sindresorhus/ky" },
+  { "repo": "vercel/ms" },
+  { "repo": "fastapi/fastapi" },
+  { "repo": "pallets/flask" },
+  { "repo": "pallets/click" },
+  { "repo": "psf/requests" }
+]
