@@ -30,6 +30,15 @@ Later commands reuse the index while no file has changed.
 From a checkout of this repository: `pnpm install && pnpm build`, then
 `node packages/cli/dist/bin.js open path/to/some/repo`.
 
+xray comes in three forms that share one engine and one map:
+
+- **Command line:** `npx xray-codebase` (this section and [Commands](#commands)).
+- **VS Code:** the map in an editor tab, caller counts and blast radius above every function,
+  xray in hovers, and insights in the sidebar. See [packages/vscode](packages/vscode/README.md).
+- **Hosted:** paste a public GitHub repository and share its map by link. In any GitHub link,
+  replace `github.com` with the site's address. See [packages/cloud](packages/cloud/README.md)
+  to run it.
+
 ## The map
 
 The map nests code like places: directories are regions, files are cities, classes and functions
@@ -86,6 +95,31 @@ Symbols can be IDs, `path#Name`, `path:line`, a file path or a plain name. Every
 as a GitHub Action. xray checks its own architecture this
 way: see [.xray.json](.xray.json).
 
+### Blast radius on pull requests
+
+[pr-impact](pr-impact/action.yml) comments on each pull request with what its changes reach:
+risk, entry points (routes, commands, components), tests to run and direct dependents, linked to
+the code. It keeps one comment per pull request and updates it on every push.
+
+```yaml
+on: pull_request
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  impact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: orgalorg7/xray-codebase/pr-impact@main
+        with:
+          fail-on-risk: never # or low, medium, high
+```
+
+The comment comes from `xray impact --diff <base> --format markdown`, which works with any CI.
+
 ## How it works
 
 | Package | What it does |
@@ -102,6 +136,8 @@ way: see [.xray.json](.xray.json).
 | `@xray/ui` | The map: a canvas renderer with semantic zoom, search, panels for every view |
 | `@xray/cli` | The `xray` command |
 | `xray-codebase` | The publishable npm package: the CLI bundled with the UI |
+| `xray-vscode` | The VS Code extension: an analysis worker per folder, the map in a webview, CodeLens, hovers, sidebar |
+| `@xray/cloud` | Hosted xray: GitHub URL → sandboxed shallow fetch → map, a job queue with live progress, stored maps at permanent links, rate limits, a container image |
 
 Entry points it recognises: Express/Fastify-style routes, Next.js route handlers, commander and
 yargs commands, React components, Jest/Vitest/Mocha tests; FastAPI, Flask and Django routes,
@@ -136,13 +172,15 @@ pnpm lint        # biome
 pnpm typecheck   # packages + tests
 pnpm bench       # real-world repos (needs network on first run)
 pnpm --filter @xray/ui dev   # UI with hot reload, against `xray open --port 4400`
+node packages/cloud/dist/main.js   # the hosted version on :8080 (data in ./data)
 ```
 
 ## Roadmap
 
-Next: a VS Code extension (the map in an editor panel, CodeLens for callers and impact), then a
-hosted version (paste a GitHub URL). After that: more languages through tree-sitter, links
-between frontend calls and backend routes, and comparing the maps of two commits.
+Done: the engine, analyses, CLI and local map, the VS Code extension, the hosted version and
+pull request comments. Next: private repositories in the hosted version (a GitHub App), more
+languages through tree-sitter (Go, Java, Rust, C#), links from frontend `fetch` calls to backend
+routes, and comparing the maps of two commits.
 
 ## License
 

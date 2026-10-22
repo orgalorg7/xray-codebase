@@ -13,6 +13,10 @@ export type WorkspaceOptions = {
   ignore?: readonly string[];
   /** Read git history for churn and co-change (default true). */
   git?: boolean;
+  /** How many recent commits the history covers (default 2000). */
+  gitMaxCommits?: number;
+  /** Fail scans of repositories with more source files than this. */
+  maxFiles?: number;
 };
 
 export type WorkspaceEvents = {
@@ -30,6 +34,7 @@ export class Workspace extends EventEmitter<WorkspaceEvents> {
   readonly store: GraphStore;
   readonly #engine: Engine;
   readonly #useGit: boolean;
+  readonly #gitMaxCommits: number | undefined;
   #service: XrayService | undefined;
   #git: Snapshot["git"];
   #gitHead: string | undefined;
@@ -47,8 +52,10 @@ export class Workspace extends EventEmitter<WorkspaceEvents> {
       root: this.root,
       store: this.store,
       ...(options.ignore ? { ignore: options.ignore } : {}),
+      ...(options.maxFiles === undefined ? {} : { maxFiles: options.maxFiles }),
     });
     this.#useGit = options.git ?? true;
+    this.#gitMaxCommits = options.gitMaxCommits;
   }
 
   get lastReport(): ScanReport | undefined {
@@ -103,7 +110,10 @@ export class Workspace extends EventEmitter<WorkspaceEvents> {
       this.#git = undefined;
       return;
     }
-    const history = gitHistory(this.root);
+    const history = gitHistory(
+      this.root,
+      this.#gitMaxCommits === undefined ? {} : { maxCommits: this.#gitMaxCommits },
+    );
     this.#git = {
       commits: history.commits,
       files: Object.fromEntries(history.files),

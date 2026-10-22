@@ -1,6 +1,6 @@
 {
   "name": "xray-codebase",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "X-ray vision for any codebase: an interactive, zoomable map of architecture, calls and dependencies. TypeScript, JavaScript and Python.",
   "keywords": [
     "architecture",
@@ -13,6 +13,15 @@
     "static-analysis"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orgalorg7/xray-codebase.git",
+    "directory": "packages/xray-codebase"
+  },
+  "homepage": "https://github.com/orgalorg7/xray-codebase#readme",
+  "bugs": {
+    "url": "https://github.com/orgalorg7/xray-codebase/issues"
+  },
   "type": "module",
   "bin": {
     "xray": "dist/xray.js"

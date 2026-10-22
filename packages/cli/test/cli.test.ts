@@ -41,7 +41,7 @@ afterEach(() => {
 describe("xray", () => {
   it("prints help and version", async () => {
     expect((await run("--help")).out).toContain("X-ray vision for any codebase");
-    expect((await run("--version")).out).toBe("0.1.1\n");
+    expect((await run("--version")).out).toBe("0.2.0\n");
     expect((await run("where", "--help")).out).toContain("xray where <query>");
     const unknown = await run("frobnicate");
     expect(unknown.code).toBe(2);
@@ -98,6 +98,26 @@ describe("xray", () => {
     expect(result.out).toContain("main");
     const json = JSON.parse((await run("impact", "--diff", "--json")).out);
     expect(json.changed.map((c: { id: string }) => c.id)).toEqual(["ts:src/utils/math.ts#add"]);
+
+    // The pull request comment: a marker to find it again, risk, and links to the files.
+    const markdown = (
+      await run(
+        "impact",
+        "--diff",
+        "--format",
+        "markdown",
+        "--link",
+        "https://github.com/o/r/blob/abc/",
+      )
+    ).out;
+    expect(markdown.split("\n")[0]).toBe("<!-- xray-impact -->");
+    expect(markdown).toContain("### xray: blast radius of this change");
+    expect(markdown).toMatch(/\*\*(LOW|MEDIUM|HIGH) risk\*\*/);
+    expect(markdown).toContain(
+      "- [`add`](https://github.com/o/r/blob/abc/src/utils/math.ts#L1) function · src/utils/math.ts:1",
+    );
+    expect(markdown).toContain("<summary><b>Direct dependents");
+    expect((await run("impact", "--diff", "--format", "yaml")).code).toBe(2);
   });
 
   it("traces call routes", async () => {

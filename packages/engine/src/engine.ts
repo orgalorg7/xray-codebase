@@ -17,6 +17,8 @@ export type EngineOptions = {
   ignore?: readonly string[];
   /** Files larger than this are skipped (default 1 MiB): usually generated or vendored. */
   maxFileSize?: number;
+  /** A scan finding more source files than this fails instead of analyzing them (no limit by default). */
+  maxFiles?: number;
 };
 
 export type ScanReport = {
@@ -53,6 +55,7 @@ export class Engine {
   readonly #plugins: LanguagePlugin[];
   readonly #ignore: readonly string[];
   readonly #maxFileSize: number;
+  readonly #maxFiles: number;
   readonly #files = new Map<string, CachedFile>();
   #scanning: Promise<ScanReport> | undefined;
   #queued: Promise<ScanReport> | undefined;
@@ -63,6 +66,7 @@ export class Engine {
     this.#plugins = options.plugins ?? [createTypeScriptPlugin(), createPythonPlugin()];
     this.#ignore = options.ignore ?? [];
     this.#maxFileSize = options.maxFileSize ?? 1024 * 1024;
+    this.#maxFiles = options.maxFiles ?? Number.POSITIVE_INFINITY;
   }
 
   #pluginFor(path: string): LanguagePlugin | undefined {
@@ -96,6 +100,11 @@ export class Engine {
       accept: (path) => this.#pluginFor(path) !== undefined,
     });
     const discovered = performance.now();
+    if (paths.length > this.#maxFiles) {
+      throw new Error(
+        `too many source files: ${paths.length.toLocaleString("en")} (the limit is ${this.#maxFiles.toLocaleString("en")})`,
+      );
+    }
 
     const skipped: ScanReport["skipped"] = [];
     const current = new Map<string, SourceFile>();

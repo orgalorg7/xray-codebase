@@ -28,3 +28,22 @@ jobs:
       # The VS Code extension inside a real (downloaded) VS Code, on a virtual display.
       - run: xvfb-run -a pnpm --filter xray-vscode test:vscode
       - run: pnpm --filter xray-vscode package
+
+  # The hosted xray's container image: it builds, starts read-only and maps a public repository.
+  cloud-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f packages/cloud/Dockerfile -t xray-cloud .
+      - run: |
+          docker run -d --name xray -p 8080:8080 --read-only --tmpfs /tmp --cap-drop ALL \
+            --security-opt no-new-privileges:true xray-cloud
+          for i in $(seq 30); do curl -sf localhost:8080/api/health && break; sleep 2; done
+          curl -sf -X POST localhost:8080/api/jobs -H 'content-type: application/json' \
+            -d '{"url":"https://github.com/vercel/ms"}'
+          for i in $(seq 90); do
+            if curl -sf localhost:8080/api/recent | grep -q '"repo":"ms"'; then exit 0; fi
+            sleep 2
+          done
+          docker logs xray
+          exit 1

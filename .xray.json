@@ -18,7 +18,8 @@
           "packages/server/**",
           "packages/parser/**",
           "packages/lang-*/**",
-          "packages/cli/**"
+          "packages/cli/**",
+          "packages/cloud/**"
         ]
       },
       {
@@ -30,7 +31,8 @@
           "packages/server/**",
           "packages/parser/**",
           "packages/lang-*/**",
-          "packages/cli/**"
+          "packages/cli/**",
+          "packages/cloud/**"
         ]
       },
       {
@@ -41,8 +43,15 @@
           "packages/engine/**",
           "packages/server/**",
           "packages/service/**",
-          "packages/analysis/**"
+          "packages/analysis/**",
+          "packages/cloud/**"
         ]
+      },
+      {
+        "name": "the hosted service sits on top: nothing depends on it",
+        "from": ["packages/*/src/**"],
+        "disallow": ["packages/cloud/**"],
+        "allow": ["packages/cloud/src/**"]
       }
     ]
   }

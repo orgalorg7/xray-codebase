@@ -47,14 +47,37 @@ export interface Backend {
   openFile?(file: string, line?: number): void;
   /** The host's theme, when it decides it (an editor), rather than the system. */
   readonly theme?: "light" | "dark";
+  /** Where a file can be read online (hosted maps link to GitHub). */
+  fileUrl?(file: string, line?: number): string;
+  /** Where the mapped code comes from, when it is not a local folder. */
+  readonly origin?: { label: string; href: string };
 }
 
-class HttpBackend implements Backend {
-  readonly live = true;
-  readonly #base: string;
+type HttpOptions = {
+  /** The API's path, `/api` for `xray open`. */
+  api?: string;
+  /** Whether the server pushes rescans (`xray open`) or serves a fixed map (hosted). */
+  live?: boolean;
+  /** URL prefix of the repository's files online; file paths are appended. */
+  sourceUrl?: string;
+  origin?: { label: string; href: string };
+};
 
-  constructor(base = "") {
-    this.#base = base;
+class HttpBackend implements Backend {
+  readonly live: boolean;
+  readonly origin?: { label: string; href: string };
+  readonly fileUrl?: (file: string, line?: number) => string;
+  readonly #api: string;
+
+  constructor(options: HttpOptions = {}) {
+    this.#api = options.api ?? "/api";
+    this.live = options.live ?? true;
+    if (options.origin) this.origin = options.origin;
+    const base = options.sourceUrl;
+    if (base) {
+      this.fileUrl = (file, line) =>
+        `${base}${file.split("/").map(encodeURIComponent).join("/")}${line ? `#L${line}` : ""}`;
+    }
   }
 
   async #get<T>(
@@ -67,7 +90,7 @@ class HttpBackend implements Backend {
       for (const v of Array.isArray(value) ? value : [value]) query.append(key, String(v));
     }
     const qs = query.toString();
-    const response = await fetch(`${this.#base}/api/${path}${qs ? `?${qs}` : ""}`);
+    const response = await fetch(`${this.#api}/${path}${qs ? `?${qs}` : ""}`);
     if (response.status === 404) return undefined as T;
     if (!response.ok) throw new Error(`${path}: ${response.status} ${await response.text()}`);
     return (await response.json()) as T;
@@ -91,11 +114,12 @@ class HttpBackend implements Backend {
   dsm = (level: "module" | "directory") => this.#get<DsmView>("dsm", { level });
 
   subscribe(listener: (event: LiveEvent) => void): () => void {
+    if (!this.live) return () => {};
     let socket: WebSocket | undefined;
     let closed = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
     const connect = () => {
-      const url = new URL(`${this.#base}/api/events`, window.location.href);
+      const url = new URL(`${this.#api}/events`, window.location.href);
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       socket = new WebSocket(url);
       socket.onmessage = (message) => listener(JSON.parse(String(message.data)) as LiveEvent);
@@ -238,11 +262,34 @@ async function decodeSnapshot(base64: string): Promise<Snapshot> {
   return JSON.parse(await new Response(stream).text()) as Snapshot;
 }
 
-/** The embedded snapshot when the page is an export, else the server that served the page. */
+/** A `<meta name="…">` value the server put in the page. */
+export const pageMeta = (name: string): string | undefined =>
+  document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)?.content || undefined;
+
+/**
+ * Where the map's data comes from: VS Code, the snapshot embedded in an export, a hosted map
+ * (its API named in the page), or the `xray open` server that served the page.
+ */
 export async function connectBackend(): Promise<Backend> {
   if (typeof globalThis.acquireVsCodeApi === "function")
     return new VsCodeBackend(globalThis.acquireVsCodeApi());
   const embedded = document.getElementById(SNAPSHOT_ELEMENT_ID);
   if (embedded?.textContent) return new LocalBackend(await decodeSnapshot(embedded.textContent));
+  const api = pageMeta("xray-api");
+  if (api) {
+    const repo = pageMeta("xray-repo") ?? "";
+    const ref = pageMeta("xray-ref");
+    const sourceUrl = pageMeta("xray-source");
+    const sha = sourceUrl?.match(/\/blob\/([0-9a-f]{40})\//)?.[1];
+    return new HttpBackend({
+      api,
+      live: false,
+      ...(sourceUrl ? { sourceUrl } : {}),
+      origin: {
+        label: `github.com/${repo}${ref && ref !== sha ? ` · ${ref}` : ""}${sha ? ` @ ${sha.slice(0, 7)}` : ""}`,
+        href: `https://github.com/${repo}${sha ? `/tree/${sha}` : ""}`,
+      },
+    });
+  }
   return new HttpBackend();
 }

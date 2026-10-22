@@ -14,7 +14,7 @@ export function SourcePreview({
   line: number;
   endLine?: number | undefined;
 }) {
-  const { backend, theme, editorLink, openInEditor } = useApp();
+  const { backend, theme, editorLink, editorLabel, openInEditor } = useApp();
   const [expanded, setExpanded] = useState(false);
   const span = (endLine ?? line) - line + 1;
   const context = 3;
@@ -55,8 +55,12 @@ export function SourcePreview({
           </button>
         ) : (
           link && (
-            <a href={link} className="link-button">
-              Open in editor
+            <a
+              href={link}
+              className="link-button"
+              {...(link.startsWith("http") ? { target: "_blank", rel: "noopener" } : {})}
+            >
+              {editorLabel}
             </a>
           )
         )}

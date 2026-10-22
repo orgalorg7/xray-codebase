@@ -1,0 +1,36 @@
+{
+  "name": "@xray/cloud",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Hosted xray: paste a public GitHub repository, get its interactive architecture map at a permanent link.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@fastify/compress": "9.2.2",
+    "@fastify/static": "10.1.6",
+    "@fastify/websocket": "11.3.4",
+    "@xray/server": "workspace:*",
+    "@xray/service": "workspace:*",
+    "fastify": "5.12.7"
+  },
+  "devDependencies": {
+    "@types/ws": "8.18.2",
+    "@xray/testkit": "workspace:*",
+    "ws": "8.22.0"
+  }
+}

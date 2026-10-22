@@ -1,0 +1,31 @@
+# docker compose -f packages/cloud/compose.yaml up --build
+services:
+  xray:
+    build:
+      context: ../..
+      dockerfile: packages/cloud/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # XRAY_PUBLIC_URL: https://xray.example.com
+      # XRAY_TRUST_PROXY: "true"   # behind a load balancer that sets X-Forwarded-For
+      XRAY_CONCURRENCY: "2"
+      XRAY_WORKER_HEAP_MB: "3072"
+    volumes:
+      - xray-data:/data
+    # Contain what a repository could do even if the analysis had a bug: no privileges, a
+    # read-only system, and limits on memory, processes and CPU.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 8g
+    pids_limit: 256
+    cpus: 4
+    restart: unless-stopped
+
+volumes:
+  xray-data:

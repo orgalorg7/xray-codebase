@@ -13,6 +13,8 @@ npx xray-codebase open            # scan the current repository and open the map
 - **Where does this live?** Find a feature's code from a plain query (`xray where "login"`).
 - **Blast radius:** what a change can break, with entry points, tests and a risk score
   (`xray impact <symbol>` or `xray impact --diff main`).
+- **Pull request comments:** `xray impact --diff origin/main --format markdown` writes the
+  blast radius of a branch as a comment, ready for a bot to post.
 - **CI rules:** fail on new cycles or broken layering (`xray check`, see `.xray.json`).
 - **Share:** `xray export --format html` writes one self-contained, offline map.
 

@@ -138,6 +138,15 @@ describe("Engine", () => {
     expect(report.skipped.map((s) => s.path).sort()).toEqual(["big.ts", "bin.js"]);
   });
 
+  it("refuses repositories with more source files than allowed", async () => {
+    write("a.ts", "export const a = 1;\n");
+    write("b.ts", "export const b = 2;\n");
+    await expect(new Engine({ root: dir, store, maxFiles: 1 }).scan()).rejects.toThrow(
+      "too many source files: 2 (the limit is 1)",
+    );
+    expect((await new Engine({ root: dir, store, maxFiles: 2 }).scan()).files).toBe(2);
+  });
+
   it("reports plugin diagnostics without failing the scan", async () => {
     write("a.ts", 'import { x } from "./missing";\nexport const y = x;\n');
     write("b.py", "def broken(:\n    pass\n");

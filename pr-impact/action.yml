@@ -1,0 +1,81 @@
+name: xray blast radius
+description: Comment on pull requests with the blast radius of their changes, the entry points they reach, the tests to run and a risk score.
+author: xray contributors
+branding:
+  icon: crosshair
+  color: blue
+inputs:
+  version:
+    description: Version of the xray-codebase package to run (0.2.0 or newer).
+    default: latest
+  cli:
+    description: A command that runs the xray CLI instead of the npm package (for xray's own CI).
+    default: ""
+  working-directory:
+    description: Repository directory to analyze.
+    default: .
+  github-token:
+    description: "Token that may comment on the pull request (needs `pull-requests: write`)."
+    default: ${{ github.token }}
+  fail-on-risk:
+    description: Fail the job when the risk is at least this level (low, medium or high), or never.
+    default: never
+outputs:
+  risk:
+    description: The risk level of the change (low, medium or high).
+    value: ${{ steps.impact.outputs.risk }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+    - id: impact
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        XRAY_VERSION: ${{ inputs.version }}
+        XRAY_CLI: ${{ inputs.cli }}
+      run: |
+        if [ -z "$BASE_SHA" ]; then
+          echo "::error::xray blast radius runs on pull_request events"
+          exit 1
+        fi
+        # Compare with where the branch left its base, so changes merged into the base since
+        # are not counted (needs history: actions/checkout with fetch-depth: 0).
+        BASE=$(git merge-base "$BASE_SHA" HEAD 2>/dev/null || echo "$BASE_SHA")
+        XRAY="${XRAY_CLI:-npx --yes xray-codebase@$XRAY_VERSION}"
+        $XRAY impact --diff "$BASE" --no-git --format markdown \
+          --link "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/blob/$HEAD_SHA/" > "$RUNNER_TEMP/xray-impact.md"
+        # The index is reused, so this second run is quick.
+        RISK=$($XRAY impact --diff "$BASE" --no-git --json | node -e \
+          'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const r=JSON.parse(s);console.log(r.changed.length?r.risk.level:"none")})')
+        echo "risk=$RISK" >> "$GITHUB_OUTPUT"
+        cat "$RUNNER_TEMP/xray-impact.md" >> "$GITHUB_STEP_SUMMARY"
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR: ${{ github.event.pull_request.number }}
+      run: |
+        # One comment per pull request, updated on every push.
+        ID=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+          --jq '.[] | select(.body | startswith("<!-- xray-impact -->")) | .id' | head -n 1)
+        if [ -n "$ID" ]; then
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$ID" \
+            -F "body=@$RUNNER_TEMP/xray-impact.md" > /dev/null
+        else
+          gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+            -F "body=@$RUNNER_TEMP/xray-impact.md" > /dev/null
+        fi
+    - shell: bash
+      env:
+        RISK: ${{ steps.impact.outputs.risk }}
+        FAIL_ON: ${{ inputs.fail-on-risk }}
+      run: |
+        rank() { case "$1" in low) echo 1;; medium) echo 2;; high) echo 3;; *) echo 0;; esac; }
+        if [ "$FAIL_ON" != "never" ] && [ "$(rank "$RISK")" -ge "$(rank "$FAIL_ON")" ] && [ "$(rank "$RISK")" -gt 0 ]; then
+          echo "::error::xray: this change has $RISK risk (fail-on-risk: $FAIL_ON)"
+          exit 1
+        fi

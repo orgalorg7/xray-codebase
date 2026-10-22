@@ -2,9 +2,8 @@ import { existsSync } from "node:fs";
 import compress from "@fastify/compress";
 import fastifyStatic from "@fastify/static";
 import websocket from "@fastify/websocket";
-import type { ImpactOptions } from "@xray/analysis";
-import type { EdgeKind } from "@xray/schema";
-import Fastify, { type FastifyInstance, type FastifyReply } from "fastify";
+import Fastify, { type FastifyInstance } from "fastify";
+import { mapApi } from "./map-api.js";
 import type { Workspace } from "./workspace.js";
 
 export type ServerOptions = {
@@ -17,16 +16,6 @@ export type ServerOptions = {
 };
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
-
-const int = (value: unknown, fallback: number, min = 0, max = 1_000_000): number => {
-  const n = Number(value);
-  return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.floor(n))) : fallback;
-};
-
-const list = (value: unknown): string[] =>
-  value === undefined ? [] : (Array.isArray(value) ? value : [value]).map(String).filter(Boolean);
-
-type Query = Record<string, unknown>;
 
 /**
  * The HTTP + WebSocket front of a workspace. All routes are read-only. Only local Host headers
@@ -47,72 +36,7 @@ export async function createServer(options: ServerOptions): Promise<FastifyInsta
   await app.register(compress, { threshold: 1024 });
   await app.register(websocket);
 
-  const notFound = (reply: FastifyReply, what: string) =>
-    reply.code(404).send({ error: `${what} not found` });
-  const service = () => workspace.service();
-
-  app.get("/api/meta", async () => (await service()).meta());
-  app.get("/api/map", async () => (await service()).map());
-  app.get<{ Querystring: Query }>("/api/roads", async (req) =>
-    (await service()).roads(int(req.query.depth, 1, 0, 50)),
-  );
-  app.get<{ Querystring: Query }>("/api/node", async (req, reply) => {
-    const details = (await service()).node(String(req.query.id ?? ""));
-    return details ?? notFound(reply, "node");
-  });
-  app.get<{ Querystring: Query }>("/api/source", async (req, reply) => {
-    const view = (await service()).source(
-      String(req.query.file ?? ""),
-      int(req.query.start, 1, 1),
-      req.query.end === undefined ? Number.POSITIVE_INFINITY : int(req.query.end, 1, 1),
-    );
-    return view ?? notFound(reply, "source");
-  });
-  app.get<{ Querystring: Query }>("/api/search", async (req) =>
-    (await service()).search(String(req.query.q ?? ""), int(req.query.limit, 20, 1, 200)),
-  );
-  app.get<{ Querystring: Query }>("/api/resolve", async (req) =>
-    (await service()).resolve(String(req.query.q ?? "")),
-  );
-  app.get<{ Querystring: Query }>("/api/impact", async (req) => {
-    const opts: ImpactOptions = { includeHeuristic: req.query.heuristic !== "false" };
-    if (req.query.depth !== undefined) opts.maxDepth = int(req.query.depth, 10, 1, 100);
-    return (await service()).impact(list(req.query.id), opts);
-  });
-  app.post<{ Body: unknown }>("/api/impact/diff", async (req) => {
-    const diff =
-      typeof req.body === "string"
-        ? req.body
-        : String((req.body as { diff?: unknown })?.diff ?? "");
-    return (await service()).impactOfDiff(diff);
-  });
-  app.get<{ Querystring: Query }>("/api/trace", async (req) => {
-    const kinds = list(req.query.kind) as EdgeKind[];
-    return (await service()).trace(String(req.query.from ?? ""), String(req.query.to ?? ""), {
-      k: int(req.query.k, 3, 1, 10),
-      ...(kinds.length > 0 ? { kinds } : {}),
-    });
-  });
-  app.get<{ Querystring: Query }>("/api/tree", async (req) =>
-    (await service()).tree(
-      String(req.query.id ?? ""),
-      req.query.direction === "in" ? "in" : "out",
-      int(req.query.depth, 3, 1, 8),
-    ),
-  );
-  app.get<{ Querystring: Query }>("/api/cycles", async (req) =>
-    (await service()).cycles({
-      ignoreTypeOnly: req.query.ignoreTypeOnly === "true",
-      ignoreDeferred: req.query.ignoreDeferred === "true",
-    }),
-  );
-  app.get("/api/insights", async () => (await service()).insights());
-  app.get<{ Querystring: Query }>("/api/dsm", async (req) =>
-    (await service()).dsm(
-      req.query.level === "directory" ? "directory" : "module",
-      int(req.query.limit, 400, 1, 2000),
-    ),
-  );
+  await app.register(mapApi, { prefix: "/api", service: () => workspace.service() });
   app.post("/api/rescan", async () => {
     const report = await workspace.scan();
     return {

@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/.turbo
+**/*.tsbuildinfo
+.git
+data
+test-results
+playwright-report
+e2e/.export-path
+packages/vscode/.vscode-test
+packages/vscode/test-integration/out
+packages/vscode/media/ui
+packages/vscode/*.vsix

@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
-import type { Snapshot } from "@xray/service";
+import type { SnapshotData } from "@xray/service";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -19,9 +19,6 @@ export function findUiDir(): string | undefined {
   ].filter((p): p is string => p !== undefined);
   return candidates.find((dir) => existsSync(join(dir, "index.html")));
 }
-
-/** The snapshot as embedded in an export: plain data, sources as a map. */
-export type SnapshotData = Omit<Snapshot, "sources"> & { sources?: Record<string, string> };
 
 const escapeScript = (text: string): string => text.replaceAll("</", "<\\/");
 

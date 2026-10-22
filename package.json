@@ -3,6 +3,14 @@
   "private": true,
   "description": "X-ray vision for any codebase: an interactive, zoomable map of architecture, calls and dependencies.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orgalorg7/xray-codebase.git"
+  },
+  "homepage": "https://github.com/orgalorg7/xray-codebase#readme",
+  "bugs": {
+    "url": "https://github.com/orgalorg7/xray-codebase/issues"
+  },
   "type": "module",
   "packageManager": "pnpm@11.9.0",
   "engines": {

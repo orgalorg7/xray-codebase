@@ -22,8 +22,10 @@ export type AppContext = {
   frame: (ids: string[]) => void;
   /** Replaces the map overlay (pass undefined to clear). */
   setOverlay: (overlay: Overlay | undefined) => void;
-  /** `vscode://` link to a file position, when the repository is local. */
+  /** Link to a file position: GitHub for hosted maps, `vscode://` for local repositories. */
   editorLink: (file: string, line?: number) => string | undefined;
+  /** What following `editorLink` does ("Open in editor", "View on GitHub"). */
+  editorLabel: string;
   /** Opens a file in the host editor (inside VS Code); preferred over `editorLink`. */
   openInEditor?: (file: string, line?: number) => void;
 };

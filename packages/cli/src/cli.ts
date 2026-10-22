@@ -6,17 +6,19 @@ import { createServer, Workspace } from "@xray/server";
 import {
   type Baseline,
   type CheckConfig,
+  impactMarkdown,
   runCheck,
   type Summary,
+  snapshotData,
   toDot,
   toGraphML,
   toMermaid,
   type XrayService,
 } from "@xray/service";
-import { buildHtml, findUiDir, type SnapshotData } from "./html.js";
+import { buildHtml, findUiDir } from "./html.js";
 import { type IO, line, painter } from "./io.js";
 
-export const VERSION = "0.1.1";
+export const VERSION = "0.2.0";
 
 const HELP = `xray: X-ray vision for any codebase
 
@@ -54,8 +56,10 @@ tsconfig changes).`,
   where: `xray where <query> [-n 10] [--json]
 Ranks code by how well it matches the query and how connected it is to the matches.`,
   impact: `xray impact <symbol...> [--depth N] [--no-guesses] [--json]
-xray impact --diff [ref] [--staged]
-Lists everything that depends on the symbols, by distance, with entry points, tests and a risk score.`,
+xray impact --diff [ref] [--staged] [--format text|markdown] [--link <url>]
+Lists everything that depends on the symbols, by distance, with entry points, tests and a risk score.
+--format markdown writes a pull request comment; --link prefixes file links in it, for example
+https://github.com/owner/repo/blob/<sha>/.`,
   trace: `xray trace <from> <to> [-k 3] [--json]
 The cheapest call routes from <from> to <to>; sure links are preferred over guesses.`,
   cycles: `xray cycles [--ignore-type-only] [--calls] [--json]
@@ -298,8 +302,13 @@ const COMMANDS: Record<string, Command> = {
       depth: { type: "string" },
       "no-guesses": { type: "boolean" },
       all: { type: "boolean" },
+      format: { type: "string" },
+      link: { type: "string" },
     });
     if (helpRequested(io, "impact", values)) return 0;
+    const format = String(values.format ?? "text");
+    if (format !== "text" && format !== "markdown")
+      throw new UsageError(`unknown format "${format}" (text or markdown)`);
     const p = painter(io);
     const { workspace, service } = await open(io, values);
     try {
@@ -330,6 +339,10 @@ const COMMANDS: Record<string, Command> = {
         );
       }
       if (values.json) return json(io, { changed: targets, ...report });
+      if (format === "markdown") {
+        io.out(impactMarkdown(targets, report, values.link ? { link: String(values.link) } : {}));
+        return 0;
+      }
       if (targets.length === 0) {
         io.out("No code changes found in the diff.\n");
         return 0;
@@ -523,7 +536,7 @@ const COMMANDS: Record<string, Command> = {
           throw new Error(
             "the map UI is not built. Run `pnpm --filter @xray/ui build` (or set XRAY_UI_DIR).",
           );
-        text = buildHtml(uiDir, snapshotData(service, !values["no-sources"]));
+        text = buildHtml(uiDir, snapshotData(service.snapshot, !values["no-sources"]));
       }
       const output = values.output as string | undefined;
       if (!output) {
@@ -542,23 +555,6 @@ const COMMANDS: Record<string, Command> = {
     }
   },
 };
-
-/** The service's snapshot as plain data for an export, with project sources embedded. */
-function snapshotData(service: XrayService, withSources: boolean): SnapshotData {
-  const { sources, ...rest } = service.snapshot;
-  const data: SnapshotData = rest;
-  if (withSources && sources) {
-    const read = typeof sources === "function" ? sources : (path: string) => sources[path];
-    const map: Record<string, string> = {};
-    for (const node of service.snapshot.graph.nodes) {
-      if (node.kind !== "module") continue;
-      const text = read(node.qualifiedName);
-      if (text !== undefined) map[node.qualifiedName] = text;
-    }
-    data.sources = map;
-  }
-  return data;
-}
 
 function openBrowser(url: string): void {
   const [command, args] =

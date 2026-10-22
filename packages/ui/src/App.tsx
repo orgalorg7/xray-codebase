@@ -272,9 +272,12 @@ function Shell({
       frame,
       setOverlay,
       editorLink: (file, line) =>
-        backend.live && meta.root.startsWith("/")
-          ? `vscode://file${meta.root}/${file}${line ? `:${line}` : ""}`
-          : undefined,
+        backend.fileUrl
+          ? backend.fileUrl(file, line)
+          : backend.live && meta.root.startsWith("/")
+            ? `vscode://file${meta.root}/${file}${line ? `:${line}` : ""}`
+            : undefined,
+      editorLabel: backend.fileUrl ? "View on GitHub" : "Open in editor",
       ...(backend.openFile
         ? { openInEditor: (file: string, line?: number) => backend.openFile?.(file, line) }
         : {}),
@@ -346,7 +349,13 @@ function Shell({
       <div className="app">
         <header className="topbar">
           <div className="brand" title={meta.root}>
-            <span className="logo" aria-hidden="true" />
+            {backend.origin ? (
+              <a className="logo" href="/" title="Map another repository">
+                <span className="visually-hidden">xray home</span>
+              </a>
+            ) : (
+              <span className="logo" aria-hidden="true" />
+            )}
             <span className="brand-name">{meta.name}</span>
           </div>
           <SearchBox ref={searchRef} />
@@ -467,9 +476,15 @@ function Shell({
             {plural(meta.stats.edges, "link")}
           </span>
           <span>{scanning ? "Rescanning…" : `scanned ${timeAgo(meta.scannedAt)}`}</span>
-          <span className={backend.live ? "live" : "snapshot"}>
-            {backend.live ? "● live" : "snapshot"}
-          </span>
+          {backend.origin ? (
+            <a className="origin" href={backend.origin.href} target="_blank" rel="noopener">
+              {backend.origin.label}
+            </a>
+          ) : (
+            <span className={backend.live ? "live" : "snapshot"}>
+              {backend.live ? "● live" : "snapshot"}
+            </span>
+          )}
         </footer>
         {notice && (
           <div className="toast" role="status">

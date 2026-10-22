@@ -5,6 +5,15 @@
   "version": "0.1.0",
   "publisher": "xray-codebase",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orgalorg7/xray-codebase.git",
+    "directory": "packages/vscode"
+  },
+  "homepage": "https://github.com/orgalorg7/xray-codebase#readme",
+  "bugs": {
+    "url": "https://github.com/orgalorg7/xray-codebase/issues"
+  },
   "private": true,
   "icon": "media/icon.png",
   "galleryBanner": {
