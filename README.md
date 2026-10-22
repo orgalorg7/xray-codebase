@@ -26,9 +26,9 @@
   <a href="#development">Contributing</a>
 </p>
 
-![xray mapping its own repository: packages as regions, files as cities, functions and classes as buildings, with dependency roads between them](docs/images/map.png)
+![Searching gin for "render json response", opening a match, then its blast radius: 626 dependent symbols and 448 tests light up on the map](docs/images/demo.gif)
 
-<p align="center"><sub>xray mapping itself: 173 files, 1.7k symbols, 8.3k links.</sub></p>
+<p align="center"><sub>Searching <a href="https://github.com/gin-gonic/gin">gin</a> in plain words, opening a match, then its blast radius.</sub></p>
 
 ## Why
 
@@ -74,6 +74,8 @@ with the site's address in any GitHub URL. To run your own, see
 ## What it shows
 
 ### The map
+
+![xray mapping its own repository: packages as regions, files as cities, functions and classes as buildings, with dependency roads between them](docs/images/map.png)
 
 Code is laid out like places: directories are regions, files are cities, classes and functions
 are buildings sized by lines of code. Colors mark **districts**, groups of files that depend on
