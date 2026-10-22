@@ -9,6 +9,11 @@
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./workspace": {
+      "development": "./src/workspace.ts",
+      "types": "./dist/workspace.d.ts",
+      "default": "./dist/workspace.js"
     }
   },
   "files": [

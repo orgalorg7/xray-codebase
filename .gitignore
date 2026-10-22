@@ -10,3 +10,8 @@ e2e/.export-path
 test-results/
 playwright-report/
 packages/xray-codebase/LICENSE
+packages/vscode/.vscode-test/
+packages/vscode/test-integration/out/
+packages/vscode/media/ui/
+packages/vscode/LICENSE
+packages/vscode/*.vsix

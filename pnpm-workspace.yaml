@@ -3,6 +3,7 @@ packages:
   - "bench"
 # Only the prebuilt .wasm grammar is used; the native Node binding is never built.
 allowBuilds:
+  "@vscode/vsce-sign": false
   esbuild: true
   tree-sitter-python: false
 minimumReleaseAgeExclude:

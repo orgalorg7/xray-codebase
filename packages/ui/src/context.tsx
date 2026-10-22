@@ -24,6 +24,8 @@ export type AppContext = {
   setOverlay: (overlay: Overlay | undefined) => void;
   /** `vscode://` link to a file position, when the repository is local. */
   editorLink: (file: string, line?: number) => string | undefined;
+  /** Opens a file in the host editor (inside VS Code); preferred over `editorLink`. */
+  openInEditor?: (file: string, line?: number) => void;
 };
 
 export const Context = createContext<AppContext | undefined>(undefined);

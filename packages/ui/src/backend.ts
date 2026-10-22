@@ -20,7 +20,10 @@ export type ImpactRequest = { ids: string[]; depth?: number; heuristic?: boolean
 
 export type LiveEvent =
   | { type: "scanning" }
-  | { type: "scanned"; files: number; ms: number; changed: number };
+  | { type: "scanned"; files: number; ms: number; changed: number }
+  /** The host editor puts the map in a state, given as the map's own URL-hash parameters. */
+  | { type: "navigate"; hash: string }
+  | { type: "theme"; theme: "light" | "dark" };
 
 /** Where the map's data comes from: a live `xray open` server or a snapshot in the page. */
 export interface Backend {
@@ -40,6 +43,10 @@ export interface Backend {
   dsm(level: "module" | "directory"): Promise<DsmView>;
   /** Live servers push rescans; returns an unsubscribe function. */
   subscribe(listener: (event: LiveEvent) => void): () => void;
+  /** Opens a file in the host editor, when the map runs inside one. */
+  openFile?(file: string, line?: number): void;
+  /** The host's theme, when it decides it (an editor), rather than the system. */
+  readonly theme?: "light" | "dark";
 }
 
 class HttpBackend implements Backend {
@@ -138,6 +145,90 @@ class LocalBackend implements Backend {
   subscribe = () => () => {};
 }
 
+type VsCodeApi = { postMessage(message: unknown): void };
+declare global {
+  // Defined by VS Code inside webviews.
+  var acquireVsCodeApi: (() => VsCodeApi) | undefined;
+}
+
+/**
+ * Runs inside a VS Code webview: requests go to the extension as messages, which relays them to
+ * its xray worker. Follows the editor's theme and opens files in the editor.
+ */
+class VsCodeBackend implements Backend {
+  readonly live = true;
+  readonly #api: VsCodeApi;
+  readonly #pending = new Map<
+    number,
+    { resolve: (value: unknown) => void; reject: (error: Error) => void }
+  >();
+  readonly #listeners = new Set<(event: LiveEvent) => void>();
+  #next = 1;
+
+  constructor(api: VsCodeApi) {
+    this.#api = api;
+    window.addEventListener("message", (message: MessageEvent) => {
+      const data = message.data as
+        | { type: "response"; id: number; result?: unknown; error?: string }
+        | { type: "event"; event: LiveEvent }
+        | undefined;
+      if (data?.type === "response") {
+        const pending = this.#pending.get(data.id);
+        this.#pending.delete(data.id);
+        if (data.error !== undefined) pending?.reject(new Error(data.error));
+        else pending?.resolve(data.result);
+      } else if (data?.type === "event") {
+        for (const listener of this.#listeners) listener(data.event);
+      }
+    });
+    // VS Code switches theme classes on <body>; follow them.
+    new MutationObserver(() => {
+      for (const listener of this.#listeners) listener({ type: "theme", theme: this.theme });
+    }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    this.#api.postMessage({ type: "ready" });
+  }
+
+  get theme(): "light" | "dark" {
+    const classes = document.body.classList;
+    return classes.contains("vscode-dark") || classes.contains("vscode-high-contrast")
+      ? "dark"
+      : "light";
+  }
+
+  #call<T>(method: string, ...args: unknown[]): Promise<T> {
+    const id = this.#next++;
+    return new Promise<T>((resolve, reject) => {
+      this.#pending.set(id, { resolve: resolve as (value: unknown) => void, reject });
+      this.#api.postMessage({ type: "request", id, method, args });
+    });
+  }
+
+  meta = () => this.#call<Meta>("meta");
+  map = () => this.#call<MapData>("map");
+  roads = (depth: number) => this.#call<RoadsView>("roads", depth);
+  node = (id: string) => this.#call<NodeDetails | undefined>("node", id);
+  source = (file: string, start?: number, end?: number) =>
+    this.#call<SourceView | undefined>("source", file, start, end);
+  search = (q: string, limit?: number) => this.#call<SearchView>("search", q, limit);
+  resolve = (q: string) => this.#call<Summary[]>("resolve", q);
+  impact = (r: ImpactRequest) => this.#call<ImpactView>("impact", r);
+  trace = (from: string, to: string, k?: number) => this.#call<TraceView>("trace", from, to, k);
+  tree = (id: string, direction: "in" | "out", depth?: number) =>
+    this.#call<TreeView>("tree", id, direction, depth);
+  cycles = (ignoreTypeOnly?: boolean) => this.#call<CyclesView>("cycles", ignoreTypeOnly);
+  insights = () => this.#call<InsightsView>("insights");
+  dsm = (level: "module" | "directory") => this.#call<DsmView>("dsm", level);
+
+  openFile(file: string, line?: number): void {
+    this.#api.postMessage({ type: "openFile", file, line });
+  }
+
+  subscribe(listener: (event: LiveEvent) => void): () => void {
+    this.#listeners.add(listener);
+    return () => this.#listeners.delete(listener);
+  }
+}
+
 /** ID of the script element that carries an exported snapshot (gzip, base64). */
 export const SNAPSHOT_ELEMENT_ID = "xray-snapshot";
 
@@ -149,6 +240,8 @@ async function decodeSnapshot(base64: string): Promise<Snapshot> {
 
 /** The embedded snapshot when the page is an export, else the server that served the page. */
 export async function connectBackend(): Promise<Backend> {
+  if (typeof globalThis.acquireVsCodeApi === "function")
+    return new VsCodeBackend(globalThis.acquireVsCodeApi());
   const embedded = document.getElementById(SNAPSHOT_ELEMENT_ID);
   if (embedded?.textContent) return new LocalBackend(await decodeSnapshot(embedded.textContent));
   return new HttpBackend();

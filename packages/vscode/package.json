@@ -1,0 +1,222 @@
+{
+  "name": "xray-vscode",
+  "displayName": "xray: Codebase Map",
+  "description": "An interactive map of your codebase in VS Code: callers above every function, blast radius of a change, call routes, circular imports and where features live. TypeScript, JavaScript and Python.",
+  "version": "0.1.0",
+  "publisher": "xray-codebase",
+  "license": "MIT",
+  "private": true,
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1b2333",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.125.0"
+  },
+  "categories": [
+    "Visualization",
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "architecture",
+    "call graph",
+    "dependency graph",
+    "codebase map",
+    "circular imports",
+    "impact analysis",
+    "codelens",
+    "typescript",
+    "python"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:python",
+    "workspaceContains:**/tsconfig.json",
+    "workspaceContains:**/pyproject.toml"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "xray.openMap",
+        "title": "Open Map",
+        "category": "xray",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "xray.revealInMap",
+        "title": "Reveal in Map",
+        "category": "xray"
+      },
+      {
+        "command": "xray.blastRadius",
+        "title": "Blast Radius of This Symbol",
+        "category": "xray"
+      },
+      {
+        "command": "xray.findFeature",
+        "title": "Find Where a Feature Lives",
+        "category": "xray",
+        "icon": "$(search)"
+      },
+      {
+        "command": "xray.showCycles",
+        "title": "Show Import Cycles",
+        "category": "xray"
+      },
+      {
+        "command": "xray.rescan",
+        "title": "Rescan Workspace",
+        "category": "xray",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "xray.showCallers",
+        "title": "Show Callers",
+        "category": "xray"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "xray.revealInMap",
+          "group": "navigation@90",
+          "when": "editorLangId =~ /^(typescript|typescriptreact|javascript|javascriptreact|python)$/"
+        },
+        {
+          "command": "xray.blastRadius",
+          "group": "navigation@91",
+          "when": "editorLangId =~ /^(typescript|typescriptreact|javascript|javascriptreact|python)$/"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "xray.openMap",
+          "when": "view == xray.insights",
+          "group": "navigation@1"
+        },
+        {
+          "command": "xray.findFeature",
+          "when": "view == xray.insights",
+          "group": "navigation@2"
+        },
+        {
+          "command": "xray.rescan",
+          "when": "view == xray.insights",
+          "group": "navigation@3"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "xray.showCallers",
+          "when": "false"
+        },
+        {
+          "command": "xray.revealInMap",
+          "when": "editorIsOpen"
+        },
+        {
+          "command": "xray.blastRadius",
+          "when": "editorIsOpen"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "xray.openMap",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
+      },
+      {
+        "command": "xray.revealInMap",
+        "key": "ctrl+alt+r",
+        "mac": "cmd+alt+r",
+        "when": "editorTextFocus"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "xray",
+          "title": "xray",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "xray": [
+        {
+          "id": "xray.insights",
+          "name": "Insights"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "xray.insights",
+        "contents": "xray maps this workspace's files, functions and classes and how they depend on each other.\n[Open Map](command:xray.openMap)\n[Find Where a Feature Lives](command:xray.findFeature)"
+      }
+    ],
+    "configuration": {
+      "title": "xray",
+      "properties": {
+        "xray.codeLens.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show callers and blast radius above functions, methods and classes."
+        },
+        "xray.hover.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add caller counts and map links to hovers on declarations and calls."
+        },
+        "xray.watch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Rescan when files change."
+        },
+        "xray.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Extra gitignore-style patterns to leave out of the map (in addition to .gitignore and .xrayignore)."
+        },
+        "xray.maxMemoryMB": {
+          "type": "number",
+          "default": 0,
+          "description": "Memory limit for the analysis process in MB. 0 picks half the machine's memory (2048 to 8192)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "package": "node build.mjs && vsce package --no-dependencies --out xray-vscode.vsix",
+    "test:vscode": "node build.mjs && node test-integration/run.mjs"
+  },
+  "devDependencies": {
+    "@types/mocha": "10.0.10",
+    "@types/vscode": "1.125.0",
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "4.0.0",
+    "@xray/analysis": "workspace:*",
+    "@xray/schema": "workspace:*",
+    "@xray/server": "workspace:*",
+    "@xray/service": "workspace:*",
+    "@xray/testkit": "workspace:*",
+    "@xray/ui": "workspace:*",
+    "esbuild": "0.28.2",
+    "mocha": "12.0.3",
+    "tree-sitter-python": "0.25.0",
+    "typescript": "6.0.3",
+    "web-tree-sitter": "0.27.1"
+  }
+}

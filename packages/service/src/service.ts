@@ -4,6 +4,7 @@ import {
   callCycles,
   callTree,
   compareStrings,
+  DEPENDENCY_KINDS,
   deadCode,
   districts,
   FeatureIndex,
@@ -31,6 +32,7 @@ import type {
   CycleView,
   DsmView,
   EdgeView,
+  FileSymbol,
   ImpactView,
   InsightsView,
   MapData,
@@ -47,6 +49,19 @@ import type {
 } from "./types.js";
 
 const EDGE_LIMIT = 500;
+
+/** Node kinds editors annotate with usage counts. */
+const LENS_KINDS: ReadonlySet<string> = new Set([
+  "function",
+  "method",
+  "class",
+  "interface",
+  "component",
+  "route",
+  "cli-command",
+  "type-alias",
+  "enum",
+]);
 const IMPACT_LIMIT = 2000;
 
 /** Memoizes a zero-argument computation. */
@@ -320,6 +335,32 @@ export class XrayService {
         tests: result.territory.tests.map((id) => this.summary(id)),
       },
     };
+  }
+
+  /**
+   * Declarations in one file that editors annotate (functions, methods, classes, interfaces,
+   * components, routes, commands), with how many distinct nodes call and depend on each.
+   */
+  fileSymbols(file: string): FileSymbol[] {
+    const index = this.index();
+    const mod = this.#modules().get(file);
+    if (!mod) return [];
+    const calls: readonly EdgeKind[] = [...CALL_KINDS];
+    const out: FileSymbol[] = [];
+    for (const id of index.descendants(mod.id)) {
+      const node = index.node(id);
+      if (!node?.location || !LENS_KINDS.has(node.kind)) continue;
+      const distinct = (edges: readonly { source: string }[]) =>
+        new Set(edges.map((e) => e.source).filter((source) => source !== id)).size;
+      out.push({
+        ...summarize(node),
+        line: node.location.line,
+        column: node.location.column,
+        callers: distinct(index.in(id, calls)),
+        dependents: distinct(index.in(id, DEPENDENCY_KINDS)),
+      });
+    }
+    return out.sort((a, b) => a.line - b.line || a.column - b.column);
   }
 
   /**

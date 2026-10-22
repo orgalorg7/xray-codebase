@@ -100,6 +100,17 @@ describe("XrayService", () => {
     ).toBeUndefined();
   });
 
+  it("lists a file's declarations with caller and dependent counts", async () => {
+    const s = await service("ts-classes");
+    const symbols = s.fileSymbols("src/user-repo.ts");
+    expect(symbols.map((x) => [x.label, x.line, x.callers, x.dependents])).toEqual([
+      ["UserRepo", 3, 0, 1], // extended by AdminRepo (imports point at the file, not the class)
+      ["UserRepo.find", 6, 1, 1], // AdminRepo.find super-calls and overrides it: one dependent
+      ["UserRepo.add", 10, 0, 0],
+    ]);
+    expect(s.fileSymbols("nope.ts")).toEqual([]);
+  });
+
   it("resolves references users type", async () => {
     const s = await service("ts-classes");
     const ids = (ref: string) => s.resolve(ref).map((r) => r.id);

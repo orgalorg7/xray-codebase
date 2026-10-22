@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+  <title>xray</title>
+  <circle cx="12" cy="12" r="10"/>
+  <circle cx="9" cy="10" r="3.5"/>
+  <circle cx="15.5" cy="14.5" r="2.5"/>
+  <circle cx="9.5" cy="17" r="1.2" fill="currentColor"/>
+  <circle cx="16" cy="7.5" r="1.2" fill="currentColor"/>
+</svg>

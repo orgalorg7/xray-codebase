@@ -6,5 +6,5 @@
     "customConditions": ["development"]
   },
   "include": ["packages/*/test", "bench/*.ts", "vitest.config.ts", "e2e", "playwright.config.ts"],
-  "exclude": ["packages/ui/test"]
+  "exclude": ["packages/ui/test", "packages/vscode/test"]
 }

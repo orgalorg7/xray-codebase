@@ -25,3 +25,6 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
       - run: pnpm --filter xray-codebase build && pnpm --filter xray-codebase smoke
+      # The VS Code extension inside a real (downloaded) VS Code, on a virtual display.
+      - run: xvfb-run -a pnpm --filter xray-vscode test:vscode
+      - run: pnpm --filter xray-vscode package

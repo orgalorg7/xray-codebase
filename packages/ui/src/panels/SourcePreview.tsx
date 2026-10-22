@@ -14,7 +14,7 @@ export function SourcePreview({
   line: number;
   endLine?: number | undefined;
 }) {
-  const { backend, theme, editorLink } = useApp();
+  const { backend, theme, editorLink, openInEditor } = useApp();
   const [expanded, setExpanded] = useState(false);
   const span = (endLine ?? line) - line + 1;
   const context = 3;
@@ -49,10 +49,16 @@ export function SourcePreview({
         <span className="mono">
           {file}:{line}
         </span>
-        {link && (
-          <a href={link} className="link-button">
+        {openInEditor ? (
+          <button type="button" className="link-button" onClick={() => openInEditor(file, line)}>
             Open in editor
-          </a>
+          </button>
+        ) : (
+          link && (
+            <a href={link} className="link-button">
+              Open in editor
+            </a>
+          )
         )}
       </div>
       {/* biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable code must be reachable by keyboard */}

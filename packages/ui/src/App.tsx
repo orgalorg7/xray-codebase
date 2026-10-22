@@ -66,17 +66,23 @@ type Loaded = { meta: Meta; map: MapData; scene: Scene };
 export function App({ backend }: { backend: Backend }) {
   const prefersDark =
     typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
+  // An editor host decides the theme; otherwise the viewer's choice, then the system setting.
   const store = useMemo(
     () =>
       new Store(
-        fromHash(location.hash, initialState(savedTheme() ?? (prefersDark ? "dark" : "light"))),
+        fromHash(
+          location.hash,
+          initialState(backend.theme ?? savedTheme() ?? (prefersDark ? "dark" : "light")),
+        ),
       ),
-    [prefersDark],
+    [prefersDark, backend],
   );
   const [loaded, setLoaded] = useState<Loaded | undefined>();
   const [error, setError] = useState<Error | undefined>();
   const [scanning, setScanning] = useState(false);
   const [notice, setNotice] = useState<string | undefined>();
+  // Set by the map once it is shown; reveals that arrive earlier are applied when it mounts.
+  const flyTo = useRef<((id: string) => void) | undefined>(undefined);
 
   const load = useCallback(async () => {
     try {
@@ -97,15 +103,28 @@ export function App({ backend }: { backend: Backend }) {
     () =>
       backend.subscribe((event) => {
         if (event.type === "scanning") setScanning(true);
-        else {
+        else if (event.type === "scanned") {
           setScanning(false);
           if (event.changed > 0) {
             setNotice(`Updated: ${plural(event.changed, "file")} changed (${event.ms} ms)`);
             load();
           }
+        } else if (event.type === "theme") store.set({ theme: event.theme });
+        else if (event.type === "navigate") {
+          // Replace the view with exactly what the editor asked for, keeping theme and layers.
+          const current = store.get();
+          store.set({
+            ...fromHash(`#${event.hash}`, initialState(current.theme)),
+            layers: current.layers,
+            query: "",
+          });
+          const selected = store.get().selected;
+          if (selected) flyTo.current?.(selected);
+          const territory = store.get().territory;
+          if (territory) store.set({ query: territory });
         }
       }),
-    [backend, load],
+    [backend, load, store],
   );
 
   useEffect(() => {
@@ -133,7 +152,14 @@ export function App({ backend }: { backend: Backend }) {
     );
   }
   return (
-    <Shell backend={backend} store={store} loaded={loaded} scanning={scanning} notice={notice} />
+    <Shell
+      backend={backend}
+      store={store}
+      loaded={loaded}
+      scanning={scanning}
+      notice={notice}
+      flyTo={flyTo}
+    />
   );
 }
 
@@ -143,12 +169,14 @@ function Shell({
   loaded,
   scanning,
   notice,
+  flyTo,
 }: {
   backend: Backend;
   store: Store;
   loaded: Loaded;
   scanning: boolean;
   notice: string | undefined;
+  flyTo: React.RefObject<((id: string) => void) | undefined>;
 }) {
   const { meta, map, scene } = loaded;
   const mapRef = useRef<MapHandle>(null);
@@ -216,6 +244,12 @@ function Shell({
     [store],
   );
   const frame = useCallback((ids: string[]) => mapRef.current?.frame(ids), []);
+  useEffect(() => {
+    flyTo.current = (id) => mapRef.current?.flyTo(id);
+    return () => {
+      flyTo.current = undefined;
+    };
+  }, [flyTo]);
   // Saved only when chosen, so viewers who never toggle keep following their system setting.
   const toggleTheme = useCallback(
     (current: Theme) => {
@@ -241,6 +275,9 @@ function Shell({
         backend.live && meta.root.startsWith("/")
           ? `vscode://file${meta.root}/${file}${line ? `:${line}` : ""}`
           : undefined,
+      ...(backend.openFile
+        ? { openInEditor: (file: string, line?: number) => backend.openFile?.(file, line) }
+        : {}),
     }),
     [backend, store, meta, map, scene, state.theme, open, frame],
   );

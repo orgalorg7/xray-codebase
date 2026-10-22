@@ -179,3 +179,13 @@ export type DsmView = {
 };
 
 export type RoadsView = { depth: number; roads: Road[] };
+
+/** A declaration in one file with its usage counts: what editors show above code. */
+export type FileSymbol = Summary & {
+  line: number;
+  column: number;
+  /** Distinct functions and entry points that call or create it. */
+  callers: number;
+  /** Distinct nodes that depend on it in any way (calls, references, inheritance, ...). */
+  dependents: number;
+};
